@@ -1,0 +1,52 @@
+dataChoice=fFindChoice( 'E:\我的文件\上海神经所\轮转\徐宁龙\训鼠分析\curve\9' );
+p=find(dataChoice(1,:,1)==0);
+choice=squeeze(dataChoice(1,1:p-1,:));
+f28=find(choice(:,1)==28000);
+f7=find(choice(:,1)==7000);
+frp1=find(choice(:,1)==8533);
+frp2=find(choice(:,1)==10402);
+frp3=find(choice(:,1)==12680);
+flp1=find(choice(:,1)==15457);
+flp2=find(choice(:,1)==18842);
+flp3=find(choice(:,1)==22968);
+c28=sum((choice(:,1)==28000).*(choice(:,2)==1))/length(f28);
+c7=sum((choice(:,1)==7000).*(choice(:,2)==2))/length(f7);
+crp1=sum((choice(:,1)==8533).*(choice(:,2)==2))/length(frp1);
+crp2=sum((choice(:,1)==10402).*(choice(:,2)==2))/length(frp2);
+crp3=sum((choice(:,1)==12680).*(choice(:,2)==2))/length(frp3);
+clp1=sum((choice(:,1)==15457).*(choice(:,2)==1))/length(flp1);
+clp2=sum((choice(:,1)==18842).*(choice(:,2)==1))/length(flp2);
+clp3=sum((choice(:,1)==22968).*(choice(:,2)==1))/length(flp3);
+y=[c7,crp1,crp2,crp3,clp1,clp2,clp3,c28]';
+freq=[7000,8533,10402,12680,15457,18842,22968,28000]';
+
+toneOct = log2(freq/7000);
+% [bootstat_control_nonOpto, bootsam_nonOpto] = bootstrp(100, @(x, y) fit_logistic_psych_con(x, y,0), toneOct, y);
+% gof_nonOpto = [bootstat_control_nonOpto.gof];
+% rmse_nonOpto = [gof_nonOpto.rmse];
+% inds_use1_nonOpto = find(rmse_nonOpto < prctile(rmse_nonOpto,50));
+% a1_nonOpto = median([bootstat_control_nonOpto(inds_use1_nonOpto).a]);
+% b1_nonOpto = median([bootstat_control_nonOpto(inds_use1_nonOpto).b]);
+% c1_nonOpto = median([bootstat_control_nonOpto(inds_use1_nonOpto).c]);
+x1 = linspace(min(toneOct)-0.1, max(toneOct)+0.1, 100);
+
+figure;
+clf; hold on;
+% h_data_withoutOpto = plot(toneOct, y, 'k.','markersize',15); 
+% y1_nonOpto = a1_nonOpto./(1+exp(-(x1 - b1_nonOpto)/c1_nonOpto));
+% h_curve_nonOpto = plot(x1,y1_nonOpto,'k','linewidth',2);
+plot(toneOct,y,'k','linewidth',2);
+hold on;
+scatter(toneOct,y,40,'r');
+hold on;
+xtick = get(gca,'XTick');
+ylim([0,1.1]);
+%set(gca,'XTickLabel', round(2.^xtick*10)/10);
+xlabel('Octave','fontWeight','bold');
+ylabel('Frac L-Choice','fontWeight','bold');
+%xlabel('log frequency','FontName','Arial','FontSize',14);
+%ylabel('Percentage choosing left','FontName','Arial','FontSize',14);
+title('Psychometric curve of mouse','FontName','Arial','FontWeight','Bold','FontSize',16)
+hold on;
+plot([0,2],[1,1],'k','linewidth',2);
+set(gca,'FontName','Arial','FontSize',14)%设置坐标轴刻度字体名称，大小

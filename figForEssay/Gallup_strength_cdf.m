@@ -1,0 +1,10 @@
+data=zeros(size(cdfa));
+data(:,1:2)=cdfa(:,3:4);
+data(:,3)=cdfa(:,2);
+data(:,4)=cdfa(:,1);
+plot(data);
+hold on;
+legend('关系建立','战略思维','影响力','执行力');
+xlabel('优势主题排序');
+ylabel('累计主题数量');
+set(gca,'FontName','Black','FontSize',14);

@@ -1,0 +1,817 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>summarize2PepochAUC</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-11-17"><meta name="DC.source" content="summarize2PepochAUC.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">calculate AUC</a></li><li><a href="#3">plot histogram for choice AUC</a></li><li><a href="#4">plot bar</a></li><li><a href="#5">choice probability</a></li><li><a href="#6">functions</a></li></ul></div><pre class="codeinput">close <span class="string">all</span>;
+[num,txt,raw] =xlsread(<span class="string">'D:\xulab\project\imaging_data_summary.xlsx'</span>);<span class="comment">%criteria to choose sessions come from this file</span>
+savepath=<span class="string">'H:\2P\summary'</span>;
+clear <span class="string">TAUC_combine</span>;
+trialTypeStr=<span class="string">'cor and err'</span>;<span class="comment">%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together</span>
+AUCtype=<span class="string">'sensory'</span>;<span class="comment">%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli</span>
+</pre><h2 id="2">calculate AUC</h2><pre class="codeinput"><span class="comment">%{
+</span><span class="comment">T=cell2table(raw(2:end,1:11));
+</span><span class="comment">T.Properties.VariableNames=strrep(raw(1,1:11),' ','_');%table variable name can't have ' ',so replace them
+</span><span class="comment">ind_session=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control');
+</span><span class="comment">ind_session=find(ind_session);
+</span><span class="comment">n_session=length(ind_session);
+</span><span class="comment">animal_unique=unique(T.animal(ind_session));
+</span><span class="comment">n_animal=length(animal_unique);
+</span><span class="comment">
+</span><span class="comment">for i_session=1:n_session
+</span><span class="comment">    indrow=ind_session(i_session);
+</span><span class="comment">    TAUC_currentSession = fGetEpochAUCtableASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,AUCtype);
+</span><span class="comment">    if exist('TAUC_combine','var') &amp;&amp; strcmp(AUCtype,'stimuli') %calculate choice probability
+</span><span class="comment">        if size(TAUC_currentSession.ITI,2)==2
+</span><span class="comment">            TAUC_combine=vertcat(TAUC_combine,TAUC_currentSession);
+</span><span class="comment">        elseif size(TAUC_currentSession.ITI,2)&gt;2 %for sessions with probe sound, choose only the end sound
+</span><span class="comment">            TAUC_currentSession_formatted=TAUC_currentSession;
+</span><span class="comment">            for ivar=1:size(TAUC_currentSession_formatted,2)
+</span><span class="comment">                temp=table2array(TAUC_currentSession_formatted(:,ivar));
+</span><span class="comment">                if size(temp,2)&gt;2
+</span><span class="comment">                    tempvarname=TAUC_currentSession_formatted.Properties.VariableNames{ivar};
+</span><span class="comment">                    TAUC_currentSession_formatted=removevars(TAUC_currentSession_formatted,TAUC_currentSession_formatted.Properties.VariableNames{ivar});
+</span><span class="comment">                    TAUC_currentSession_formatted = addvars(TAUC_currentSession_formatted,temp(:,[1,end]),'NewVariableNames',tempvarname,'Before',TAUC_currentSession_formatted.Properties.VariableNames{ivar});
+</span><span class="comment">                end
+</span><span class="comment">            end
+</span><span class="comment">            TAUC_combine=vertcat(TAUC_combine,TAUC_currentSession_formatted);
+</span><span class="comment">        end
+</span><span class="comment">    elseif exist('TAUC_combine','var') &amp;&amp; ~strcmp(AUCtype,'stimuli')
+</span><span class="comment">        TAUC_combine=vertcat(TAUC_combine,TAUC_currentSession);
+</span><span class="comment">    else
+</span><span class="comment">        TAUC_combine=TAUC_currentSession;
+</span><span class="comment">    end
+</span><span class="comment">end
+</span><span class="comment">save([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat'],'TAUC_combine');
+</span><span class="comment">%}</span>
+</pre><h2 id="3">plot histogram for choice AUC</h2><pre class="codeinput"><span class="comment">%{
+</span><span class="comment">load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat']);
+</span><span class="comment">% load('F:\2P\summary\trialTypecorTepochAUC.mat');
+</span><span class="comment">celltype='syn';
+</span><span class="comment">manipulation='control';
+</span><span class="comment">%T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,'syn')|contains(TAUC_combine.celltype,'+other'),:);%syn, ..+other
+</span><span class="comment">T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
+</span><span class="comment">n_animal=length(unique(T_AUC.animal));
+</span><span class="comment">psig=[0.025,0.975];
+</span><span class="comment">figAUC=figure;
+</span><span class="comment">set(figAUC,'Position',[100,100,800,200]);
+</span><span class="comment">subplot(1,5,1);
+</span><span class="comment">histogram(T_AUC.ITI,'BinWidth',0.05);
+</span><span class="comment">hold on;
+</span><span class="comment">histogram(T_AUC.ITI(T_AUC.pITI&lt;psig(1)),'FaceColor','r','BinWidth',0.05);
+</span><span class="comment">histogram(T_AUC.ITI(T_AUC.pITI&gt;psig(2)),'FaceColor','m','BinWidth',0.05);
+</span><span class="comment">ylabel('cell counts');
+</span><span class="comment">xlabel('AUC');
+</span><span class="comment">title('ITI');
+</span><span class="comment">set(gca,'Xlim',[0,1]);
+</span><span class="comment">
+</span><span class="comment">box off;
+</span><span class="comment">subplot(1,5,2);
+</span><span class="comment">histogram(T_AUC.sound,'BinWidth',0.05);
+</span><span class="comment">hold on;
+</span><span class="comment">histogram(T_AUC.sound(T_AUC.psound&lt;psig(1)),'FaceColor','r','BinWidth',0.05);
+</span><span class="comment">histogram(T_AUC.sound(T_AUC.psound&gt;psig(2)),'FaceColor','m','BinWidth',0.05);
+</span><span class="comment">title('sound');
+</span><span class="comment">xlabel('AUC');
+</span><span class="comment">set(gca,'Xlim',[0,1]);
+</span><span class="comment">box off;
+</span><span class="comment">subplot(1,5,3);
+</span><span class="comment">histogram(T_AUC.delay,'BinWidth',0.05);
+</span><span class="comment">hold on;
+</span><span class="comment">histogram(T_AUC.delay(T_AUC.pdelay&lt;psig(1)),'FaceColor','r','BinWidth',0.05);
+</span><span class="comment">histogram(T_AUC.delay(T_AUC.pdelay&gt;psig(2)),'FaceColor','m','BinWidth',0.05);
+</span><span class="comment">title('delay');
+</span><span class="comment">xlabel('AUC');
+</span><span class="comment">set(gca,'Xlim',[0,1]);
+</span><span class="comment">box off;
+</span><span class="comment">subplot(1,5,4);
+</span><span class="comment">histogram(T_AUC.response,'BinWidth',0.05);
+</span><span class="comment">hold on;
+</span><span class="comment">histogram(T_AUC.response(T_AUC.presponse&lt;psig(1)),'FaceColor','r','BinWidth',0.05);
+</span><span class="comment">histogram(T_AUC.response(T_AUC.presponse&gt;psig(2)),'FaceColor','m','BinWidth',0.05);
+</span><span class="comment">title('response');
+</span><span class="comment">xlabel('AUC');
+</span><span class="comment">set(gca,'Xlim',[0,1]);
+</span><span class="comment">box off;
+</span><span class="comment">subplot(1,5,5);
+</span><span class="comment">histogram(T_AUC.lick,'BinWidth',0.05);
+</span><span class="comment">hold on;
+</span><span class="comment">histogram(T_AUC.lick(T_AUC.plick&lt;psig(1)),'FaceColor','r','BinWidth',0.05);
+</span><span class="comment">histogram(T_AUC.lick(T_AUC.plick&gt;psig(2)),'FaceColor','m','BinWidth',0.05);
+</span><span class="comment">title('lick');
+</span><span class="comment">xlabel('AUC');
+</span><span class="comment">text(0.1,0.9,['n=',num2str(size(T_AUC,1)),'cells from ',num2str(n_animal),'animals'],'Unit','Normalized');
+</span><span class="comment">set(gca,'Xlim',[0,1]);
+</span><span class="comment">box off;
+</span><span class="comment">%indcate example as vertical line
+</span><span class="comment">Tsorted=sortrows(TAUC_combine,{'delay','response'},{'ascend','descend'});
+</span><span class="comment">% indCaseRow=49;%shift from ipsi to contra
+</span><span class="comment">% for i=1:5
+</span><span class="comment">%     subplot(1,5,i);
+</span><span class="comment">%     plot( table2array(Tsorted(indCaseRow,5+i))*ones(2,1),ylim,'k-');hold on;
+</span><span class="comment">%     box off;
+</span><span class="comment">% end
+</span><span class="comment">% Tsorted=sortrows(TAUC_combine,{'delay','response'},{'descend','descend'});
+</span><span class="comment">% indCaseRow=1;%shift from contra to contra
+</span><span class="comment">% for i=1:5
+</span><span class="comment">%     subplot(1,5,i);
+</span><span class="comment">%     plot( table2array(Tsorted(indCaseRow,5+i))*ones(2,1),ylim,'r-');
+</span><span class="comment">%     box off;
+</span><span class="comment">% end
+</span><span class="comment">%save figure
+</span><span class="comment">saveas(figAUC,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'AUC at significance level of ',num2str(2*psig(1)),'.png'],'png');
+</span><span class="comment">set(figAUC,'PaperPosition',[0,0,8,2]);
+</span><span class="comment">saveas(figAUC,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'AUC at significance level of ',num2str(2*psig(1)),'.pdf'],'pdf');
+</span><span class="comment">%}</span>
+</pre><h2 id="4">plot bar</h2><pre class="codeinput"><span class="comment">%{
+</span><span class="comment">n_cell= size(T_AUC,1);
+</span><span class="comment">pAUCSigSC=zeros(3,4);%each row- contra, ipsi, n.s., each column- sound, delay, response, lick
+</span><span class="comment">pAUCSigSC(1,1)=sum(T_AUC.psound&lt;psig(1))/n_cell;
+</span><span class="comment">pAUCSigSC(2,1)=sum(T_AUC.psound&gt;psig(2))/n_cell;
+</span><span class="comment">pAUCSigSC(1,2)=sum(T_AUC.pdelay&lt;psig(1))/n_cell;
+</span><span class="comment">pAUCSigSC(2,2)=sum(T_AUC.pdelay&gt;psig(2))/n_cell;
+</span><span class="comment">pAUCSigSC(1,3)=sum(T_AUC.presponse&lt;psig(1))/n_cell;
+</span><span class="comment">pAUCSigSC(2,3)=sum(T_AUC.presponse&gt;psig(2))/n_cell;
+</span><span class="comment">pAUCSigSC(1,4)=sum(T_AUC.plick&lt;psig(1))/n_cell;
+</span><span class="comment">pAUCSigSC(2,4)=sum(T_AUC.plick&gt;psig(2))/n_cell;
+</span><span class="comment">pAUCSigSC(3,:)=1-sum(pAUCSigSC);
+</span><span class="comment">figBar=figure;
+</span><span class="comment">set(gcf,'PaperPosition',[0,0,3,1.2]);
+</span><span class="comment">subplot(1,2,2);
+</span><span class="comment">bar(pAUCSigSC','stacked');
+</span><span class="comment">map=[1,0,0;0,0,1;0.5,0.5,0.5];%red-contra, ipsi-blue, n.s.-grey
+</span><span class="comment">colormap(map);
+</span><span class="comment">box off;
+</span><span class="comment">%set(gca,'XTick',1:4,'XTickLabel',{'sound','delay','response','lick'});
+</span><span class="comment">set(gca,'XTick',1:4,'XTickLabel',{'S','D','R','L'});
+</span><span class="comment">title('SC neurons');
+</span><span class="comment">xlim([0,5]);
+</span><span class="comment">%set(gca,'FontSize',12);
+</span><span class="comment">SC_choice_AUC_005=table(n_cell*pAUCSigSC(1,:)',n_cell*pAUCSigSC(2,:)',n_cell*ones(4,1),'VariableNames',{'contra_sig','ipsi_sig','total_n'},'RowNames',{'sound';'delay';'response';'lick'});
+</span><span class="comment">save('H:\2P\summary\SC_choice_AUC_005.mat','SC_choice_AUC_005');
+</span><span class="comment">
+</span><span class="comment">subplot(1,2,1);%for SC projecting M2 neurons
+</span><span class="comment">load('H:\2P\summary\M2_choice_AUC_005.mat');
+</span><span class="comment">pAUCSigM2=zeros(3,4);
+</span><span class="comment">pAUCSigM2(1,:)=M2_choice_AUC_005.contra_sig./M2_choice_AUC_005.total_n;
+</span><span class="comment">pAUCSigM2(2,:)=M2_choice_AUC_005.ipsi_sig./M2_choice_AUC_005.total_n;
+</span><span class="comment">pAUCSigM2(3,:)=1-sum(pAUCSigM2);
+</span><span class="comment">bar(pAUCSigM2','stacked');
+</span><span class="comment">box off;
+</span><span class="comment">%set(gca,'XTick',1:4,'XTickLabel',{'sound','delay','response','lick'});
+</span><span class="comment">set(gca,'XTick',1:4,'XTickLabel',{'S','D','R','L'});
+</span><span class="comment">title('SC-projecting M2 neurons');
+</span><span class="comment">%set(gca,'FontSize',12);
+</span><span class="comment">xlim([0,5]);
+</span><span class="comment">h=legend('contra','ipsi','n.s.');
+</span><span class="comment">set(h,'box','off');
+</span><span class="comment">saveas(figBar,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'-bar plot of AUC at significance level of ',num2str(2*psig(1)),'.pdf'],'pdf');
+</span><span class="comment">%}</span>
+</pre><h2 id="5">choice probability</h2><pre class="codeinput"><span class="comment">%choose cells with significant delay/sound choice AUC</span>
+trialTypeStr_datapool=<span class="string">'cor and err'</span>;<span class="comment">%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together</span>
+AUCtype_datapool=<span class="string">'sensory'</span>;<span class="comment">%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli</span>
+load([savepath,filesep,<span class="string">'trialType'</span>,trialTypeStr_datapool,<span class="string">'-'</span>,AUCtype_datapool,<span class="string">'TepochAUC.mat'</span>]);
+celltype=<span class="string">'syn'</span>;
+T_AUCs=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
+psig=[0,0.025;0.975,1];
+TsigDataInfosensory = fGetSigDataInfoTable(T_AUCs, psig,AUCtype_datapool);
+
+AUCtype_datapool=<span class="string">'choice'</span>;<span class="comment">%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli</span>
+load([savepath,filesep,<span class="string">'trialType'</span>,trialTypeStr_datapool,<span class="string">'-'</span>,AUCtype_datapool,<span class="string">'TepochAUC.mat'</span>]);
+celltype=<span class="string">'syn'</span>;
+T_AUCc=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
+psig=[0,0.025;0.975,1];
+TsigDataInfochoice = fGetSigDataInfoTable(T_AUCc, psig,AUCtype_datapool);
+
+T_sig=join(TsigDataInfosensory,TsigDataInfochoice,<span class="string">'Keys'</span>,{<span class="string">'animal'</span>,<span class="string">'date'</span>,<span class="string">'nROI'</span>});
+
+trialTypeStr=<span class="string">'cor'</span>;<span class="comment">%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together</span>
+AUCtype=<span class="string">'stimuli'</span>;<span class="comment">%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli</span>
+load([savepath,filesep,<span class="string">'trialType'</span>,trialTypeStr,<span class="string">'-'</span>,AUCtype,<span class="string">'TepochAUC.mat'</span>]);
+T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
+<span class="comment">% T_AUC.ID=strcat(T_AUC.animal,'-',T_AUC.date,'-',int2str(T_AUC.nROI));</span>
+
+T_join=join(T_AUC,T_sig,<span class="string">'Keys'</span>,{<span class="string">'animal'</span>,<span class="string">'date'</span>,<span class="string">'nROI'</span>});
+
+[flag1,flag2]=fSigFlag(T_AUCs.sound,T_AUCs.psound,T_AUCc.sound,T_AUCc.psound,psig);
+T_join=addvars(T_join,flag1,flag2,<span class="string">'NewVariableNames'</span>,{<span class="string">'flags1'</span>,<span class="string">'flags2'</span>});
+[flag1,flag2]=fSigFlag(T_AUCs.delay,T_AUCs.pdelay,T_AUCc.delay,T_AUCc.pdelay,psig);
+T_join=addvars(T_join,flag1,flag2,<span class="string">'NewVariableNames'</span>,{<span class="string">'flagd1'</span>,<span class="string">'flagd2'</span>});
+[flag1,flag2]=fSigFlag(T_AUCs.response,T_AUCs.presponse,T_AUCc.response,T_AUCc.presponse,psig);
+T_join=addvars(T_join,flag1,flag2,<span class="string">'NewVariableNames'</span>,{<span class="string">'flagr1'</span>,<span class="string">'flagr2'</span>});
+[flag1,flag2]=fSigFlag(T_AUCs.lick,T_AUCs.plick,T_AUCc.lick,T_AUCc.plick,psig);
+T_join=addvars(T_join,flag1,flag2,<span class="string">'NewVariableNames'</span>,{<span class="string">'flagl1'</span>,<span class="string">'flagl2'</span>});
+
+figAUC=figure;
+set(figAUC,<span class="string">'Position'</span>,[100,100,600,200]);
+subplot(1,3,1);
+<span class="comment">% histogram(T_join.sound,'BinWidth',0.05);</span>
+hold <span class="string">on</span>;
+histogram([T_join.sound(T_join.flagCAUCsound&gt;0,2);T_join.sound(T_join.flagCAUCsound&lt;0,1)],<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'BinWidth'</span>,0.05);
+histogram(T_join.sound(T_join.flagCAUCsound&lt;0,1),<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'BinWidth'</span>,0.05);
+<span class="comment">% xlabel('AUC error v.s.correct for prefered stimulus')</span>
+ylabel(<span class="string">'cell number'</span>);
+set(gca,<span class="string">'Xlim'</span>,[0,1]);
+title(<span class="string">'sound'</span>);
+
+subplot(1,3,2);
+<span class="comment">% histogram(T_join.delay(:,2),'BinWidth',0.05);</span>
+hold <span class="string">on</span>;
+histogram([T_join.delay(T_join.flagCAUCdelay&gt;0,2);T_join.delay(T_join.flagCAUCdelay&lt;0,1)],<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'BinWidth'</span>,0.05);
+histogram(T_join.delay(T_join.flagCAUCdelay&lt;0,1),<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'BinWidth'</span>,0.05);
+xlabel(<span class="string">'AUC error v.s.correct for prefered stimulus'</span>)
+ylabel(<span class="string">'cell number'</span>);
+set(gca,<span class="string">'Xlim'</span>,[0,1]);
+title(<span class="string">'delay'</span>);
+
+subplot(1,3,3);
+<span class="comment">% histogram(T_join.delay(:,2),'BinWidth',0.05);</span>
+hold <span class="string">on</span>;
+histogram([T_join.lick(T_join.flagCAUClick&gt;0,2);T_join.lick(T_join.flagCAUClick&lt;0,1)],<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'BinWidth'</span>,0.05);
+histogram(T_join.lick(T_join.flagCAUClick&lt;0,1),<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'BinWidth'</span>,0.05);
+<span class="comment">% xlabel('AUC error v.s.correct for prefered stimulus')</span>
+ylabel(<span class="string">'cell number'</span>);
+set(gca,<span class="string">'Xlim'</span>,[0,1]);
+<span class="comment">% legend('n.s.','contra','ipsi');</span>
+h=legend(<span class="string">'contra'</span>,<span class="string">'ipsi'</span>);
+set(h,<span class="string">'box'</span>,<span class="string">'off'</span>);
+title(<span class="string">'lick'</span>);
+set(figAUC,<span class="string">'PaperPosition'</span>,[0,0,6,2]);
+saveas(figAUC,[savepath,filesep,celltype,<span class="string">'-'</span>,trialTypeStr,<span class="string">'-'</span>,AUCtype,<span class="string">'AUC error vs correct prefered stimulus.pdf'</span>],<span class="string">'pdf'</span>);
+
+figAUC2=figure;
+set(figAUC2,<span class="string">'Position'</span>,[100,100,600,200]);
+subplot(1,3,1);
+<span class="comment">% histogram(T_join.sound,'BinWidth',0.05);</span>
+hold <span class="string">on</span>;
+histogram([T_join.sound(T_join.flags2,2);T_join.sound(T_join.flags1,1)],<span class="string">'FaceColor'</span>,<span class="string">'w'</span>,<span class="string">'BinWidth'</span>,0.05);
+histogram([T_join.sound(logical(T_join.flags2.*findSig(T_join.psound(:,2),psig).*(T_join.sound(:,2)&gt;0.5)),2);T_join.sound(logical(T_join.flags1.*findSig(T_join.psound(:,1),psig).*(T_join.sound(:,1)&gt;0.5)),1)],<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'BinWidth'</span>,0.05);
+histogram([T_join.sound(logical(T_join.flags2.*findSig(T_join.psound(:,2),psig).*(T_join.sound(:,2)&lt;0.5)),2);T_join.sound(logical(T_join.flags1.*findSig(T_join.psound(:,1),psig).*(T_join.sound(:,1)&lt;0.5)),1)],<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'BinWidth'</span>,0.05);
+ylabel(<span class="string">'cell number'</span>);
+set(gca,<span class="string">'Xlim'</span>,[0,1]);
+title(<span class="string">'sound'</span>);
+
+subplot(1,3,2);
+<span class="comment">% histogram(T_join.sound,'BinWidth',0.05);</span>
+hold <span class="string">on</span>;
+histogram([T_join.delay(T_join.flagd2,2);T_join.delay(T_join.flagd1,1)],<span class="string">'FaceColor'</span>,<span class="string">'w'</span>,<span class="string">'BinWidth'</span>,0.05);
+histogram([T_join.delay(logical(T_join.flagd2.*findSig(T_join.pdelay(:,2),psig).*(T_join.delay(:,2)&gt;0.5)),2);T_join.delay(logical(T_join.flagd1.*findSig(T_join.pdelay(:,1),psig).*(T_join.delay(:,1)&gt;0.5)),1)],<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'BinWidth'</span>,0.05);
+histogram([T_join.delay(logical(T_join.flagd2.*findSig(T_join.pdelay(:,2),psig).*(T_join.delay(:,2)&lt;0.5)),2);T_join.delay(logical(T_join.flagd1.*findSig(T_join.pdelay(:,1),psig).*(T_join.delay(:,1)&lt;0.5)),1)],<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'BinWidth'</span>,0.05);
+ylabel(<span class="string">'cell number'</span>);
+set(gca,<span class="string">'Xlim'</span>,[0,1]);
+title(<span class="string">'delay'</span>);
+xlabel(<span class="string">'AUC correct v.s.error for prefered stimulus'</span>);
+
+subplot(1,3,3);
+<span class="comment">% histogram(T_join.sound,'BinWidth',0.05);</span>
+hold <span class="string">on</span>;
+histogram([T_join.lick(T_join.flagl2,2);T_join.lick(T_join.flagl1,1)],<span class="string">'FaceColor'</span>,<span class="string">'w'</span>,<span class="string">'BinWidth'</span>,0.05);
+histogram([T_join.lick(logical(T_join.flagl2.*findSig(T_join.plick(:,2),psig).*(T_join.lick(:,2)&gt;0.5)),2);T_join.lick(logical(T_join.flagl1.*findSig(T_join.plick(:,1),psig).*(T_join.lick(:,1)&gt;0.5)),1)],<span class="string">'FaceColor'</span>,<span class="string">'r'</span>,<span class="string">'BinWidth'</span>,0.05);
+histogram([T_join.lick(logical(T_join.flagl2.*findSig(T_join.plick(:,2),psig).*(T_join.lick(:,2)&lt;0.5)),2);T_join.lick(logical(T_join.flagl1.*findSig(T_join.plick(:,1),psig).*(T_join.lick(:,1)&lt;0.5)),1)],<span class="string">'FaceColor'</span>,<span class="string">'b'</span>,<span class="string">'BinWidth'</span>,0.05);
+
+ylabel(<span class="string">'cell number'</span>);
+set(gca,<span class="string">'Xlim'</span>,[0,1]);
+title(<span class="string">'lick'</span>);
+h=legend(<span class="string">'n.s.'</span>,<span class="string">'contra'</span>,<span class="string">'ipsi'</span>);
+set(h,<span class="string">'box'</span>,<span class="string">'off'</span>);
+
+set(figAUC2,<span class="string">'PaperPosition'</span>,[0,0,6,2]);
+saveas(figAUC2,[savepath,filesep,celltype,<span class="string">'-'</span>,trialTypeStr,<span class="string">'-'</span>,AUCtype,<span class="string">'AUC cor vs err prefered stimulus significance p0.05.pdf'</span>],<span class="string">'pdf'</span>);
+</pre><pre class="codeoutput">Warning: The assignment added rows to the table, but did not assign values to
+all of the table's existing variables. Those variables will extended with rows
+containing default values. 
+Warning: The assignment added rows to the table, but did not assign values to
+all of the table's existing variables. Those variables will extended with rows
+containing default values. 
+Warning: The assignment added rows to the table, but did not assign values to
+all of the table's existing variables. Those variables will extended with rows
+containing default values. 
+</pre><pre class="codeoutput error">Error using tabular/join (line 130)
+Left and right key variables 'animal' and 'animal' include cells containing non-character vector values.
+
+Error in summarize2PepochAUC (line 186)
+T_sig=join(TsigDataInfosensory,TsigDataInfochoice,'Keys',{'animal','date','nROI'});
+</pre><h2 id="6">functions</h2><pre class="codeinput"><span class="keyword">function</span> [flag1,flag2]=fSigFlag(SAUC,pSAUC,CAUC,pCAUC,p_range)
+<span class="comment">%p_range- the range of significance p value</span>
+<span class="keyword">if</span> length(SAUC)~=length(CAUC)
+    warning(<span class="string">'unequal rows of input table'</span>);
+    <span class="keyword">return</span>;
+<span class="keyword">end</span>
+[indsigS,indsigC,flag1,flag2]=deal(zeros(length(SAUC),1));
+<span class="keyword">for</span> i=1:size(p_range,1) <span class="comment">%&#27599;&#19968;&#34892;&#19968;&#20010;&#21306;&#38388;&#27573;&#65292;&#21508;&#34892;&#20043;&#38388;&#21462;&#24182;&#38598;</span>
+    indsigS=logical((pSAUC&lt;=p_range(i,2)).*(pSAUC&gt;=p_range(i,1))+indsigS);
+    indsigC=logical((pCAUC&lt;=p_range(i,2)).*(pCAUC&gt;=p_range(i,1))+indsigC);
+<span class="keyword">end</span>
+<span class="keyword">for</span> irow=1:length(SAUC)
+    <span class="keyword">if</span> (indsigS(irow) &amp;&amp; ~indsigC(irow)) || (indsigS(irow) &amp;&amp; indsigC(irow) &amp;&amp; abs(SAUC(irow)-0.5)&gt;=abs(CAUC(irow)-0.5))
+        <span class="keyword">if</span> SAUC(irow)&gt;0.5
+            flag2(irow)=1;
+        <span class="keyword">else</span>
+            flag1(irow)=1;
+        <span class="keyword">end</span>
+    <span class="keyword">elseif</span> (~indsigS(irow) &amp;&amp; indsigC(irow))|| (indsigS(irow) &amp;&amp; indsigC(irow) &amp;&amp; abs(SAUC(irow)-0.5)&lt;abs(CAUC(irow)-0.5))
+        <span class="keyword">if</span> CAUC(irow)&gt;0.5
+            flag2(irow)=1;
+        <span class="keyword">else</span>
+            flag1(irow)=1;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+flag1=logical(flag1);
+flag2=logical(flag2);
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> [TsigDataInfo] = fGetSigDataInfoTable(Tin, p_range,strAUCtype)
+<span class="comment">% summary the significance table using Tin and setted range of significant</span>
+<span class="comment">% p value</span>
+[indsigsound,indsigdelay,indsigresponse,indsiglick]=deal(zeros(size(Tin,1),1));
+<span class="keyword">for</span> i=1:size(p_range,1) <span class="comment">%&#27599;&#19968;&#34892;&#19968;&#20010;&#21306;&#38388;&#27573;&#65292;&#21508;&#34892;&#20043;&#38388;&#21462;&#24182;&#38598;</span>
+    indsigsound=logical((Tin.psound&lt;=p_range(i,2)).*(Tin.psound&gt;=p_range(i,1))+indsigsound);
+    indsigdelay=logical((Tin.pdelay&lt;=p_range(i,2)).*(Tin.pdelay&gt;=p_range(i,1))+indsigdelay);
+    indsigresponse=logical((Tin.presponse&lt;=p_range(i,2)).*(Tin.presponse&gt;=p_range(i,1))+indsigresponse);
+    indsiglick=logical((Tin.plick&lt;=p_range(i,2)).*(Tin.plick&gt;=p_range(i,1))+indsiglick);
+<span class="keyword">end</span>
+indsigContraSound=logical(indsigsound.*(Tin.sound&gt;0.5));
+indsigIpsiSound=logical(indsigsound.*(Tin.sound&lt;0.5));
+indNSSound= ~indsigsound;
+indsigContraDelay=logical(indsigdelay.*(Tin.delay&gt;0.5));
+indsigIpsiDelay=logical(indsigdelay.*(Tin.delay&lt;0.5));
+indNSDelay= ~indsigdelay;
+indsigContraResponse=logical(indsigresponse.*(Tin.response&gt;0.5));
+indsigIpsiResponse=logical(indsigresponse.*(Tin.response&lt;0.5));
+indNSResponse= ~indsigresponse;
+indsigContraLick=logical(indsiglick.*(Tin.lick&gt;0.5));
+indsigIpsiLick=logical(indsiglick.*(Tin.lick&lt;0.5));
+indNSLick= ~indsiglick;
+TsigDataInfo=Tin(:,{<span class="string">'animal'</span>,<span class="string">'date'</span>,<span class="string">'nROI'</span>});
+<span class="keyword">if</span> strcmp(strAUCtype,<span class="string">'sensory'</span>)
+    TsigDataInfo.flagSAUCsound(indsigContraSound)=1;
+    TsigDataInfo.flagSAUCsound(indsigIpsiSound)=-1;
+    TsigDataInfo.flagSAUCsound(indNSSound)=0;
+    TsigDataInfo.flagSAUCdelay(indsigContraDelay)=1;
+    TsigDataInfo.flagSAUCdelay(indsigIpsiDelay)=-1;
+    TsigDataInfo.flagSAUCdelay(indNSDelay)=0;
+    TsigDataInfo.flagSAUCresponse(indsigContraResponse)=1;
+    TsigDataInfo.flagSAUCresponse(indsigIpsiResponse)=-1;
+    TsigDataInfo.flagSAUCresponse(indNSResponse)=0;
+    TsigDataInfo.flagSAUClick(indsigContraLick)=1;
+    TsigDataInfo.flagSAUClick(indsigIpsiLick)=-1;
+    TsigDataInfo.flagSAUClick(indNSLick)=0;
+<span class="keyword">elseif</span> strcmp(strAUCtype,<span class="string">'choice'</span>)
+    TsigDataInfo.flagCAUCsound(indsigContraSound)=1;
+    TsigDataInfo.flagCAUCsound(indsigIpsiSound)=-1;
+    TsigDataInfo.flagCAUCsound(indNSSound)=0;
+    TsigDataInfo.flagCAUCdelay(indsigContraDelay)=1;
+    TsigDataInfo.flagCAUCdelay(indsigIpsiDelay)=-1;
+    TsigDataInfo.flagCAUCdelay(indNSDelay)=0;
+    TsigDataInfo.flagCAUCresponse(indsigContraResponse)=1;
+    TsigDataInfo.flagCAUCresponse(indsigIpsiResponse)=-1;
+    TsigDataInfo.flagCAUCresponse(indNSResponse)=0;
+    TsigDataInfo.flagCAUClick(indsigContraLick)=1;
+    TsigDataInfo.flagCAUClick(indsigIpsiLick)=-1;
+    TsigDataInfo.flagCAUClick(indNSLick)=0;
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> [ind]=findSig(var,pSig)
+ind=zeros(length(var),1);
+<span class="keyword">for</span> i=1:size(pSig,1) <span class="comment">%&#27599;&#19968;&#34892;&#19968;&#20010;&#21306;&#38388;&#27573;&#65292;&#21508;&#34892;&#20043;&#38388;&#21462;&#24182;&#38598;</span>
+    ind=logical((var&lt;=pSig(i,2)).*(var&gt;=pSig(i,1))+ind);
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+close all;
+[num,txt,raw] =xlsread('D:\xulab\project\imaging_data_summary.xlsx');%criteria to choose sessions come from this file
+savepath='H:\2P\summary';
+clear TAUC_combine;
+trialTypeStr='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+AUCtype='sensory';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+%% calculate AUC
+%{
+T=cell2table(raw(2:end,1:11));
+T.Properties.VariableNames=strrep(raw(1,1:11),' ','_');%table variable name can't have ' ',so replace them
+ind_session=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control');
+ind_session=find(ind_session);
+n_session=length(ind_session);
+animal_unique=unique(T.animal(ind_session));
+n_animal=length(animal_unique);
+
+for i_session=1:n_session
+    indrow=ind_session(i_session);
+    TAUC_currentSession = fGetEpochAUCtableASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,AUCtype);
+    if exist('TAUC_combine','var') && strcmp(AUCtype,'stimuli') %calculate choice probability
+        if size(TAUC_currentSession.ITI,2)==2
+            TAUC_combine=vertcat(TAUC_combine,TAUC_currentSession);
+        elseif size(TAUC_currentSession.ITI,2)>2 %for sessions with probe sound, choose only the end sound
+            TAUC_currentSession_formatted=TAUC_currentSession;
+            for ivar=1:size(TAUC_currentSession_formatted,2)
+                temp=table2array(TAUC_currentSession_formatted(:,ivar));
+                if size(temp,2)>2
+                    tempvarname=TAUC_currentSession_formatted.Properties.VariableNames{ivar};
+                    TAUC_currentSession_formatted=removevars(TAUC_currentSession_formatted,TAUC_currentSession_formatted.Properties.VariableNames{ivar});
+                    TAUC_currentSession_formatted = addvars(TAUC_currentSession_formatted,temp(:,[1,end]),'NewVariableNames',tempvarname,'Before',TAUC_currentSession_formatted.Properties.VariableNames{ivar});
+                end
+            end
+            TAUC_combine=vertcat(TAUC_combine,TAUC_currentSession_formatted);
+        end
+    elseif exist('TAUC_combine','var') && ~strcmp(AUCtype,'stimuli')
+        TAUC_combine=vertcat(TAUC_combine,TAUC_currentSession);
+    else
+        TAUC_combine=TAUC_currentSession;
+    end
+end
+save([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat'],'TAUC_combine');
+%}
+%% plot histogram for choice AUC 
+%{
+load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat']);
+% load('F:\2P\summary\trialTypecorTepochAUC.mat');
+celltype='syn';
+manipulation='control';
+%T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,'syn')|contains(TAUC_combine.celltype,'+other'),:);%syn, ..+other
+T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
+n_animal=length(unique(T_AUC.animal));
+psig=[0.025,0.975];
+figAUC=figure;
+set(figAUC,'Position',[100,100,800,200]);
+subplot(1,5,1);
+histogram(T_AUC.ITI,'BinWidth',0.05);
+hold on;
+histogram(T_AUC.ITI(T_AUC.pITI<psig(1)),'FaceColor','r','BinWidth',0.05);
+histogram(T_AUC.ITI(T_AUC.pITI>psig(2)),'FaceColor','m','BinWidth',0.05);
+ylabel('cell counts');
+xlabel('AUC');
+title('ITI');
+set(gca,'Xlim',[0,1]);
+
+box off;
+subplot(1,5,2);
+histogram(T_AUC.sound,'BinWidth',0.05);
+hold on;
+histogram(T_AUC.sound(T_AUC.psound<psig(1)),'FaceColor','r','BinWidth',0.05);
+histogram(T_AUC.sound(T_AUC.psound>psig(2)),'FaceColor','m','BinWidth',0.05);
+title('sound');
+xlabel('AUC');
+set(gca,'Xlim',[0,1]);
+box off;
+subplot(1,5,3);
+histogram(T_AUC.delay,'BinWidth',0.05);
+hold on;
+histogram(T_AUC.delay(T_AUC.pdelay<psig(1)),'FaceColor','r','BinWidth',0.05);
+histogram(T_AUC.delay(T_AUC.pdelay>psig(2)),'FaceColor','m','BinWidth',0.05);
+title('delay');
+xlabel('AUC');
+set(gca,'Xlim',[0,1]);
+box off;
+subplot(1,5,4);
+histogram(T_AUC.response,'BinWidth',0.05);
+hold on;
+histogram(T_AUC.response(T_AUC.presponse<psig(1)),'FaceColor','r','BinWidth',0.05);
+histogram(T_AUC.response(T_AUC.presponse>psig(2)),'FaceColor','m','BinWidth',0.05);
+title('response');
+xlabel('AUC');
+set(gca,'Xlim',[0,1]);
+box off;
+subplot(1,5,5);
+histogram(T_AUC.lick,'BinWidth',0.05);
+hold on;
+histogram(T_AUC.lick(T_AUC.plick<psig(1)),'FaceColor','r','BinWidth',0.05);
+histogram(T_AUC.lick(T_AUC.plick>psig(2)),'FaceColor','m','BinWidth',0.05);
+title('lick');
+xlabel('AUC');
+text(0.1,0.9,['n=',num2str(size(T_AUC,1)),'cells from ',num2str(n_animal),'animals'],'Unit','Normalized');
+set(gca,'Xlim',[0,1]);
+box off;
+%indcate example as vertical line
+Tsorted=sortrows(TAUC_combine,{'delay','response'},{'ascend','descend'});
+% indCaseRow=49;%shift from ipsi to contra
+% for i=1:5
+%     subplot(1,5,i);
+%     plot( table2array(Tsorted(indCaseRow,5+i))*ones(2,1),ylim,'k-');hold on;
+%     box off;
+% end
+% Tsorted=sortrows(TAUC_combine,{'delay','response'},{'descend','descend'});
+% indCaseRow=1;%shift from contra to contra
+% for i=1:5
+%     subplot(1,5,i);
+%     plot( table2array(Tsorted(indCaseRow,5+i))*ones(2,1),ylim,'r-');
+%     box off;
+% end
+%save figure
+saveas(figAUC,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'AUC at significance level of ',num2str(2*psig(1)),'.png'],'png');
+set(figAUC,'PaperPosition',[0,0,8,2]);
+saveas(figAUC,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'AUC at significance level of ',num2str(2*psig(1)),'.pdf'],'pdf');
+%}
+%% plot bar
+%{
+n_cell= size(T_AUC,1);
+pAUCSigSC=zeros(3,4);%each row- contra, ipsi, n.s., each column- sound, delay, response, lick
+pAUCSigSC(1,1)=sum(T_AUC.psound<psig(1))/n_cell;
+pAUCSigSC(2,1)=sum(T_AUC.psound>psig(2))/n_cell;
+pAUCSigSC(1,2)=sum(T_AUC.pdelay<psig(1))/n_cell;
+pAUCSigSC(2,2)=sum(T_AUC.pdelay>psig(2))/n_cell;
+pAUCSigSC(1,3)=sum(T_AUC.presponse<psig(1))/n_cell;
+pAUCSigSC(2,3)=sum(T_AUC.presponse>psig(2))/n_cell;
+pAUCSigSC(1,4)=sum(T_AUC.plick<psig(1))/n_cell;
+pAUCSigSC(2,4)=sum(T_AUC.plick>psig(2))/n_cell;
+pAUCSigSC(3,:)=1-sum(pAUCSigSC);
+figBar=figure;
+set(gcf,'PaperPosition',[0,0,3,1.2]);
+subplot(1,2,2);
+bar(pAUCSigSC','stacked');
+map=[1,0,0;0,0,1;0.5,0.5,0.5];%red-contra, ipsi-blue, n.s.-grey
+colormap(map);
+box off;
+%set(gca,'XTick',1:4,'XTickLabel',{'sound','delay','response','lick'});
+set(gca,'XTick',1:4,'XTickLabel',{'S','D','R','L'});
+title('SC neurons');
+xlim([0,5]);
+%set(gca,'FontSize',12);
+SC_choice_AUC_005=table(n_cell*pAUCSigSC(1,:)',n_cell*pAUCSigSC(2,:)',n_cell*ones(4,1),'VariableNames',{'contra_sig','ipsi_sig','total_n'},'RowNames',{'sound';'delay';'response';'lick'});
+save('H:\2P\summary\SC_choice_AUC_005.mat','SC_choice_AUC_005');
+
+subplot(1,2,1);%for SC projecting M2 neurons
+load('H:\2P\summary\M2_choice_AUC_005.mat');
+pAUCSigM2=zeros(3,4);
+pAUCSigM2(1,:)=M2_choice_AUC_005.contra_sig./M2_choice_AUC_005.total_n;
+pAUCSigM2(2,:)=M2_choice_AUC_005.ipsi_sig./M2_choice_AUC_005.total_n;
+pAUCSigM2(3,:)=1-sum(pAUCSigM2);
+bar(pAUCSigM2','stacked');
+box off;
+%set(gca,'XTick',1:4,'XTickLabel',{'sound','delay','response','lick'});
+set(gca,'XTick',1:4,'XTickLabel',{'S','D','R','L'});
+title('SC-projecting M2 neurons');
+%set(gca,'FontSize',12);
+xlim([0,5]);
+h=legend('contra','ipsi','n.s.');
+set(h,'box','off');
+saveas(figBar,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'-bar plot of AUC at significance level of ',num2str(2*psig(1)),'.pdf'],'pdf');
+%}
+
+%% choice probability
+%choose cells with significant delay/sound choice AUC
+trialTypeStr_datapool='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+AUCtype_datapool='sensory';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+load([savepath,filesep,'trialType',trialTypeStr_datapool,'-',AUCtype_datapool,'TepochAUC.mat']);
+celltype='syn';
+T_AUCs=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
+psig=[0,0.025;0.975,1];
+TsigDataInfosensory = fGetSigDataInfoTable(T_AUCs, psig,AUCtype_datapool);
+
+AUCtype_datapool='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+load([savepath,filesep,'trialType',trialTypeStr_datapool,'-',AUCtype_datapool,'TepochAUC.mat']);
+celltype='syn';
+T_AUCc=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
+psig=[0,0.025;0.975,1];
+TsigDataInfochoice = fGetSigDataInfoTable(T_AUCc, psig,AUCtype_datapool);
+
+T_sig=join(TsigDataInfosensory,TsigDataInfochoice,'Keys',{'animal','date','nROI'});
+
+trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+AUCtype='stimuli';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat']);
+T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
+% T_AUC.ID=strcat(T_AUC.animal,'-',T_AUC.date,'-',int2str(T_AUC.nROI));
+
+T_join=join(T_AUC,T_sig,'Keys',{'animal','date','nROI'});
+
+[flag1,flag2]=fSigFlag(T_AUCs.sound,T_AUCs.psound,T_AUCc.sound,T_AUCc.psound,psig);
+T_join=addvars(T_join,flag1,flag2,'NewVariableNames',{'flags1','flags2'});
+[flag1,flag2]=fSigFlag(T_AUCs.delay,T_AUCs.pdelay,T_AUCc.delay,T_AUCc.pdelay,psig);
+T_join=addvars(T_join,flag1,flag2,'NewVariableNames',{'flagd1','flagd2'});
+[flag1,flag2]=fSigFlag(T_AUCs.response,T_AUCs.presponse,T_AUCc.response,T_AUCc.presponse,psig);
+T_join=addvars(T_join,flag1,flag2,'NewVariableNames',{'flagr1','flagr2'});
+[flag1,flag2]=fSigFlag(T_AUCs.lick,T_AUCs.plick,T_AUCc.lick,T_AUCc.plick,psig);
+T_join=addvars(T_join,flag1,flag2,'NewVariableNames',{'flagl1','flagl2'});
+
+figAUC=figure;
+set(figAUC,'Position',[100,100,600,200]);
+subplot(1,3,1);
+% histogram(T_join.sound,'BinWidth',0.05);
+hold on;
+histogram([T_join.sound(T_join.flagCAUCsound>0,2);T_join.sound(T_join.flagCAUCsound<0,1)],'FaceColor','r','BinWidth',0.05);
+histogram(T_join.sound(T_join.flagCAUCsound<0,1),'FaceColor','b','BinWidth',0.05);
+% xlabel('AUC error v.s.correct for prefered stimulus')
+ylabel('cell number');
+set(gca,'Xlim',[0,1]);
+title('sound');
+
+subplot(1,3,2);
+% histogram(T_join.delay(:,2),'BinWidth',0.05);
+hold on;
+histogram([T_join.delay(T_join.flagCAUCdelay>0,2);T_join.delay(T_join.flagCAUCdelay<0,1)],'FaceColor','r','BinWidth',0.05);
+histogram(T_join.delay(T_join.flagCAUCdelay<0,1),'FaceColor','b','BinWidth',0.05);
+xlabel('AUC error v.s.correct for prefered stimulus')
+ylabel('cell number');
+set(gca,'Xlim',[0,1]);
+title('delay');
+
+subplot(1,3,3);
+% histogram(T_join.delay(:,2),'BinWidth',0.05);
+hold on;
+histogram([T_join.lick(T_join.flagCAUClick>0,2);T_join.lick(T_join.flagCAUClick<0,1)],'FaceColor','r','BinWidth',0.05);
+histogram(T_join.lick(T_join.flagCAUClick<0,1),'FaceColor','b','BinWidth',0.05);
+% xlabel('AUC error v.s.correct for prefered stimulus')
+ylabel('cell number');
+set(gca,'Xlim',[0,1]);
+% legend('n.s.','contra','ipsi');
+h=legend('contra','ipsi');
+set(h,'box','off');
+title('lick');
+set(figAUC,'PaperPosition',[0,0,6,2]);
+saveas(figAUC,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'AUC error vs correct prefered stimulus.pdf'],'pdf');
+
+figAUC2=figure;
+set(figAUC2,'Position',[100,100,600,200]);
+subplot(1,3,1);
+% histogram(T_join.sound,'BinWidth',0.05);
+hold on;
+histogram([T_join.sound(T_join.flags2,2);T_join.sound(T_join.flags1,1)],'FaceColor','w','BinWidth',0.05);
+histogram([T_join.sound(logical(T_join.flags2.*findSig(T_join.psound(:,2),psig).*(T_join.sound(:,2)>0.5)),2);T_join.sound(logical(T_join.flags1.*findSig(T_join.psound(:,1),psig).*(T_join.sound(:,1)>0.5)),1)],'FaceColor','r','BinWidth',0.05);
+histogram([T_join.sound(logical(T_join.flags2.*findSig(T_join.psound(:,2),psig).*(T_join.sound(:,2)<0.5)),2);T_join.sound(logical(T_join.flags1.*findSig(T_join.psound(:,1),psig).*(T_join.sound(:,1)<0.5)),1)],'FaceColor','b','BinWidth',0.05);
+ylabel('cell number');
+set(gca,'Xlim',[0,1]);
+title('sound');
+
+subplot(1,3,2);
+% histogram(T_join.sound,'BinWidth',0.05);
+hold on;
+histogram([T_join.delay(T_join.flagd2,2);T_join.delay(T_join.flagd1,1)],'FaceColor','w','BinWidth',0.05);
+histogram([T_join.delay(logical(T_join.flagd2.*findSig(T_join.pdelay(:,2),psig).*(T_join.delay(:,2)>0.5)),2);T_join.delay(logical(T_join.flagd1.*findSig(T_join.pdelay(:,1),psig).*(T_join.delay(:,1)>0.5)),1)],'FaceColor','r','BinWidth',0.05);
+histogram([T_join.delay(logical(T_join.flagd2.*findSig(T_join.pdelay(:,2),psig).*(T_join.delay(:,2)<0.5)),2);T_join.delay(logical(T_join.flagd1.*findSig(T_join.pdelay(:,1),psig).*(T_join.delay(:,1)<0.5)),1)],'FaceColor','b','BinWidth',0.05);
+ylabel('cell number');
+set(gca,'Xlim',[0,1]);
+title('delay');
+xlabel('AUC correct v.s.error for prefered stimulus');
+
+subplot(1,3,3);
+% histogram(T_join.sound,'BinWidth',0.05);
+hold on;
+histogram([T_join.lick(T_join.flagl2,2);T_join.lick(T_join.flagl1,1)],'FaceColor','w','BinWidth',0.05);
+histogram([T_join.lick(logical(T_join.flagl2.*findSig(T_join.plick(:,2),psig).*(T_join.lick(:,2)>0.5)),2);T_join.lick(logical(T_join.flagl1.*findSig(T_join.plick(:,1),psig).*(T_join.lick(:,1)>0.5)),1)],'FaceColor','r','BinWidth',0.05);
+histogram([T_join.lick(logical(T_join.flagl2.*findSig(T_join.plick(:,2),psig).*(T_join.lick(:,2)<0.5)),2);T_join.lick(logical(T_join.flagl1.*findSig(T_join.plick(:,1),psig).*(T_join.lick(:,1)<0.5)),1)],'FaceColor','b','BinWidth',0.05);
+
+ylabel('cell number');
+set(gca,'Xlim',[0,1]);
+title('lick');
+h=legend('n.s.','contra','ipsi');
+set(h,'box','off');
+
+set(figAUC2,'PaperPosition',[0,0,6,2]);
+saveas(figAUC2,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'AUC cor vs err prefered stimulus significance p0.05.pdf'],'pdf');
+
+%% functions
+function [flag1,flag2]=fSigFlag(SAUC,pSAUC,CAUC,pCAUC,p_range)
+%p_range- the range of significance p value
+if length(SAUC)~=length(CAUC) 
+    warning('unequal rows of input table');
+    return;
+end
+[indsigS,indsigC,flag1,flag2]=deal(zeros(length(SAUC),1));
+for i=1:size(p_range,1) %每一行一个区间段，各行之间取并集
+    indsigS=logical((pSAUC<=p_range(i,2)).*(pSAUC>=p_range(i,1))+indsigS);
+    indsigC=logical((pCAUC<=p_range(i,2)).*(pCAUC>=p_range(i,1))+indsigC);
+end
+for irow=1:length(SAUC)
+    if (indsigS(irow) && ~indsigC(irow)) || (indsigS(irow) && indsigC(irow) && abs(SAUC(irow)-0.5)>=abs(CAUC(irow)-0.5)) 
+        if SAUC(irow)>0.5
+            flag2(irow)=1;
+        else
+            flag1(irow)=1;
+        end
+    elseif (~indsigS(irow) && indsigC(irow))|| (indsigS(irow) && indsigC(irow) && abs(SAUC(irow)-0.5)<abs(CAUC(irow)-0.5)) 
+        if CAUC(irow)>0.5
+            flag2(irow)=1;
+        else
+            flag1(irow)=1;
+        end
+    end
+end
+flag1=logical(flag1);
+flag2=logical(flag2);
+end
+
+function [TsigDataInfo] = fGetSigDataInfoTable(Tin, p_range,strAUCtype)
+% summary the significance table using Tin and setted range of significant
+% p value
+[indsigsound,indsigdelay,indsigresponse,indsiglick]=deal(zeros(size(Tin,1),1));
+for i=1:size(p_range,1) %每一行一个区间段，各行之间取并集
+    indsigsound=logical((Tin.psound<=p_range(i,2)).*(Tin.psound>=p_range(i,1))+indsigsound);
+    indsigdelay=logical((Tin.pdelay<=p_range(i,2)).*(Tin.pdelay>=p_range(i,1))+indsigdelay);
+    indsigresponse=logical((Tin.presponse<=p_range(i,2)).*(Tin.presponse>=p_range(i,1))+indsigresponse);
+    indsiglick=logical((Tin.plick<=p_range(i,2)).*(Tin.plick>=p_range(i,1))+indsiglick);
+end
+indsigContraSound=logical(indsigsound.*(Tin.sound>0.5));
+indsigIpsiSound=logical(indsigsound.*(Tin.sound<0.5));
+indNSSound= ~indsigsound;
+indsigContraDelay=logical(indsigdelay.*(Tin.delay>0.5));
+indsigIpsiDelay=logical(indsigdelay.*(Tin.delay<0.5));
+indNSDelay= ~indsigdelay;
+indsigContraResponse=logical(indsigresponse.*(Tin.response>0.5));
+indsigIpsiResponse=logical(indsigresponse.*(Tin.response<0.5));
+indNSResponse= ~indsigresponse;
+indsigContraLick=logical(indsiglick.*(Tin.lick>0.5));
+indsigIpsiLick=logical(indsiglick.*(Tin.lick<0.5));
+indNSLick= ~indsiglick;
+TsigDataInfo=Tin(:,{'animal','date','nROI'});
+if strcmp(strAUCtype,'sensory')
+    TsigDataInfo.flagSAUCsound(indsigContraSound)=1;
+    TsigDataInfo.flagSAUCsound(indsigIpsiSound)=-1;
+    TsigDataInfo.flagSAUCsound(indNSSound)=0;
+    TsigDataInfo.flagSAUCdelay(indsigContraDelay)=1;
+    TsigDataInfo.flagSAUCdelay(indsigIpsiDelay)=-1;
+    TsigDataInfo.flagSAUCdelay(indNSDelay)=0;
+    TsigDataInfo.flagSAUCresponse(indsigContraResponse)=1;
+    TsigDataInfo.flagSAUCresponse(indsigIpsiResponse)=-1;
+    TsigDataInfo.flagSAUCresponse(indNSResponse)=0;
+    TsigDataInfo.flagSAUClick(indsigContraLick)=1;
+    TsigDataInfo.flagSAUClick(indsigIpsiLick)=-1;
+    TsigDataInfo.flagSAUClick(indNSLick)=0;
+elseif strcmp(strAUCtype,'choice')
+    TsigDataInfo.flagCAUCsound(indsigContraSound)=1;
+    TsigDataInfo.flagCAUCsound(indsigIpsiSound)=-1;
+    TsigDataInfo.flagCAUCsound(indNSSound)=0;
+    TsigDataInfo.flagCAUCdelay(indsigContraDelay)=1;
+    TsigDataInfo.flagCAUCdelay(indsigIpsiDelay)=-1;
+    TsigDataInfo.flagCAUCdelay(indNSDelay)=0;
+    TsigDataInfo.flagCAUCresponse(indsigContraResponse)=1;
+    TsigDataInfo.flagCAUCresponse(indsigIpsiResponse)=-1;
+    TsigDataInfo.flagCAUCresponse(indNSResponse)=0;
+    TsigDataInfo.flagCAUClick(indsigContraLick)=1;
+    TsigDataInfo.flagCAUClick(indsigIpsiLick)=-1;
+    TsigDataInfo.flagCAUClick(indNSLick)=0;
+end
+end
+
+function [ind]=findSig(var,pSig)
+ind=zeros(length(var),1);
+for i=1:size(pSig,1) %每一行一个区间段，各行之间取并集
+    ind=logical((var<=pSig(i,2)).*(var>=pSig(i,1))+ind);
+end
+end
+##### SOURCE END #####
+--></body></html>

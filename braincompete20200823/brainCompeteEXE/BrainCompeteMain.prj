@@ -1,0 +1,190 @@
+<deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
+  <configuration file="C:\Users\PYX\Documents\MATLAB\braincompete20190703\brainCompeteEXE\BrainCompeteMain.prj" location="C:\Users\PYX\Documents\MATLAB\braincompete20190703\brainCompeteEXE" name="BrainCompeteMain" target="target.ezdeploy.standalone" target-name="Application Compiler">
+    <param.appname>BrainCompeteMain</param.appname>
+    <param.icon />
+    <param.icons />
+    <param.version>1.0</param.version>
+    <param.authnamewatermark>Yuxin Pan</param.authnamewatermark>
+    <param.email>yuxinpan@ion.ac.cn</param.email>
+    <param.company>CEBSIT</param.company>
+    <param.summary>stand alone excecutive file for brain compete</param.summary>
+    <param.description>need additional driver to run the software</param.description>
+    <param.screenshot />
+    <param.guid />
+    <param.installpath.string>\CEBSIT\BrainCompeteMain\</param.installpath.string>
+    <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
+    <param.logo />
+    <param.install.notes />
+    <param.target.install.notes />
+    <param.intermediate>${PROJECT_ROOT}\BrainCompeteMain\for_testing</param.intermediate>
+    <param.files.only>${PROJECT_ROOT}\BrainCompeteMain\for_redistribution_files_only</param.files.only>
+    <param.output>${PROJECT_ROOT}\BrainCompeteMain\for_redistribution</param.output>
+    <param.logdir>${PROJECT_ROOT}\BrainCompeteMain</param.logdir>
+    <param.enable.clean.build>false</param.enable.clean.build>
+    <param.user.defined.mcr.options />
+    <param.target.type>subtarget.standalone</param.target.type>
+    <param.support.packages />
+    <param.web.mcr>true</param.web.mcr>
+    <param.package.mcr>false</param.package.mcr>
+    <param.no.mcr>false</param.no.mcr>
+    <param.web.mcr.name>MyAppInstaller_web</param.web.mcr.name>
+    <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
+    <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
+    <param.windows.command.prompt>true</param.windows.command.prompt>
+    <param.create.log>false</param.create.log>
+    <param.log.file />
+    <param.native.matlab>false</param.native.matlab>
+    <param.checkbox>false</param.checkbox>
+    <param.example />
+    <param.help.text />
+    <unset>
+      <param.icon />
+      <param.icons />
+      <param.version />
+      <param.screenshot />
+      <param.guid />
+      <param.installpath.string />
+      <param.installpath.combo />
+      <param.logo />
+      <param.install.notes />
+      <param.target.install.notes />
+      <param.intermediate />
+      <param.files.only />
+      <param.output />
+      <param.logdir />
+      <param.enable.clean.build />
+      <param.user.defined.mcr.options />
+      <param.target.type />
+      <param.support.packages />
+      <param.web.mcr />
+      <param.package.mcr />
+      <param.no.mcr />
+      <param.web.mcr.name />
+      <param.package.mcr.name />
+      <param.no.mcr.name />
+      <param.windows.command.prompt />
+      <param.create.log />
+      <param.log.file />
+      <param.native.matlab />
+      <param.checkbox />
+      <param.example />
+      <param.help.text />
+    </unset>
+    <fileset.main>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\BrainCompeteMain.m</file>
+    </fileset.main>
+    <fileset.resources>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\20170708_101810.mat</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\_________.txt</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\_VisualStudio__Matlab C_____.mht</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\A300s.m</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\A300s.prj</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboClose.cpp</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboClose.mexw64</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboClose.mexw64.pdb</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboGetData.cpp</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboGetData.mexw64</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboGetData.mexw64.pdb</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboGetLength.cpp</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboGetLength.mexw64</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboGetLength.mexw64.pdb</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboHelp.m</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboOpen.cpp</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboOpen.mexw64</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboOpen.mexw64.pdb</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboQuery.cpp</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboQuery.mexw64</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboQuery.mexw64.pdb</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboRead.cpp</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\ComboWrite.cpp</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\common.h</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\Demo60s.m</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\make.m</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\PowerIndex.m</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\readme.txt</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\Record.fig</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\Record.m</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\Combo\Recorder.prj</file>
+    </fileset.resources>
+    <fileset.package />
+    <fileset.depfun>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\BrainCompete.fig</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\BrainCompete.m</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\ComboClose.mexw64</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\ComboGetData.mexw64</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\ComboGetLength.mexw64</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\ComboOpen.mexw64</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\ComboQuery.mexw64</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\PowerIndex.m</file>
+      <file>C:\Users\PYX\Documents\MATLAB\braincompete20190703\ReadSignal.m</file>
+    </fileset.depfun>
+    <build-deliverables>
+      <file location="${PROJECT_ROOT}\BrainCompeteMain\for_testing" name="readme.txt" optional="true">C:\Users\PYX\Documents\MATLAB\braincompete20190703\brainCompeteEXE\BrainCompeteMain\for_testing\readme.txt</file>
+      <file location="${PROJECT_ROOT}\BrainCompeteMain\for_testing" name="splash.png" optional="false">C:\Users\PYX\Documents\MATLAB\braincompete20190703\brainCompeteEXE\BrainCompeteMain\for_testing\splash.png</file>
+      <file location="${PROJECT_ROOT}\BrainCompeteMain\for_testing" name="BrainCompeteMain.exe" optional="false">C:\Users\PYX\Documents\MATLAB\braincompete20190703\brainCompeteEXE\BrainCompeteMain\for_testing\BrainCompeteMain.exe</file>
+    </build-deliverables>
+    <workflow />
+    <matlab>
+      <root>D:\Program Files\MATLAB\R2018b</root>
+      <toolboxes>
+        <toolbox name="matlabcoder" />
+        <toolbox name="embeddedcoder" />
+        <toolbox name="gpucoder" />
+        <toolbox name="fixedpoint" />
+        <toolbox name="matlabhdlcoder" />
+        <toolbox name="polyspacebugfinder" />
+        <toolbox name="neuralnetwork" />
+      </toolboxes>
+      <toolbox>
+        <matlabcoder>
+          <enabled>true</enabled>
+        </matlabcoder>
+      </toolbox>
+      <toolbox>
+        <embeddedcoder>
+          <enabled>true</enabled>
+        </embeddedcoder>
+      </toolbox>
+      <toolbox>
+        <gpucoder>
+          <enabled>true</enabled>
+        </gpucoder>
+      </toolbox>
+      <toolbox>
+        <fixedpoint>
+          <enabled>true</enabled>
+        </fixedpoint>
+      </toolbox>
+      <toolbox>
+        <matlabhdlcoder>
+          <enabled>true</enabled>
+        </matlabhdlcoder>
+      </toolbox>
+      <toolbox>
+        <polyspacebugfinder>
+          <enabled>true</enabled>
+        </polyspacebugfinder>
+      </toolbox>
+      <toolbox>
+        <neuralnetwork>
+          <enabled>true</enabled>
+        </neuralnetwork>
+      </toolbox>
+    </matlab>
+    <platform>
+      <unix>false</unix>
+      <mac>false</mac>
+      <windows>true</windows>
+      <win2k>false</win2k>
+      <winxp>false</winxp>
+      <vista>false</vista>
+      <linux>false</linux>
+      <solaris>false</solaris>
+      <osver>10.0</osver>
+      <os32>false</os32>
+      <os64>true</os64>
+      <arch>win64</arch>
+      <matlab>true</matlab>
+    </platform>
+  </configuration>
+</deployment-project>
