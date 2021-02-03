@@ -31,10 +31,10 @@ for i=1:size(T,1)
     end
 end
 %settings of label and legend
-i_selectivity=4;%*********variable**************
+i_selectivity=3;%*********variable**************
 selectivitystr={'stimuli','sensory difficulty','sensory','choice'};%sensory means grouping difficulties;
 trialTypeVar=[1,2,4,3];%corresponding to variable 'selectivitystr',decide what trial type means
-combineCorErr='divideCorErr';%{'combineCorErr','divideCorErr'}
+combineCorErr='divideCorErr';%{'combineCorErr','divideCorErr'}%compbine for comparing sensory and choice
 if strcmp(combineCorErr,'combineCorErr') %used for deciding matrix size 
     n_answer=1;
 elseif strcmp(combineCorErr,'divideCorErr')
@@ -386,7 +386,7 @@ for i_celltype=1:length(celltype)
         neuralActivity2Plot{1}=neuralActivity_by_site;
         neuralActivity2Plot{2}=neuralActivity_by_datapoint;
         %% plot raster and mean trace for large session
-        %
+        %{
         for ndff=[1]         %  titlestr=strcat(animal_name,'-',fiberstr{nfiber},'-',titlestr);
             if isempty(neuralActivity2Plot)%if no data, then end this loop
                 break;
@@ -699,7 +699,7 @@ if i_selectivity>=2%only when 2 group exist
     mkr={'h','>','s'};
     pSig=0.05;
     figAUCepoch=figure;
-    set(gcf,'paperPosition',[0,0,10,8]);
+    set(gcf,'paperPosition',[0,0,11,9]);
     subplot(4,5,1);%1d row by session,1st col late AUC comparison
     [Tout] = fScatterAUCCmpOneEpoch(TAUCepochSessionCombine,pSig,'early');
     title('by session');
@@ -718,9 +718,9 @@ if i_selectivity>=2%only when 2 group exist
     subplot(4,5,4);
     fScatterLineCmpEarlyLate(TAUCepochSessionCombine,'vgat',pSig);
     title('vgat');
-    subplot(4,5,5);
-    fScatterLineCmpEarlyLate(TAUCepochSessionCombine,'ALM terminal',pSig);
-    title('ALM terminal');
+%     subplot(4,5,5);
+%     fScatterLineCmpEarlyLate(TAUCepochSessionCombine,'ALM terminal',pSig);
+%     title('ALM terminal');
     subplot(4,5,6);
     fBarShiftedAUC(TAUCepochSessionCombine,celltypestr,color_celltype_mean,n_celltype_toshow);
     subplot(4,5,7);
@@ -731,18 +731,18 @@ if i_selectivity>=2%only when 2 group exist
     subplot(4,5,9);
     fScatterCmpEarlyLate(TAUCepochSessionCombine,'vgat',pSig);
     title('vgat');
-    subplot(4,5,10);
-    fScatterCmpEarlyLate(TAUCepochSessionCombine,'ALM terminal',pSig);
-    title('ALM terminal');
+%     subplot(4,5,10);
+%     fScatterCmpEarlyLate(TAUCepochSessionCombine,'ALM terminal',pSig);
+%     title('ALM terminal');
     subplot(4,5,13);
     fScatterLineCmpEarlyLate(TAUCepochSiteCombine,'vglut2',pSig);
     title('vglut2');
     subplot(4,5,14);
     fScatterLineCmpEarlyLate(TAUCepochSiteCombine,'vgat',pSig);
     title('vgat');
-    subplot(4,5,15);
-    fScatterLineCmpEarlyLate(TAUCepochSiteCombine,'ALM terminal',pSig);
-    title('ALM terminal');
+%     subplot(4,5,15);
+%     fScatterLineCmpEarlyLate(TAUCepochSiteCombine,'ALM terminal',pSig);
+%     title('ALM terminal');
     subplot(4,5,16);
     fBarShiftedAUC(TAUCepochSiteCombine,celltypestr,color_celltype_mean,n_celltype_toshow);
     subplot(4,5,17);
@@ -753,11 +753,13 @@ if i_selectivity>=2%only when 2 group exist
     subplot(4,5,19);
     fScatterCmpEarlyLate(TAUCepochSiteCombine,'vgat',pSig);
     title('vgat');
-    subplot(4,5,20);
-    fScatterCmpEarlyLate(TAUCepochSiteCombine,'ALM terminal',pSig);
-    title('ALM terminal');
+%     subplot(4,5,20);
+%     fScatterCmpEarlyLate(TAUCepochSiteCombine,'ALM terminal',pSig);
+%     title('ALM terminal');
     saveas(figAUCepoch,[savepath,filesep,regionstr{i_region},'-epoch AUC comparison.pdf'],'pdf');
     
+    %plot scatterhist
+    fScatterHistCmpEarlyLateCellType(TAUCepochSessionCombine,celltype,color_celltype,mkr);
 %     %consistency of selectivity from during late stim to late delay
 % 
 %     figCI=figure;
@@ -961,25 +963,25 @@ scatter(ones(length(TAUCVgat(indSigVgat,1)),1)*2,TAUCVgat(indSigVgat,1),10,'r','
 % % [h,p1]=ttest2(TAUCVglut2(:,1),TAUCVgat(:,1));
 % % [h,p2]=ttest2(TAUCVglut2(:,1),TAUCALM(:,1));
 % % [h,p3]=ttest2(TAUCALM(:,1),TAUCVgat(:,1));
-[h,varp1]=vartest2(TAUCVglut2(:,1),TAUCVgat(:,1));
-% [h,varp2]=vartest2(TAUCVglut2(:,1),TAUCALM(:,1));
-% [h,varp3]=vartest2(TAUCALM(:,1),TAUCVgat(:,1));
-p1=ranksum(TAUCVglut2(:,1),TAUCVgat(:,1));
-% p2=ranksum(TAUCVglut2(:,1),TAUCALM(:,1));
-% p3=ranksum(TAUCALM(:,1),TAUCVgat(:,1));
-xlim([0,3]);
-ylim([0,1]);
-plot([1,2],[0.8,0.8],'k-');
-text(1,0.9,[plabelsymbol(p1),'var',plabelsymbol(varp1)]);
-% plot([2.1,3],[0.8,0.8],'k-');
-% text(2.5,0.9,plabelsymbol(p2));
-% plot([1,3],[0.9,0.9],'k-');
-% text(1.5,1,plabelsymbol(p3));
-indSigContraVglut2=logical(TAUCVglut2(:,2)<pSig/2);
-indSigContraVgat=logical(TAUCVgat(:,2)<pSig/2);
-% indSigContraALM=logical(TAUCALM(:,2)<pSig/2);
-text(0.5,0.1,strcat(num2str(sum(indSigContraVglut2)),'/',num2str(length(indSigContraVglut2)),'contra'));
-text(1.5,0.1,strcat(num2str(sum(indSigContraVgat)),'/',num2str(length(indSigContraVgat)),'contra'));
+% [h,varp1]=vartest2(TAUCVglut2(:,1),TAUCVgat(:,1));
+% % [h,varp2]=vartest2(TAUCVglut2(:,1),TAUCALM(:,1));
+% % [h,varp3]=vartest2(TAUCALM(:,1),TAUCVgat(:,1));
+% p1=ranksum(TAUCVglut2(:,1),TAUCVgat(:,1));
+% % p2=ranksum(TAUCVglut2(:,1),TAUCALM(:,1));
+% % p3=ranksum(TAUCALM(:,1),TAUCVgat(:,1));
+% xlim([0,3]);
+% ylim([0,1]);
+% plot([1,2],[0.8,0.8],'k-');
+% text(1,0.9,[plabelsymbol(p1),'var',plabelsymbol(varp1)]);
+% % plot([2.1,3],[0.8,0.8],'k-');
+% % text(2.5,0.9,plabelsymbol(p2));
+% % plot([1,3],[0.9,0.9],'k-');
+% % text(1.5,1,plabelsymbol(p3));
+% indSigContraVglut2=logical(TAUCVglut2(:,2)<pSig/2);
+% indSigContraVgat=logical(TAUCVgat(:,2)<pSig/2);
+% % indSigContraALM=logical(TAUCALM(:,2)<pSig/2);
+% text(0.5,0.1,strcat(num2str(sum(indSigContraVglut2)),'/',num2str(length(indSigContraVglut2)),'contra'));
+% text(1.5,0.1,strcat(num2str(sum(indSigContraVgat)),'/',num2str(length(indSigContraVgat)),'contra'));
 % text(2.5,0.1,strcat(num2str(sum(indSigContraALM)),'/',num2str(length(indSigContraALM)),'contra'));
 % set(gca,'XTick',[1,2,3],'XTickLabel',{'vglut2','vgat','ALM'});
 set(gca,'XTick',[1,2],'XTickLabel',{'vglut2','vgat'});
@@ -988,6 +990,7 @@ plot([0,4],[0.5,0.5],'k--');
 Tout=Tin;
 set(gca,'FontName','Arial','FontSize',12);
 end
+
 
 %calculate correlation between early and late delay
 function [Tout]=fScatterCmpEarlyLate(Tin,celltype,pSig)
@@ -1037,6 +1040,61 @@ set(gca,'Xlim',[0.3,0.7],'Ylim',[0.05,0.95],'FontSize',12,'FontName','Arial');
 plot([0,1],[0.5,0.5],'k--');
 plot([0.5,0.5],[0,1],'k--');
 end
+
+%use scatterhist to show data
+function [Tout]=fScatterHistCmpEarlyLateCellType(Tin,celltype,color,mkr)
+celltype={'vglut2','vgat'};
+figScatterHist=figure;
+set(gcf,'Position',[100,100,400,400]);
+h1=subplot(3,3,[2,3,5,6]);
+hold on;
+plot([0,1],[0.5,0.5],'k--');
+plot([0.5,0.5],[0,1],'k--');
+patch([0,0.5,0.5,0],[0.5,0.5,1,1],color{2},'FaceAlpha',0.3,'EdgeColor','none');
+patch([0.5,0.5,1,1],[0,0.5,0.5,0],color{2},'FaceAlpha',0.3,'EdgeColor','none');
+for icelltype=2:-1:1
+    TAUC=Tin(logical((Tin.celltype==celltype{icelltype}).*(Tin.Answer == 'correct')),1:6);
+        
+%     h = scatterhist(TAUC.AUCearly,TAUC.AUClate,'Group',TAUC.celltype,'Color',color{icelltype},'Marker',mkr{icelltype});
+    curve_scatter(icelltype)=scatter(h1,TAUC.AUCearly,TAUC.AUClate,30,color{icelltype},mkr{icelltype});hold on;
+    set(gca,'Xlim',[0.3,0.7],'Ylim',[0,1],'FontSize',14,'FontName','Arial');
+    set(h1,'position',[0.35,0.35,0.6,0.6]);
+    %plot example
+    for i=1:size(TAUC,1)
+        if contains(TAUC.DatapointName{i},'pyx237_20191201_right') || contains(TAUC.DatapointName{i},'pyx241_20191130_left')
+                indExample=i;
+        end
+    end
+    scatter(h1,TAUC.AUCearly(indExample),TAUC.AUClate(indExample),30,color{icelltype},mkr{icelltype},'filled');
+    h2=subplot(3,3,[8,9]);
+    boxplot(TAUC.AUCearly,TAUC.celltype,'orientation','horizontal','color',color{icelltype},'Notch','on');
+%     hold on;
+    set(h2,'Xlim',[0.3,0.7],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
+    set(h2,'position',[0.35,0.05,0.6,0.2]);
+    h3=subplot(3,3,[1,4]);
+    boxplot(TAUC.AUClate,TAUC.celltype,'orientation','vertical','color',color{icelltype},'Notch','on');
+%     hold on;
+    set(h3,'Ylim',[0,1],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
+    set(h3,'position',[0.05,0.35,0.2,0.6]);
+end
+%replot boxplot together
+TAUC=Tin(logical(Tin.Answer == 'correct'),1:6);
+boxplot(h2,TAUC.AUCearly,TAUC.celltype,'orientation','horizontal','Notch','on','colors',[color{1};color{2}]);
+set(h2,'Xlim',[0.3,0.7],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
+set(h2,'position',[0.35,0.05,0.6,0.2]);
+
+boxplot(h3,TAUC.AUClate,TAUC.celltype,'orientation','vertical','Notch','on','colors',[color{1};color{2}]);
+set(h3,'Ylim',[0,1],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
+set(h3,'position',[0.05,0.35,0.2,0.6]);
+
+% hl=legend(curve_scatter(:),'vglut2' , 'vgat' , 'ALM terminal','AutoUpdate','off');
+hl=legend(curve_scatter(:), 'vglut2','vgat' ,'AutoUpdate','off');
+set(hl,'Box','Off');
+% text(0,1,['pearson correlation correct=',num2str(corr(TAUC.AUCearly,TAUC.AUClate))]);
+
+
+end
+
 %cmp AUC early vs late for different cell type, histogram of shifted
 %session
 function [Tout] = fBarShiftedAUC(Tin,celltype,color,n_celltype_toshow)

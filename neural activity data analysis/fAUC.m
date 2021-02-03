@@ -24,8 +24,13 @@ if sum((~ind_nan).*label1)<3 ||sum((~ind_nan).*(~label1))<3
 else
     [X,Y,T,AUC]=perfcurve(label,activity,poslabel);
 end
+% figure;
+% subplot(1,2,1);
 % plot(X,Y);hold on;
 % plot([0,1],[0,1],'k');%diagonal
+% subplot(1,2,2);
+% histogram(activity(label1),'BinWidth',0.1);hold on;
+% histogram(activity(~label1),'BinWidth',0.1);
 % pause(1);close;
 %method 1-using for loop
 AUCs=zeros(n_shuffle,1);
@@ -37,8 +42,8 @@ parfor i=1:n_shuffle%during shuffle, maybe nan will happen for one category, so 
         AUCs(i)=nan;
     else
         [X,Y,T,AUCs(i)]=perfcurve(label_i,activity,poslabel);
-    end
-%         plot(X,Y);pause(1);close;
+%         plot(X,Y);%pause(1);close;
+    end     
 end
 %method 2-using cellfun
 % [labelcell{1:n_shuffle}]=deal(label);

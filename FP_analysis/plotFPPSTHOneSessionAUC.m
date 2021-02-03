@@ -5,10 +5,10 @@
 clear;
 dbstop if error;
 close all;
-savepath='F:\FP\example';
-[num,txt,raw] =xlsread('F:\FP\fiber photometry data summary.xlsx');%criteria to choose sessions come from this file
-T=cell2table(raw(2:end,1:11));
-T.Properties.VariableNames=strrep(raw(1,1:11),' ','_');%table variable name can't have ' ',so replace them
+savepath='H:\FP\example';
+[num,txt,raw] =xlsread('H:\FP\fiber photometry data summary.xlsx');%criteria to choose sessions come from this file
+T=cell2table(raw(2:end,1:12));
+T.Properties.VariableNames=strrep(raw(1,1:12),' ','_');%table variable name can't have ' ',so replace them
 T.delay_min=zeros(size(T,1),1);%convert delay variable to numeric
 T.delay_max=zeros(size(T,1),1);
 T.retract=zeros(size(T,1),1);
@@ -47,9 +47,9 @@ behEventSort='go cue';% string can be in{'first lick','reward','go cue'};
 masklick='no';%'yes' if mask lickings or 'no' when want to see all activity
 stimDur=0.5;%0.5s click duration
 if strcmp(behEventAlign,'delay onset')
-    frameNumTime=[2.5,3.5];%from 2s before align point to 5s after align point
+    frameNumTime=[1,1.4];%from 2s before align point to 5s after align point
 else
-    frameNumTime=[0.5,1];%from 2s before align point to 5s after align point
+    frameNumTime=[0.5,0.5];%from 2s before align point to 5s after align point
 end
 yrange=[-0.03,0.15];
 % const settings of fiber photometry
@@ -68,8 +68,8 @@ p_sepOnset=0.05;%the p-value used to determine when separation happen
 i_region=3;%1-bilateral, 2-unilateral*********variable**************
 region={'bilateral','t SC','SC'};%{'bilateral SC','SC'}
 regionstr={'bilateral','unilateral','mixed'};
-whichAnimal='pyx241';%************variable******pyx237 for vgat, pyx241 for vglut2
-whichSite='left';%if bilateral fiber implanted, can choose site here******variable******right for pyx237, left for pyx241
+whichAnimal='pyx237';%************variable******pyx237 for vgat, pyx241 for vglut2
+whichSite='right';%if bilateral fiber implanted, can choose site here******variable******right for pyx237, left for pyx241
 celltype={'SC vglut2','SC vgat'};
 n_siteCell=cell(1,2);%each cell store a cell type
 n_datapointCell=cell(1,2);%each cell store a cell type
@@ -78,7 +78,7 @@ time_before_go=0.5;
 dataProcessStr=strcat('-grouped by ',selectivitystr{i_selectivity},'-',combineCorErr,'-binCenteredSize',num2str(binsize),'-alignTo-',behEventAlign,'-timeWindow',num2str(frameNumTime(1)),'-',num2str(frameNumTime(2)),'-EpochWindow stim-',num2str(time_before_delay),'delay-',num2str(time_before_go),'-shuffle',num2str(nshuffle));
 
 %
-i_celltype=1;%1 for vglut2, 2 for vgat*********variable**************
+i_celltype=2;%1 for vglut2, 2 for vgat*********variable**************
 %select sessions for summary analysis
 experiment=celltype{i_celltype};
 if strcmp(whichAnimal,'pyx241') && strcmp(whichSite,'left') && i_celltype==1

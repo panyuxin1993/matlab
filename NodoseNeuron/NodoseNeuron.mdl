@@ -1,0 +1,6450 @@
+Model {
+  Name			  "NodoseNeuron"
+  Version		  7.0
+  MdlSubVersion		  0
+  GraphicalInterface {
+    NumRootInports	    0
+    NumRootOutports	    1
+    Outport {
+      BusObject		      ""
+      BusOutputAsStruct	      "off"
+      SignalName	      "Vm (mV)"
+      Name		      "Vm (mV)"
+    }
+    ParameterArgumentNames  ""
+    ComputedModelVersion    "1.738"
+    NumModelReferences	    0
+    NumTestPointedSignals   19
+    TestPointedSignal {
+      SignalName	      "Vm (mV)"
+      FullBlockPath	      "NodoseNeuron/Integrator"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "Cai (mM)"
+      FullBlockPath	      "NodoseNeuron/Cai/Integrator"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      6
+    }
+    TestPointedSignal {
+      SignalName	      "Oc"
+      FullBlockPath	      "NodoseNeuron/Cai/Integrator1"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "Cas (mM)"
+      FullBlockPath	      "NodoseNeuron/Cas/Integrator"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "p"
+      FullBlockPath	      "NodoseNeuron/IA/p"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "q"
+      FullBlockPath	      "NodoseNeuron/IA/q"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "d"
+      FullBlockPath	      "NodoseNeuron/ICan/d"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "f1"
+      FullBlockPath	      "NodoseNeuron/ICan/f1"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "f2"
+      FullBlockPath	      "NodoseNeuron/ICan/f2"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "d"
+      FullBlockPath	      "NodoseNeuron/ICat/d"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "f"
+      FullBlockPath	      "NodoseNeuron/ICat/f"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "x"
+      FullBlockPath	      "NodoseNeuron/ID/activation"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "y"
+      FullBlockPath	      "NodoseNeuron/ID/inactivation"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "n"
+      FullBlockPath	      "NodoseNeuron/IK/activation"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "c"
+      FullBlockPath	      "NodoseNeuron/IKCa/activation"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "h"
+      FullBlockPath	      "NodoseNeuron/INaf/h"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "m"
+      FullBlockPath	      "NodoseNeuron/INaf/m"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "h"
+      FullBlockPath	      "NodoseNeuron/INas/hs"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+    TestPointedSignal {
+      SignalName	      "m"
+      FullBlockPath	      "NodoseNeuron/INas/ms"
+      LogSignal		      1
+      LimitDataPoints	      1
+      MaxPoints		      10
+      Decimate		      1
+      Decimation	      3
+    }
+  }
+  SavedCharacterEncoding  "ISO-8859-1"
+  SaveDefaultBlockParams  on
+  SampleTimeColors	  off
+  LibraryLinkDisplay	  "none"
+  WideLines		  off
+  ShowLineDimensions	  off
+  ShowPortDataTypes	  off
+  ShowLoopsOnError	  on
+  IgnoreBidirectionalLines off
+  ShowStorageClass	  off
+  ShowTestPointIcons	  off
+  ShowViewerIcons	  off
+  SortedOrder		  off
+  ExecutionContextIcon	  off
+  ShowLinearizationAnnotations on
+  ScopeRefreshTime	  0.035000
+  OverrideScopeRefreshTime on
+  DisableAllScopes	  off
+  DataTypeOverride	  "UseLocalSettings"
+  MinMaxOverflowLogging	  "UseLocalSettings"
+  MinMaxOverflowArchiveMode "Overwrite"
+  BlockNameDataTip	  off
+  BlockParametersDataTip  off
+  BlockDescriptionStringDataTip	off
+  ToolBar		  on
+  StatusBar		  on
+  BrowserShowLibraryLinks off
+  BrowserLookUnderMasks	  off
+  InitFcn		  "T=310.0;       % K\nR=8.3145;     % J/mole/K or V*C/mol/K\nF=96485.0;    % C/mole\nNai=8.9;         % mM\nNao=154;       % mM \nKi=145;           % mM\nKo=5.4;           % mM \nCai=0.0001;    %mM\nCao=2.0;         %mM\n%Cli Clo \n%Hi Ho\n%Cli Clo\n\nENa=R*T/F*log(Nao/Nai)*1000;    % mV\nEK=R*T/F*log(Ko/Ki)*1000;           % mM\nECa=R*T/2/F*log(Cao/Cai)*1000; % mV\n%EH=R*T/F*log(Ho/Hi)*1000;\n%ECl=R*T//F*log(Clo/Cli)*1000;\n\ntauCa=4511.0;   % ms\nnBi=0.004;         % mM (concentration of Ca2+ buffer) * (number of Ca2+ binding sights)\nVoli=0.0127;      % nl\nVols=0.00146;   % nl\n\nICaP=0.0243;          % nA\nINaK=0.275;            % nA\nDNaCa=0.0036;      % 1/mM^4\nKNaCa=0.000036;  % nA/mM^4\nKMCaP=0.0005;     % mM\nKMNa=5.46;           % mM\nKMK=0.621;            % mM\nkU=100.0;               % 1/mM/ms\nkR=0.238;               % 1/ms"
+  Created		  "Thu Aug 16 08:49:59 2007"
+  Creator		  "Vlad"
+  UpdateHistory		  "UpdateHistoryNever"
+  ModifiedByFormat	  "%<Auto>"
+  LastModifiedBy	  "snitsarevv"
+  ModifiedDateFormat	  "%<Auto>"
+  LastModifiedDate	  "Mon Feb 18 14:57:01 2008"
+  RTWModifiedTimeStamp	  0
+  ModelVersionFormat	  "1.%<AutoIncrement:738>"
+  ConfigurationManager	  "None"
+  SimulationMode	  "normal"
+  LinearizationMsg	  "none"
+  Profile		  off
+  ParamWorkspaceSource	  "MATLABWorkspace"
+  AccelSystemTargetFile	  "accel.tlc"
+  AccelTemplateMakefile	  "accel_default_tmf"
+  AccelMakeCommand	  "make_rtw"
+  TryForcingSFcnDF	  off
+  RecordCoverage	  off
+  CovPath		  "/"
+  CovSaveName		  "covdata"
+  CovMetricSettings	  "dw"
+  CovNameIncrementing	  off
+  CovHtmlReporting	  on
+  covSaveCumulativeToWorkspaceVar on
+  CovSaveSingleToWorkspaceVar on
+  CovCumulativeVarName	  "covCumulativeData"
+  CovCumulativeReport	  off
+  CovReportOnPause	  on
+  ExtModeBatchMode	  off
+  ExtModeEnableFloating	  on
+  ExtModeTrigType	  "manual"
+  ExtModeTrigMode	  "normal"
+  ExtModeTrigPort	  "1"
+  ExtModeTrigElement	  "any"
+  ExtModeTrigDuration	  1000
+  ExtModeTrigDurationFloating "auto"
+  ExtModeTrigHoldOff	  0
+  ExtModeTrigDelay	  0
+  ExtModeTrigDirection	  "rising"
+  ExtModeTrigLevel	  0
+  ExtModeArchiveMode	  "off"
+  ExtModeAutoIncOneShot	  off
+  ExtModeIncDirWhenArm	  off
+  ExtModeAddSuffixToVar	  off
+  ExtModeWriteAllDataToWs off
+  ExtModeArmWhenConnect	  on
+  ExtModeSkipDownloadWhenConnect off
+  ExtModeLogAll		  on
+  ExtModeAutoUpdateStatusClock off
+  TunableVars		  "gA,gBCa,gBNa,gCan,gCat,gD,gK,gKCa,gNaf,gNas"
+  TunableVarsStorageClass "Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+  TunableVarsTypeQualifier ",,,,,,,,,"
+  BufferReuse		  off
+  ShowModelReferenceBlockVersion off
+  ShowModelReferenceBlockIO off
+  Array {
+    Type		    "Handle"
+    Dimension		    1
+    Simulink.ConfigSet {
+      $ObjectID		      1
+      Version		      "1.3.0"
+      Array {
+	Type			"Handle"
+	Dimension		7
+	Simulink.SolverCC {
+	  $ObjectID		  2
+	  Version		  "1.3.0"
+	  StartTime		  "0.0"
+	  StopTime		  "1000"
+	  AbsTol		  "auto"
+	  FixedStep		  "auto"
+	  InitialStep		  "auto"
+	  MaxNumMinSteps	  "-1"
+	  MaxOrder		  5
+	  ConsecutiveZCsStepRelTol "10*128*eps"
+	  MaxConsecutiveZCs	  "1000"
+	  ExtrapolationOrder	  4
+	  NumberNewtonIterations  1
+	  MaxStep		  "20"
+	  MinStep		  "auto"
+	  MaxConsecutiveMinStep	  "1"
+	  RelTol		  "1e-3"
+	  SolverMode		  "Auto"
+	  Solver		  "ode45"
+	  SolverName		  "ode45"
+	  ZeroCrossControl	  "DisableAll"
+	  AlgebraicLoopSolver	  "TrustRegion"
+	  SolverResetMethod	  "Fast"
+	  PositivePriorityOrder	  off
+	  AutoInsertRateTranBlk	  off
+	  SampleTimeConstraint	  "Unconstrained"
+	  RateTranMode		  "Deterministic"
+	}
+	Simulink.DataIOCC {
+	  $ObjectID		  3
+	  Version		  "1.3.0"
+	  Decimation		  "1"
+	  ExternalInput		  "[t u]"
+	  FinalStateName	  "xFinal"
+	  InitialState		  ""
+	  LimitDataPoints	  off
+	  MaxDataPoints		  "1000"
+	  LoadExternalInput	  off
+	  LoadInitialState	  off
+	  SaveFinalState	  off
+	  SaveFormat		  "Array"
+	  SaveOutput		  on
+	  SaveState		  off
+	  SignalLogging		  on
+	  InspectSignalLogs	  off
+	  SaveTime		  on
+	  StateSaveName		  "xout"
+	  TimeSaveName		  "tout"
+	  OutputSaveName	  "yout"
+	  SignalLoggingName	  "logsout"
+	  OutputOption		  "RefineOutputTimes"
+	  OutputTimes		  "[]"
+	  Refine		  "1"
+	}
+	Simulink.OptimizationCC {
+	  $ObjectID		  4
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    5
+	    Cell		    "ZeroExternalMemoryAtStartup"
+	    Cell		    "ZeroInternalMemoryAtStartup"
+	    Cell		    "InitFltsAndDblsToZero"
+	    Cell		    "OptimizeModelRefInitCode"
+	    Cell		    "NoFixptDivByZeroProtection"
+	    PropName		    "DisabledProps"
+	  }
+	  Version		  "1.3.0"
+	  BlockReduction	  on
+	  BooleanDataType	  on
+	  ConditionallyExecuteInputs on
+	  InlineParams		  on
+	  InlineInvariantSignals  off
+	  OptimizeBlockIOStorage  off
+	  BufferReuse		  off
+	  EnforceIntegerDowncast  on
+	  ExpressionFolding	  off
+	  ExpressionDepthLimit	  2147483647
+	  FoldNonRolledExpr	  on
+	  LocalBlockOutputs	  off
+	  RollThreshold		  5
+	  SystemCodeInlineAuto	  off
+	  StateBitsets		  off
+	  DataBitsets		  off
+	  UseTempVars		  off
+	  ZeroExternalMemoryAtStartup on
+	  ZeroInternalMemoryAtStartup on
+	  InitFltsAndDblsToZero	  on
+	  NoFixptDivByZeroProtection off
+	  EfficientFloat2IntCast  off
+	  OptimizeModelRefInitCode off
+	  LifeSpan		  "inf"
+	  BufferReusableBoundary  on
+	  SimCompilerOptimization "Off"
+	  AccelVerboseBuild	  off
+	}
+	Simulink.DebuggingCC {
+	  $ObjectID		  5
+	  Version		  "1.3.0"
+	  RTPrefix		  "error"
+	  ConsistencyChecking	  "none"
+	  ArrayBoundsChecking	  "none"
+	  SignalInfNanChecking	  "none"
+	  SignalRangeChecking	  "none"
+	  ReadBeforeWriteMsg	  "UseLocalSettings"
+	  WriteAfterWriteMsg	  "UseLocalSettings"
+	  WriteAfterReadMsg	  "UseLocalSettings"
+	  AlgebraicLoopMsg	  "warning"
+	  ArtificialAlgebraicLoopMsg "warning"
+	  SaveWithDisabledLinksMsg "warning"
+	  SaveWithParameterizedLinksMsg	"none"
+	  CheckSSInitialOutputMsg on
+	  CheckExecutionContextPreStartOutputMsg off
+	  CheckExecutionContextRuntimeOutputMsg	off
+	  SignalResolutionControl "UseLocalSettings"
+	  BlockPriorityViolationMsg "warning"
+	  MinStepSizeMsg	  "warning"
+	  TimeAdjustmentMsg	  "none"
+	  MaxConsecutiveZCsMsg	  "error"
+	  SolverPrmCheckMsg	  "warning"
+	  InheritedTsInSrcMsg	  "warning"
+	  DiscreteInheritContinuousMsg "warning"
+	  MultiTaskDSMMsg	  "error"
+	  MultiTaskCondExecSysMsg "error"
+	  MultiTaskRateTransMsg	  "error"
+	  SingleTaskRateTransMsg  "none"
+	  TasksWithSamePriorityMsg "warning"
+	  SigSpecEnsureSampleTimeMsg "warning"
+	  CheckMatrixSingularityMsg "none"
+	  IntegerOverflowMsg	  "warning"
+	  Int32ToFloatConvMsg	  "warning"
+	  ParameterDowncastMsg	  "error"
+	  ParameterOverflowMsg	  "error"
+	  ParameterUnderflowMsg	  "none"
+	  ParameterPrecisionLossMsg "warning"
+	  ParameterTunabilityLossMsg "warning"
+	  UnderSpecifiedDataTypeMsg "none"
+	  UnnecessaryDatatypeConvMsg "none"
+	  VectorMatrixConversionMsg "none"
+	  InvalidFcnCallConnMsg	  "error"
+	  FcnCallInpInsideContextMsg "Use local settings"
+	  SignalLabelMismatchMsg  "none"
+	  UnconnectedInputMsg	  "warning"
+	  UnconnectedOutputMsg	  "warning"
+	  UnconnectedLineMsg	  "warning"
+	  SFcnCompatibilityMsg	  "none"
+	  UniqueDataStoreMsg	  "none"
+	  BusObjectLabelMismatch  "warning"
+	  RootOutportRequireBusObject "warning"
+	  AssertControl		  "UseLocalSettings"
+	  EnableOverflowDetection off
+	  ModelReferenceIOMsg	  "none"
+	  ModelReferenceVersionMismatchMessage "none"
+	  ModelReferenceIOMismatchMessage "none"
+	  ModelReferenceCSMismatchMessage "none"
+	  ModelReferenceSimTargetVerbose off
+	  UnknownTsInhSupMsg	  "warning"
+	  ModelReferenceDataLoggingMessage "warning"
+	  ModelReferenceSymbolNameMessage "warning"
+	  ModelReferenceExtraNoncontSigs "error"
+	  StateNameClashWarn	  "warning"
+	  StrictBusMsg		  "Warning"
+	  LoggingUnavailableSignals "error"
+	}
+	Simulink.HardwareCC {
+	  $ObjectID		  6
+	  Version		  "1.3.0"
+	  ProdBitPerChar	  8
+	  ProdBitPerShort	  16
+	  ProdBitPerInt		  32
+	  ProdBitPerLong	  32
+	  ProdIntDivRoundTo	  "Undefined"
+	  ProdEndianess		  "Unspecified"
+	  ProdWordSize		  32
+	  ProdShiftRightIntArith  on
+	  ProdHWDeviceType	  "32-bit Generic"
+	  TargetBitPerChar	  8
+	  TargetBitPerShort	  16
+	  TargetBitPerInt	  32
+	  TargetBitPerLong	  32
+	  TargetShiftRightIntArith on
+	  TargetIntDivRoundTo	  "Undefined"
+	  TargetEndianess	  "Unspecified"
+	  TargetWordSize	  32
+	  TargetTypeEmulationWarnSuppressLevel 0
+	  TargetPreprocMaxBitsSint 32
+	  TargetPreprocMaxBitsUint 32
+	  TargetHWDeviceType	  "Specified"
+	  TargetUnknown		  off
+	  ProdEqTarget		  on
+	}
+	Simulink.ModelReferenceCC {
+	  $ObjectID		  7
+	  Version		  "1.3.0"
+	  UpdateModelReferenceTargets "IfOutOfDateOrStructuralChange"
+	  CheckModelReferenceTargetMessage "error"
+	  ModelReferenceNumInstancesAllowed "Multi"
+	  ModelReferencePassRootInputsByReference on
+	  ModelReferenceMinAlgLoopOccurrences off
+	}
+	Simulink.RTWCC {
+	  $BackupClass		  "Simulink.RTWCC"
+	  $ObjectID		  8
+	  Array {
+	    Type		    "Cell"
+	    Dimension		    1
+	    Cell		    "IncludeHyperlinkInReport"
+	    PropName		    "DisabledProps"
+	  }
+	  Version		  "1.3.0"
+	  SystemTargetFile	  "grt.tlc"
+	  GenCodeOnly		  off
+	  MakeCommand		  "make_rtw"
+	  GenerateMakefile	  on
+	  TemplateMakefile	  "grt_default_tmf"
+	  GenerateReport	  off
+	  SaveLog		  off
+	  RTWVerbose		  on
+	  RetainRTWFile		  off
+	  ProfileTLC		  off
+	  TLCDebug		  off
+	  TLCCoverage		  off
+	  TLCAssert		  off
+	  ProcessScriptMode	  "Default"
+	  ConfigurationMode	  "Optimized"
+	  ConfigAtBuild		  off
+	  IncludeHyperlinkInReport off
+	  LaunchReport		  off
+	  TargetLang		  "C"
+	  IncludeBusHierarchyInRTWFileBlockHierarchyMap	off
+	  IncludeERTFirstTime	  off
+	  GenerateTraceInfo	  off
+	  RTWCompilerOptimization "Off"
+	  Array {
+	    Type		    "Handle"
+	    Dimension		    2
+	    Simulink.CodeAppCC {
+	      $ObjectID		      9
+	      Array {
+		Type			"Cell"
+		Dimension		16
+		Cell			"IgnoreCustomStorageClasses"
+		Cell			"InsertBlockDesc"
+		Cell			"SFDataObjDesc"
+		Cell			"SimulinkDataObjDesc"
+		Cell			"DefineNamingRule"
+		Cell			"SignalNamingRule"
+		Cell			"ParamNamingRule"
+		Cell			"InlinedPrmAccess"
+		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
+		PropName		"DisabledProps"
+	      }
+	      Version		      "1.3.0"
+	      ForceParamTrailComments off
+	      GenerateComments	      on
+	      IgnoreCustomStorageClasses on
+	      IncHierarchyInIds	      off
+	      MaxIdLength	      31
+	      PreserveName	      off
+	      PreserveNameWithParent  off
+	      ShowEliminatedStatement off
+	      IncAutoGenComments      off
+	      SimulinkDataObjDesc     off
+	      SFDataObjDesc	      off
+	      IncDataTypeInIds	      off
+	      MangleLength	      1
+	      CustomSymbolStrGlobalVar "$R$N$M"
+	      CustomSymbolStrType     "$N$R$M"
+	      CustomSymbolStrField    "$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
+	      CustomSymbolStrBlkIO    "rtb_$N$M"
+	      CustomSymbolStrTmpVar   "$N$M"
+	      CustomSymbolStrMacro    "$R$N$M"
+	      DefineNamingRule	      "None"
+	      ParamNamingRule	      "None"
+	      SignalNamingRule	      "None"
+	      InsertBlockDesc	      off
+	      SimulinkBlockComments   on
+	      EnableCustomComments    off
+	      InlinedPrmAccess	      "Literals"
+	      ReqsInCode	      off
+	    }
+	    Simulink.GRTTargetCC {
+	      $BackupClass	      "Simulink.TargetCC"
+	      $ObjectID		      10
+	      Array {
+		Type			"Cell"
+		Dimension		15
+		Cell			"IncludeMdlTerminateFcn"
+		Cell			"CombineOutputUpdateFcns"
+		Cell			"SuppressErrorStatus"
+		Cell			"ERTCustomFileBanners"
+		Cell			"GenerateSampleERTMain"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"MultiInstanceERTCode"
+		Cell			"PurelyIntegerCode"
+		Cell			"SupportNonFinite"
+		Cell			"SupportComplex"
+		Cell			"SupportAbsoluteTime"
+		Cell			"SupportContinuousTime"
+		Cell			"SupportNonInlinedSFcns"
+		Cell			"PortableWordSizes"
+		PropName		"DisabledProps"
+	      }
+	      Version		      "1.3.0"
+	      TargetFcnLib	      "ansi_tfl_tmw.mat"
+	      TargetLibSuffix	      ""
+	      TargetPreCompLibLocation ""
+	      GenFloatMathFcnCalls    "ANSI_C"
+	      UtilityFuncGeneration   "Auto"
+	      GenerateFullHeader      on
+	      GenerateSampleERTMain   off
+	      GenerateTestInterfaces  off
+	      IsPILTarget	      off
+	      ModelReferenceCompliant on
+	      CompOptLevelCompliant   on
+	      IncludeMdlTerminateFcn  on
+	      CombineOutputUpdateFcns off
+	      SuppressErrorStatus     off
+	      IncludeFileDelimiter    "Auto"
+	      ERTCustomFileBanners    off
+	      SupportAbsoluteTime     on
+	      LogVarNameModifier      "rt_"
+	      MatFileLogging	      on
+	      MultiInstanceERTCode    off
+	      SupportNonFinite	      on
+	      SupportComplex	      on
+	      PurelyIntegerCode	      off
+	      SupportContinuousTime   on
+	      SupportNonInlinedSFcns  on
+	      EnableShiftOperators    on
+	      ParenthesesLevel	      "Nominal"
+	      PortableWordSizes	      off
+	      ModelStepFunctionPrototypeControlCompliant off
+	      ExtMode		      off
+	      ExtModeStaticAlloc      off
+	      ExtModeTesting	      off
+	      ExtModeStaticAllocSize  1000000
+	      ExtModeTransport	      0
+	      ExtModeMexFile	      "ext_comm"
+	      ExtModeIntrfLevel	      "Level1"
+	      RTWCAPISignals	      off
+	      RTWCAPIParams	      off
+	      RTWCAPIStates	      off
+	      GenerateASAP2	      off
+	    }
+	    PropName		    "Components"
+	  }
+	}
+	PropName		"Components"
+      }
+      Name		      "Configuration"
+      CurrentDlgPage	      "Solver"
+    }
+    PropName		    "ConfigurationSets"
+  }
+  Simulink.ConfigSet {
+    $PropName		    "ActiveConfigurationSet"
+    $ObjectID		    1
+  }
+  BlockDefaults {
+    Orientation		    "right"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    NamePlacement	    "normal"
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    ShowName		    on
+  }
+  BlockParameterDefaults {
+    Block {
+      BlockType		      Bias
+      Bias		      "0"
+      SaturateOnIntegerOverflow	on
+    }
+    Block {
+      BlockType		      Demux
+      Outputs		      "4"
+      DisplayOption	      "none"
+      BusSelectionMode	      off
+    }
+    Block {
+      BlockType		      FromWorkspace
+      VariableName	      "simulink_input"
+      SampleTime	      "-1"
+      Interpolate	      on
+      ZeroCross		      off
+      OutputAfterFinalValue   "Extrapolation"
+    }
+    Block {
+      BlockType		      Fcn
+      Expr		      "sin(u[1])"
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Gain
+      Gain		      "1"
+      Multiplication	      "Element-wise(K.*u)"
+      ParamMin		      "[]"
+      ParamMax		      "[]"
+      ParameterDataTypeMode   "Same as input"
+      ParameterDataType	      "fixdt(1,16,0)"
+      ParameterScalingMode    "Best Precision: Matrix-wise"
+      ParameterScaling	      "[]"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Same as input"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Inport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      LatchByDelayingOutsideSignal off
+      LatchByCopyingInsideSignal off
+      Interpolate	      on
+    }
+    Block {
+      BlockType		      Integrator
+      ExternalReset	      "none"
+      InitialConditionSource  "internal"
+      InitialCondition	      "0"
+      LimitOutput	      off
+      UpperSaturationLimit    "inf"
+      LowerSaturationLimit    "-inf"
+      ShowSaturationPort      off
+      ShowStatePort	      off
+      AbsoluteTolerance	      "auto"
+      IgnoreLimit	      off
+      ZeroCross		      on
+      ContinuousStateAttributes	"''"
+    }
+    Block {
+      BlockType		      SignalViewerScope
+      Floating		      off
+      ModelBased	      off
+      TickLabels	      "OneTimeTick"
+      ZoomMode		      "on"
+      Grid		      "on"
+      TimeRange		      "auto"
+      YMin		      "-5"
+      YMax		      "5"
+      SaveToWorkspace	      off
+      SaveName		      "ScopeData"
+      LimitDataPoints	      on
+      MaxDataPoints	      "5000"
+      Decimation	      "1"
+      SampleInput	      off
+      SampleTime	      "0"
+      Disabled		      off
+      ScrollMode	      on
+    }
+    Block {
+      BlockType		      Outport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      OutputWhenDisabled      "held"
+      InitialOutput	      "[]"
+    }
+    Block {
+      BlockType		      Product
+      Inputs		      "2"
+      Multiplication	      "Element-wise(.*)"
+      CollapseMode	      "All dimensions"
+      CollapseDim	      "1"
+      InputSameDT	      on
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Same as first input"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      LockScale		      off
+      RndMeth		      "Zero"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      SubSystem
+      ShowPortLabels	      "FromPortIcon"
+      Permissions	      "ReadWrite"
+      PermitHierarchicalResolution "All"
+      TreatAsAtomicUnit	      off
+      SystemSampleTime	      "-1"
+      RTWFcnNameOpts	      "Auto"
+      RTWFileNameOpts	      "Auto"
+      RTWMemSecFuncInitTerm   "Inherit from model"
+      RTWMemSecFuncExecute    "Inherit from model"
+      RTWMemSecDataConstants  "Inherit from model"
+      RTWMemSecDataInternal   "Inherit from model"
+      RTWMemSecDataParameters "Inherit from model"
+      SimViewingDevice	      off
+      DataTypeOverride	      "UseLocalSettings"
+      MinMaxOverflowLogging   "UseLocalSettings"
+    }
+    Block {
+      BlockType		      Sum
+      IconShape		      "rectangular"
+      Inputs		      "++"
+      CollapseMode	      "All dimensions"
+      CollapseDim	      "1"
+      InputSameDT	      on
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Same as first input"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Constant
+      Value		      "1"
+      VectorParams1D	      on
+      SamplingMode	      "Sample based"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Inherit from 'Constant value'"
+      OutDataType	      "fixdt(1,16,0)"
+      ConRadixGroup	      "Use specified scaling"
+      OutScaling	      "[]"
+      SampleTime	      "inf"
+      FramePeriod	      "inf"
+    }
+  }
+  AnnotationDefaults {
+    HorizontalAlignment	    "center"
+    VerticalAlignment	    "middle"
+    ForegroundColor	    "black"
+    BackgroundColor	    "white"
+    DropShadow		    off
+    FontName		    "Helvetica"
+    FontSize		    10
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+    UseDisplayTextAsClickCallback off
+  }
+  LineDefaults {
+    FontName		    "Helvetica"
+    FontSize		    9
+    FontWeight		    "normal"
+    FontAngle		    "normal"
+  }
+  System {
+    Name		    "NodoseNeuron"
+    Location		    [-4, 84, 533, 498]
+    Open		    on
+    ModelBrowserVisibility  off
+    ModelBrowserWidth	    200
+    ScreenColor		    "white"
+    PaperOrientation	    "landscape"
+    PaperPositionMode	    "auto"
+    PaperType		    "usletter"
+    PaperUnits		    "inches"
+    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+    TiledPageScale	    1
+    ShowPageBoundaries	    off
+    ZoomFactor		    "73"
+    ReportName		    "simulink-default.rpt"
+    Block {
+      BlockType		      Sum
+      Name		      "Add"
+      Ports		      [4, 1]
+      Position		      [495, 61, 510, 269]
+      ShowName		      off
+      Inputs		      "+---"
+      CollapseMode	      "All dimensions"
+      InputSameDT	      off
+      OutDataTypeMode	      "Inherit via internal rule"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^-10"
+      SaturateOnIntegerOverflow	off
+      Port {
+	PortNumber		1
+	Name			"I (nA)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+    }
+    Block {
+      BlockType		      Sum
+      Name		      "Add1"
+      Ports		      [3, 1]
+      Position		      [305, 479, 335, 511]
+      Orientation	      "left"
+      NamePlacement	      "alternate"
+      ShowName		      off
+      Inputs		      "+--"
+      CollapseMode	      "All dimensions"
+      InputSameDT	      off
+      OutDataTypeMode	      "Inherit via internal rule"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^-10"
+      SaturateOnIntegerOverflow	off
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Cai"
+      Ports		      [1, 1]
+      Position		      [75, 481, 170, 509]
+      Orientation	      "left"
+      ShowName		      off
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Port {
+	PortNumber		1
+	Name			"Cai"
+	PropagatedSignals	"Cai (mM)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"Cai"
+	Location		[115, 127, 1216, 630]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"185"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In6"
+	  Position		  [25, 23, 55, 37]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "CaInflux"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add1"
+	  Ports			  [2, 1]
+	  Position		  [340, 18, 380, 62]
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "Cai dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add2"
+	  Ports			  [2, 1]
+	  Position		  [140, 123, 180, 167]
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "Oc dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "Expression"
+	  Position		  [215, 17, 295, 43]
+	  ShowName		  off
+	  Expr			  "u/2/Voli/F"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "Expression1"
+	  Position		  [250, 227, 330, 243]
+	  Orientation		  "left"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Expr			  "kU*(1-u)"
+	}
+	Block {
+	  BlockType		  Gain
+	  Name			  "Gain1"
+	  Position		  [245, 60, 275, 90]
+	  ShowName		  off
+	  Gain			  "nBi"
+	  ParameterDataTypeMode	  "Inherit via internal rule"
+	  ParameterDataType	  "sfix(16)"
+	  ParameterScaling	  "2^0"
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Gain
+	  Name			  "Gain2"
+	  Position		  [255, 175, 285, 205]
+	  Orientation		  "left"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Gain			  "kR"
+	  ParameterDataTypeMode	  "Inherit via internal rule"
+	  ParameterDataType	  "sfix(16)"
+	  ParameterScaling	  "2^0"
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "Integrator"
+	  Ports			  [1, 1]
+	  Position		  [450, 25, 480, 55]
+	  ShowName		  off
+	  InitialCondition	  "0.00008424"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "0.001"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Cai (mM)"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "6"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "Integrator1"
+	  Ports			  [1, 1]
+	  Position		  [285, 130, 315, 160]
+	  ShowName		  off
+	  InitialCondition	  "0.03418"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Oc"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [2, 1]
+	  Position		  [185, 227, 215, 258]
+	  Orientation		  "left"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [545, 32, 590, 48]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Line {
+	  Name			  "Cai dot"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Add1"
+	  SrcPort		  1
+	  DstBlock		  "Integrator"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "Cai (mM)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Integrator"
+	  SrcPort		  1
+	  Points		  [20, 0]
+	  Branch {
+	    DstBlock		    "Out1"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, 210]
+	    DstBlock		    "Product"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  Name			  "CaInflux"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In6"
+	  SrcPort		  1
+	  DstBlock		  "Expression"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Expression"
+	  SrcPort		  1
+	  DstBlock		  "Add1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "Oc dot"
+	  SrcBlock		  "Add2"
+	  SrcPort		  1
+	  Points		  [30, 0]
+	  Branch {
+	    Labels		    [1, 0]
+	    DstBlock		    "Integrator1"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, -70]
+	    DstBlock		    "Gain1"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Gain1"
+	  SrcPort		  1
+	  Points		  [10, 0; 0, -25]
+	  DstBlock		  "Add1"
+	  DstPort		  2
+	}
+	Line {
+	  Name			  "Oc"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Integrator1"
+	  SrcPort		  1
+	  Points		  [35, 0; 0, 45]
+	  Branch {
+	    Points		    [0, 45]
+	    DstBlock		    "Expression1"
+	    DstPort		    1
+	  }
+	  Branch {
+	    DstBlock		    "Gain2"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Expression1"
+	  SrcPort		  1
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  Points		  [-155, 0; 0, -110]
+	  DstBlock		  "Add2"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Gain2"
+	  SrcPort		  1
+	  Points		  [-135, 0; 0, -35]
+	  DstBlock		  "Add2"
+	  DstPort		  2
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Cas"
+      Ports		      [1, 1]
+      Position		      [75, 447, 170, 473]
+      Orientation	      "left"
+      ShowName		      off
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Port {
+	PortNumber		1
+	Name			"Cas"
+	PropagatedSignals	"Cas (mM)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"Cas"
+	Location		[0, 127, 838, 367]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"169"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In6"
+	  Position		  [15, 83, 45, 97]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "CaInflux"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add1"
+	  Ports			  [2, 1]
+	  Position		  [230, 58, 270, 102]
+	  ShowName		  off
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "Cas dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "Expression"
+	  Position		  [115, 77, 195, 103]
+	  ShowName		  off
+	  Expr			  "-u/2/Vols/F"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "Expression1"
+	  Position		  [250, 12, 330, 38]
+	  Orientation		  "left"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Expr			  "(u-Cao)/tauCa"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "Integrator"
+	  Ports			  [1, 1]
+	  Position		  [340, 65, 370, 95]
+	  InitialCondition	  "1.7131"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "2"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Cas (mM)"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [435, 69, 490, 91]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Line {
+	  Name			  "CaInflux"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In6"
+	  SrcPort		  1
+	  DstBlock		  "Expression"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "Cas (mM)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Integrator"
+	  SrcPort		  1
+	  Points		  [0, 0]
+	  Branch {
+	    Points		    [0, -55]
+	    DstBlock		    "Expression1"
+	    DstPort		    1
+	  }
+	  Branch {
+	    DstBlock		    "Out1"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Expression1"
+	  SrcPort		  1
+	  Points		  [-30, 0]
+	  DstBlock		  "Add1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "Cas dot"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Add1"
+	  SrcPort		  1
+	  DstBlock		  "Integrator"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Expression"
+	  SrcPort		  1
+	  DstBlock		  "Add1"
+	  DstPort		  2
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Cm"
+      Ports		      [1, 1]
+      Position		      [525, 90, 585, 150]
+      Orientation	      "up"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "Cm=32.5 pF"
+      MaskPromptString	      "Cm"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "Cm=@1;"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "32.5"
+      System {
+	Name			"Cm"
+	Location		[836, 547, 966, 742]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [35, 130, 65, 145]
+	  Orientation		  "up"
+	  IconDisplay		  "Port number"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "Cm"
+	  Position		  [27, 65, 73, 105]
+	  Orientation		  "up"
+	  ShowName		  off
+	  Expr			  "u/Cm*1000.0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [35, 25, 65, 40]
+	  Orientation		  "up"
+	  IconDisplay		  "Port number"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Line {
+	  Name			  "Vm dot"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Cm"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  DstBlock		  "Cm"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      Gain
+      Name		      "Gain"
+      Position		      [255, 400, 285, 430]
+      ShowName		      off
+      Gain		      "3"
+      ParameterDataTypeMode   "Inherit via internal rule"
+      ParameterDataType	      "sfix(16)"
+      ParameterScaling	      "2^0"
+      OutDataTypeMode	      "Inherit via internal rule"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^0"
+      SaturateOnIntegerOverflow	off
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "IA"
+      Ports		      [1, 1]
+      Position		      [70, 149, 160, 171]
+      ShowName		      off
+      ShowPortLabels	      "SignalName"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "gA=0.035 microS"
+      MaskPromptString	      "gA"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "gA=@1;"
+      MaskInitialization      "%gA=0.035 in SK model"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "0.035"
+      Port {
+	PortNumber		1
+	Name			"iA"
+	PropagatedSignals	"iA (nA)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"IA"
+	Location		[0, 72, 1324, 657]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"130"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [25, 28, 55, 42]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add"
+	  Ports			  [2, 1]
+	  Position		  [367, 110, 398, 140]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add1"
+	  Ports			  [2, 1]
+	  Position		  [367, 305, 398, 335]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide"
+	  Ports			  [2, 1]
+	  Position		  [670, 158, 700, 202]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "p dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide1"
+	  Ports			  [2, 1]
+	  Position		  [635, 352, 665, 403]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "q dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [3, 1]
+	  Position		  [900, 224, 930, 296]
+	  ShowName		  off
+	  Inputs		  "3"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iA (nA)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "gA*(Vm-EK)"
+	  Position		  [285, 20, 445, 50]
+	  Expr			  "gA*(u-EK)"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "m^3"
+	  Position		  [816, 200, 844, 230]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Expr			  "u^3"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "p"
+	  Ports			  [1, 1]
+	  Position		  [755, 165, 785, 195]
+	  ShowName		  off
+	  InitialCondition	  "0.2866"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "p"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "p inf"
+	  Position		  [130, 75, 290, 105]
+	  Expr			  "1.0/(1.0+exp((u+28.0)/-28.0))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "p inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "pQ10"
+	  Position		  [415, 174, 595, 206]
+	  Expr			  "u/(1.93*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "q"
+	  Ports			  [1, 1]
+	  Position		  [735, 365, 765, 395]
+	  ShowName		  off
+	  InitialCondition	  "0.3455"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "q"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "q inf"
+	  Position		  [130, 270, 290, 300]
+	  Expr			  "1.0/(1.0+exp((u+58.0)/7.0))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "q inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "qQ10"
+	  Position		  [390, 374, 570, 406]
+	  Expr			  "u/(1.93*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau p"
+	  Position		  [130, 175, 330, 205]
+	  Expr			  "5.0*exp(-(0.022)^2*(u+65.0)^2)+2.5"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau p (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau q"
+	  Position		  [125, 373, 305, 407]
+	  Expr			  "100.0*exp(-(0.035)^2*(u+30.0)^2)+10.5"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau q (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [980, 253, 1010, 267]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  InitialOutput		  "0"
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  Points		  [45, 0]
+	  Branch {
+	    Points		    [0, 55]
+	    Branch {
+	      Points		      [0, 100]
+	      Branch {
+		Points			[0, 95]
+		Branch {
+		  DstBlock		  "q inf"
+		  DstPort		  1
+		}
+		Branch {
+		  Points		  [0, 105]
+		  DstBlock		  "tau q"
+		  DstPort		  1
+		}
+	      }
+	      Branch {
+		DstBlock		"tau p"
+		DstPort			1
+	      }
+	    }
+	    Branch {
+	      DstBlock		      "p inf"
+	      DstPort		      1
+	    }
+	  }
+	  Branch {
+	    DstBlock		    "gA*(Vm-EK)"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  Name			  "p inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "p inf"
+	  SrcPort		  1
+	  Points		  [80, 0]
+	  DstBlock		  "Add"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "p"
+	  Labels		  [0, 0]
+	  SrcBlock		  "p"
+	  SrcPort		  1
+	  Points		  [40, 0]
+	  Branch {
+	    DstBlock		    "m^3"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Labels		    [2, 0]
+	    Points		    [0, -90; -440, 0]
+	    DstBlock		    "Add"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  Name			  "tau p (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau p"
+	  SrcPort		  1
+	  DstBlock		  "pQ10"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add"
+	  SrcPort		  1
+	  Points		  [0, 25]
+	  DstBlock		  "Divide"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "p dot"
+	  Labels		  [1, 0]
+	  SrcBlock		  "Divide"
+	  SrcPort		  1
+	  DstBlock		  "p"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "q inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "q inf"
+	  SrcPort		  1
+	  Points		  [80, 0]
+	  DstBlock		  "Add1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "q dot"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Divide1"
+	  SrcPort		  1
+	  DstBlock		  "q"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add1"
+	  SrcPort		  1
+	  Points		  [0, 25]
+	  DstBlock		  "Divide1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "tau q (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau q"
+	  SrcPort		  1
+	  DstBlock		  "qQ10"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "q"
+	  Labels		  [0, 0]
+	  SrcBlock		  "q"
+	  SrcPort		  1
+	  Points		  [100, 0; 0, -95]
+	  Branch {
+	    Labels		    [1, 0]
+	    Points		    [-480, 0]
+	    DstBlock		    "Add1"
+	    DstPort		    2
+	  }
+	  Branch {
+	    DstBlock		    "Product"
+	    DstPort		    3
+	  }
+	}
+	Line {
+	  Name			  "iA (nA)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "pQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "qQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "gA*(Vm-EK)"
+	  SrcPort		  1
+	  Points		  [435, 0]
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "m^3"
+	  SrcPort		  1
+	  Points		  [0, 25]
+	  DstBlock		  "Product"
+	  DstPort		  2
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "IB"
+      Ports		      [1, 1]
+      Position		      [70, 70, 160, 90]
+      ShowName		      off
+      ShowPortLabels	      "SignalName"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "gBNa=0.000325 microS"
+      MaskPromptString	      "gBNa"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "gBNa=@1;"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "0.000325"
+      Port {
+	PortNumber		1
+	Name			"iBNa"
+	PropagatedSignals	"iBNa (nA)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"IB"
+	Location		[279, 142, 955, 346]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"137"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [50, 63, 80, 77]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "IBNa"
+	  Position		  [150, 55, 310, 85]
+	  Expr			  "gBNa*(u-ENa)"
+	  Port {
+	    PortNumber		    1
+	    Name		    "iBNa (nA)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [380, 60, 435, 80]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  InitialOutput		  "0"
+	}
+	Line {
+	  Name			  "iBNa (nA)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "IBNa"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  DstBlock		  "IBNa"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "IBCa"
+      Ports		      [1, 1]
+      Position		      [75, 345, 160, 365]
+      ShowName		      off
+      ShowPortLabels	      "SignalName"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "gBCa=0.000085 microS"
+      MaskPromptString	      "gBCa"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "gBCa=@1;"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "0.000085"
+      Port {
+	PortNumber		1
+	Name			"iBCa"
+	PropagatedSignals	"iBCa"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"IBCa"
+	Location		[105, 154, 804, 377]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"144"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [50, 68, 80, 82]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "IBCa"
+	  Position		  [140, 60, 300, 90]
+	  Expr			  "gBCa*(u-ECa)"
+	  Port {
+	    PortNumber		    1
+	    Name		    "iBCa"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out2"
+	  Position		  [370, 68, 400, 82]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  InitialOutput		  "0"
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  DstBlock		  "IBCa"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "iBCa"
+	  Labels		  [0, 0]
+	  SrcBlock		  "IBCa"
+	  SrcPort		  1
+	  DstBlock		  "Out2"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "ICaPump"
+      Ports		      [1, 1]
+      Position		      [75, 533, 165, 557]
+      ShowName		      off
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Port {
+	PortNumber		1
+	Name			"iCaP"
+	PropagatedSignals	"iCaP"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"ICaPump"
+	Location		[24, 141, 742, 470]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"199"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [35, 103, 65, 117]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Cai"
+	    PropagatedSignals	    "Cai"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Bias
+	  Name			  "Bias"
+	  Position		  [120, 98, 180, 122]
+	  ShowName		  off
+	  Bias			  "KMCaP"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide"
+	  Ports			  [3, 1]
+	  Position		  [240, 61, 275, 119]
+	  ShowName		  off
+	  Inputs		  "**/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iCaP"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Q10"
+	  Position		  [15, 36, 200, 64]
+	  Value			  "ICaP*(2.3*(T-296.0)+(310.0-T))/14.0"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [325, 83, 355, 97]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Line {
+	  SrcBlock		  "Bias"
+	  SrcPort		  1
+	  DstBlock		  "Divide"
+	  DstPort		  3
+	}
+	Line {
+	  Name			  "iCaP"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Divide"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "Cai"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  Points		  [20, 0]
+	  Branch {
+	    DstBlock		    "Bias"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, -20]
+	    DstBlock		    "Divide"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  SrcBlock		  "Q10"
+	  SrcPort		  1
+	  Points		  [20, 0]
+	  DstBlock		  "Divide"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "ICan"
+      Ports		      [1, 1]
+      Position		      [75, 316, 160, 334]
+      ShowName		      off
+      ShowPortLabels	      "SignalName"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "gCan=0.001 microS"
+      MaskPromptString	      "gCan"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "gCan=@1;"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "0.001"
+      Port {
+	PortNumber		1
+	Name			"iCan"
+	PropagatedSignals	"iCan (nA)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"ICan"
+	Location		[0, 72, 1405, 761]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"123"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [25, 28, 55, 42]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add"
+	  Ports			  [2, 1]
+	  Position		  [377, 110, 408, 140]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add1"
+	  Ports			  [2, 1]
+	  Position		  [372, 260, 403, 290]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add2"
+	  Ports			  [2, 1]
+	  Position		  [950, 372, 980, 403]
+	  ShowName		  off
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add3"
+	  Ports			  [2, 1]
+	  Position		  [447, 440, 478, 470]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide"
+	  Ports			  [2, 1]
+	  Position		  [735, 138, 765, 182]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "d dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide1"
+	  Ports			  [2, 1]
+	  Position		  [645, 307, 675, 358]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "f1 dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide2"
+	  Ports			  [2, 1]
+	  Position		  [680, 487, 710, 538]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "f2 dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Gain
+	  Name			  "Gain3"
+	  Position		  [865, 317, 920, 353]
+	  ShowName		  off
+	  Gain			  "0.55"
+	  ParameterDataTypeMode	  "Inherit via internal rule"
+	  ParameterDataType	  "sfix(16)"
+	  ParameterScaling	  "2^0"
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Gain
+	  Name			  "Gain4"
+	  Position		  [865, 407, 920, 443]
+	  ShowName		  off
+	  Gain			  "0.45"
+	  ParameterDataTypeMode	  "Inherit via internal rule"
+	  ParameterDataType	  "sfix(16)"
+	  ParameterScaling	  "2^0"
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [3, 1]
+	  Position		  [1010, 248, 1045, 322]
+	  ShowName		  off
+	  Inputs		  "3"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iCan (nA)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "d"
+	  Ports			  [1, 1]
+	  Position		  [835, 145, 865, 175]
+	  ShowName		  off
+	  InitialCondition	  "0.0006"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "d"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "d inf"
+	  Position		  [130, 75, 290, 105]
+	  Expr			  "1.0/(1.0+exp((u+20.0)/-4.5))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "d inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "dQ10"
+	  Position		  [455, 154, 635, 186]
+	  Expr			  "u/(4.3*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "f1"
+	  Ports			  [1, 1]
+	  Position		  [745, 320, 775, 350]
+	  ShowName		  off
+	  InitialCondition	  "0.7927"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "f1"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "f1 inf"
+	  Position		  [130, 230, 290, 260]
+	  Expr			  "1.0/(1.0+exp((u+20.0)/25.0))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "f1 inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "f1Q10"
+	  Position		  [400, 329, 580, 361]
+	  Expr			  "u/(4.3*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "f2"
+	  Ports			  [1, 1]
+	  Position		  [765, 500, 795, 530]
+	  ShowName		  off
+	  InitialCondition	  "0.7962"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "f2"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "f2 inf"
+	  Position		  [125, 412, 410, 438]
+	  Expr			  "0.2/(1.0+exp((u+5.0)/-10))+1.0/(1.0+exp((u+40.0)/10.0))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "f2 inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "f2Q10"
+	  Position		  [435, 509, 615, 541]
+	  Expr			  "u/(4.3*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "gCan*(Vm-ECa)"
+	  Position		  [350, 20, 510, 50]
+	  Expr			  "gCan*(u-ECa)"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau d"
+	  Position		  [130, 155, 330, 185]
+	  Expr			  "3.25*exp(-(0.042)^2*(u+31.0)^2)+0.395"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau d (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau f1"
+	  Position		  [125, 328, 305, 362]
+	  Expr			  "33.5*exp(-(0.0395)^2*(u+30.0)^2)+5.0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau f1 (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau f2"
+	  Position		  [125, 508, 335, 542]
+	  Expr			  "225.0*exp(-(0.0275)^2*(u+40.0)^2)+75.0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau f2 (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [1090, 278, 1120, 292]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  InitialOutput		  "0"
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  Points		  [50, 0]
+	  Branch {
+	    Points		    [0, 55]
+	    Branch {
+	      Points		      [0, 80]
+	      Branch {
+		DstBlock		"tau d"
+		DstPort			1
+	      }
+	      Branch {
+		Points			[0, 75]
+		Branch {
+		  DstBlock		  "f1 inf"
+		  DstPort		  1
+		}
+		Branch {
+		  Points		  [0, 100]
+		  Branch {
+		    DstBlock		    "tau f1"
+		    DstPort		    1
+		  }
+		  Branch {
+		    Points		    [0, 80]
+		    Branch {
+		    DstBlock		    "f2 inf"
+		    DstPort		    1
+		    }
+		    Branch {
+		    DstBlock		    "tau f2"
+		    DstPort		    1
+		    }
+		  }
+		}
+	      }
+	    }
+	    Branch {
+	      DstBlock		      "d inf"
+	      DstPort		      1
+	    }
+	  }
+	  Branch {
+	    DstBlock		    "gCan*(Vm-ECa)"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  Name			  "d inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "d inf"
+	  SrcPort		  1
+	  Points		  [90, 0]
+	  DstBlock		  "Add"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "d"
+	  Labels		  [0, 0]
+	  SrcBlock		  "d"
+	  SrcPort		  1
+	  Points		  [55, 0]
+	  Branch {
+	    Points		    [0, -70; -525, 0]
+	    DstBlock		    "Add"
+	    DstPort		    2
+	  }
+	  Branch {
+	    Points		    [0, 125]
+	    DstBlock		    "Product"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  Name			  "tau d (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau d"
+	  SrcPort		  1
+	  DstBlock		  "dQ10"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add"
+	  SrcPort		  1
+	  Points		  [0, 5]
+	  DstBlock		  "Divide"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "d dot"
+	  Labels		  [1, 0]
+	  SrcBlock		  "Divide"
+	  SrcPort		  1
+	  DstBlock		  "d"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "f1 inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "f1 inf"
+	  SrcPort		  1
+	  DstBlock		  "Add1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "f1 dot"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Divide1"
+	  SrcPort		  1
+	  DstBlock		  "f1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add1"
+	  SrcPort		  1
+	  Points		  [0, 25]
+	  DstBlock		  "Divide1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "tau f1 (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau f1"
+	  SrcPort		  1
+	  DstBlock		  "f1Q10"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "f1"
+	  Labels		  [0, 0]
+	  SrcBlock		  "f1"
+	  SrcPort		  1
+	  Points		  [30, 0]
+	  Branch {
+	    DstBlock		    "Gain3"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Labels		    [2, 0]
+	    Points		    [0, -90]
+	    DstBlock		    "Add1"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  Name			  "iCan (nA)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "f2 inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "f2 inf"
+	  SrcPort		  1
+	  DstBlock		  "Add3"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "f2 dot"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Divide2"
+	  SrcPort		  1
+	  DstBlock		  "f2"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add3"
+	  SrcPort		  1
+	  Points		  [0, 25]
+	  DstBlock		  "Divide2"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "tau f2 (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau f2"
+	  SrcPort		  1
+	  DstBlock		  "f2Q10"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Gain3"
+	  SrcPort		  1
+	  Points		  [10, 0]
+	  DstBlock		  "Add2"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Gain4"
+	  SrcPort		  1
+	  Points		  [10, 0]
+	  DstBlock		  "Add2"
+	  DstPort		  2
+	}
+	Line {
+	  Name			  "f2"
+	  Labels		  [0, 0]
+	  SrcBlock		  "f2"
+	  SrcPort		  1
+	  Points		  [40, 0; 0, -90]
+	  Branch {
+	    DstBlock		    "Gain4"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Labels		    [1, 0]
+	    DstBlock		    "Add3"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  SrcBlock		  "dQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "f1Q10"
+	  SrcPort		  1
+	  DstBlock		  "Divide1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "f2Q10"
+	  SrcPort		  1
+	  DstBlock		  "Divide2"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Add2"
+	  SrcPort		  1
+	  Points		  [5, 0; 0, -80]
+	  DstBlock		  "Product"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "gCan*(Vm-ECa)"
+	  SrcPort		  1
+	  Points		  [480, 0]
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "ICat"
+      Ports		      [1, 1]
+      Position		      [75, 284, 160, 306]
+      ShowName		      off
+      ShowPortLabels	      "SignalName"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "gCat=0.00035 microS"
+      MaskPromptString	      "gCat"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "gCat=@1;"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "0.00035"
+      Port {
+	PortNumber		1
+	Name			"iCat"
+	PropagatedSignals	"iCat (nA)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"ICat"
+	Location		[0, 72, 1292, 671]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"132"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [25, 23, 55, 37]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add"
+	  Ports			  [2, 1]
+	  Position		  [337, 105, 368, 135]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add1"
+	  Ports			  [2, 1]
+	  Position		  [337, 300, 368, 330]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide"
+	  Ports			  [2, 1]
+	  Position		  [640, 153, 670, 197]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "d dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide1"
+	  Ports			  [2, 1]
+	  Position		  [600, 347, 630, 398]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "f dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [3, 1]
+	  Position		  [845, 223, 880, 297]
+	  ShowName		  off
+	  Inputs		  "3"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iCat (nA)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "d"
+	  Ports			  [1, 1]
+	  Position		  [730, 160, 760, 190]
+	  ShowName		  off
+	  InitialCondition	  "0.5205"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "d"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "d inf"
+	  Position		  [130, 70, 290, 100]
+	  Expr			  "1.0/(1.0+exp((u+54.0)/-5.75))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "d inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "dQ10"
+	  Position		  [405, 169, 585, 201]
+	  Expr			  "u/(1.9*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "f"
+	  Ports			  [1, 1]
+	  Position		  [685, 360, 715, 390]
+	  ShowName		  off
+	  InitialCondition	  "0.0823"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "f"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "f inf"
+	  Position		  [130, 270, 290, 300]
+	  Expr			  "1.0/(1.0+exp((u+68.0)/6.0))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "f inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "fQ10"
+	  Position		  [380, 369, 560, 401]
+	  Expr			  "u/(2.2*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "gCat*(Vm-ECa)"
+	  Position		  [430, 15, 590, 45]
+	  Expr			  "gCat*(u-ECa)"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau d"
+	  Position		  [130, 170, 330, 200]
+	  Expr			  "22.0*exp(-(0.052)^2*(u+68.0)^2)+2.5"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau d (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau f"
+	  Position		  [125, 368, 305, 402]
+	  Expr			  "103.0*exp(-(0.050)^2*(u+58.0)^2)+12.5"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau f (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [940, 253, 970, 267]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  InitialOutput		  "0"
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  Points		  [50, 0]
+	  Branch {
+	    Points		    [0, 55]
+	    Branch {
+	      Points		      [0, 100]
+	      Branch {
+		Points			[0, 100]
+		Branch {
+		  DstBlock		  "f inf"
+		  DstPort		  1
+		}
+		Branch {
+		  DstBlock		  "tau f"
+		  DstPort		  1
+		}
+	      }
+	      Branch {
+		DstBlock		"tau d"
+		DstPort			1
+	      }
+	    }
+	    Branch {
+	      DstBlock		      "d inf"
+	      DstPort		      1
+	    }
+	  }
+	  Branch {
+	    DstBlock		    "gCat*(Vm-ECa)"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  Name			  "d inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "d inf"
+	  SrcPort		  1
+	  Points		  [50, 0]
+	  DstBlock		  "Add"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "d"
+	  Labels		  [0, 0]
+	  SrcBlock		  "d"
+	  SrcPort		  1
+	  Points		  [35, 0]
+	  Branch {
+	    Labels		    [2, 0]
+	    Points		    [1, -90; -441, 0]
+	    DstBlock		    "Add"
+	    DstPort		    2
+	  }
+	  Branch {
+	    Points		    [0, 85]
+	    DstBlock		    "Product"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  Name			  "tau d (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau d"
+	  SrcPort		  1
+	  DstBlock		  "dQ10"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add"
+	  SrcPort		  1
+	  Points		  [0, 25]
+	  DstBlock		  "Divide"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "d dot"
+	  Labels		  [1, 0]
+	  SrcBlock		  "Divide"
+	  SrcPort		  1
+	  DstBlock		  "d"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "f inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "f inf"
+	  SrcPort		  1
+	  DstBlock		  "Add1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "f dot"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Divide1"
+	  SrcPort		  1
+	  DstBlock		  "f"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add1"
+	  SrcPort		  1
+	  Points		  [0, 25]
+	  DstBlock		  "Divide1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "tau f (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau f"
+	  SrcPort		  1
+	  DstBlock		  "fQ10"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "f"
+	  Labels		  [0, 0]
+	  SrcBlock		  "f"
+	  SrcPort		  1
+	  Points		  [100, 0; 0, -90]
+	  Branch {
+	    Labels		    [1, 0]
+	    DstBlock		    "Add1"
+	    DstPort		    2
+	  }
+	  Branch {
+	    DstBlock		    "Product"
+	    DstPort		    3
+	  }
+	}
+	Line {
+	  Name			  "iCat (nA)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "dQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "fQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "gCat*(Vm-ECa)"
+	  SrcPort		  1
+	  Points		  [235, 0]
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "ID"
+      Ports		      [1, 1]
+      Position		      [70, 181, 155, 199]
+      ShowName		      off
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "gD=0.01 microS"
+      MaskPromptString	      "gD"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "gD=@1;"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "0.01"
+      Port {
+	PortNumber		1
+	Name			"iD"
+	PropagatedSignals	"iD (nA)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"ID"
+	Location		[0, 72, 1242, 625]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"126"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [25, 28, 55, 42]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add"
+	  Ports			  [2, 1]
+	  Position		  [492, 110, 523, 140]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add1"
+	  Ports			  [2, 1]
+	  Position		  [492, 305, 523, 335]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide"
+	  Ports			  [2, 1]
+	  Position		  [670, 158, 700, 202]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide1"
+	  Ports			  [2, 1]
+	  Position		  [690, 352, 720, 403]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [3, 1]
+	  Position		  [865, 228, 900, 302]
+	  ShowName		  off
+	  Inputs		  "3"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iD (nA)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "activation"
+	  Ports			  [1, 1]
+	  Position		  [745, 165, 775, 195]
+	  ShowName		  off
+	  InitialCondition	  "0.2794"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "x"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "gD*(Vm-EK)"
+	  Position		  [410, 20, 570, 50]
+	  Expr			  "gD*(u-EK)"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "inactivation"
+	  Ports			  [1, 1]
+	  Position		  [765, 365, 795, 395]
+	  ShowName		  off
+	  InitialCondition	  "0.7162"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "y"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "m^3"
+	  Position		  [799, 215, 831, 245]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Expr			  "u^3"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau x"
+	  Position		  [130, 175, 330, 205]
+	  Expr			  "5.0*exp(-(0.022)^2*(u+65.0)^2)+2.5"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau x (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "tau y"
+	  Position		  [145, 375, 225, 405]
+	  Value			  "7500.0"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau y (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "x inf"
+	  Position		  [130, 75, 290, 105]
+	  Expr			  "1.0/(1.0+exp((u+39.6)/-14.7))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "x inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "xQ10"
+	  Position		  [440, 174, 620, 206]
+	  Expr			  "u/(1.93*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "y inf"
+	  Position		  [130, 275, 290, 305]
+	  Expr			  "1.0/(1.0+exp((u+48.0)/7.0))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "y inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "yQ10"
+	  Position		  [315, 374, 495, 406]
+	  Expr			  "u/(1.93*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [950, 258, 980, 272]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  Points		  [45, 0]
+	  Branch {
+	    Points		    [0, 55]
+	    Branch {
+	      Points		      [0, 100]
+	      Branch {
+		DstBlock		"tau x"
+		DstPort			1
+	      }
+	      Branch {
+		Points			[0, 100]
+		DstBlock		"y inf"
+		DstPort			1
+	      }
+	    }
+	    Branch {
+	      DstBlock		      "x inf"
+	      DstPort		      1
+	    }
+	  }
+	  Branch {
+	    DstBlock		    "gD*(Vm-EK)"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  Name			  "x inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "x inf"
+	  SrcPort		  1
+	  Points		  [205, 0]
+	  DstBlock		  "Add"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "x"
+	  Labels		  [0, 0]
+	  SrcBlock		  "activation"
+	  SrcPort		  1
+	  Points		  [35, 0]
+	  Branch {
+	    DstBlock		    "m^3"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Labels		    [2, 0]
+	    Points		    [0, -90; -300, 0]
+	    DstBlock		    "Add"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  Name			  "tau x (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau x"
+	  SrcPort		  1
+	  DstBlock		  "xQ10"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add"
+	  SrcPort		  1
+	  Points		  [0, 25]
+	  DstBlock		  "Divide"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Divide"
+	  SrcPort		  1
+	  DstBlock		  "activation"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "y inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "y inf"
+	  SrcPort		  1
+	  DstBlock		  "Add1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Divide1"
+	  SrcPort		  1
+	  DstBlock		  "inactivation"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add1"
+	  SrcPort		  1
+	  Points		  [0, 25]
+	  DstBlock		  "Divide1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "tau y (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau y"
+	  SrcPort		  1
+	  DstBlock		  "yQ10"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "y"
+	  Labels		  [0, 0]
+	  SrcBlock		  "inactivation"
+	  SrcPort		  1
+	  Points		  [40, 0; 0, -90]
+	  Branch {
+	    Labels		    [1, 0]
+	    DstBlock		    "Add1"
+	    DstPort		    2
+	  }
+	  Branch {
+	    DstBlock		    "Product"
+	    DstPort		    3
+	  }
+	}
+	Line {
+	  Name			  "iD (nA)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "xQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "yQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "m^3"
+	  SrcPort		  1
+	  Points		  [0, 15]
+	  DstBlock		  "Product"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "gD*(Vm-EK)"
+	  SrcPort		  1
+	  Points		  [275, 0]
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "IK"
+      Ports		      [1, 1]
+      Position		      [70, 120, 160, 140]
+      ShowName		      off
+      ShowPortLabels	      "SignalName"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "gK=0.0055 microS"
+      MaskPromptString	      "gK"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "gK=@1;"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "0.0055"
+      Port {
+	PortNumber		1
+	Name			"iK"
+	PropagatedSignals	"iK (nA)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"IK"
+	Location		[0, 72, 1335, 394]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"130"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [15, 28, 45, 42]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add"
+	  Ports			  [2, 1]
+	  Position		  [482, 90, 513, 120]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide"
+	  Ports			  [2, 1]
+	  Position		  [770, 118, 805, 202]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [2, 1]
+	  Position		  [895, 13, 930, 97]
+	  ShowName		  off
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iK (nA)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "activation"
+	  Ports			  [1, 1]
+	  Position		  [830, 145, 860, 175]
+	  ShowName		  off
+	  InitialCondition	  "0.1076"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "n"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "gK*(Vm-EK)"
+	  Position		  [410, 20, 570, 50]
+	  Expr			  "gK*(u-EK)"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "n inf"
+	  Position		  [190, 61, 405, 89]
+	  Expr			  "1.0/(1.0+exp((u+14.6)/-18.4))"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "nQ10"
+	  Position		  [565, 167, 745, 193]
+	  Expr			  "u/(1.40*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau n"
+	  Position		  [105, 165, 480, 195]
+	  Expr			  "1.0/(0.001265*(u+14.3)/(1.0-exp((u+14.3)/-10.0))+0.125*exp((u+55.0)/-2.5))+1.0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau n (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [990, 48, 1020, 62]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  InitialOutput		  "0"
+	}
+	Line {
+	  SrcBlock		  "n inf"
+	  SrcPort		  1
+	  DstBlock		  "Add"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "tau n (msec)"
+	  Labels		  [1, 0]
+	  SrcBlock		  "tau n"
+	  SrcPort		  1
+	  DstBlock		  "nQ10"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add"
+	  SrcPort		  1
+	  Points		  [0, 14; 255, 0]
+	  DstBlock		  "Divide"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Divide"
+	  SrcPort		  1
+	  DstBlock		  "activation"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "iK (nA)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "n"
+	  Labels		  [0, 0]
+	  SrcBlock		  "activation"
+	  SrcPort		  1
+	  Points		  [10, 0; 0, -85]
+	  Branch {
+	    DstBlock		    "Add"
+	    DstPort		    2
+	  }
+	  Branch {
+	    DstBlock		    "Product"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  Points		  [40, 0]
+	  Branch {
+	    Points		    [0, 40]
+	    Branch {
+	      DstBlock		      "n inf"
+	      DstPort		      1
+	    }
+	    Branch {
+	      DstBlock		      "tau n"
+	      DstPort		      1
+	    }
+	  }
+	  Branch {
+	    DstBlock		    "gK*(Vm-EK)"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "nQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "gK*(Vm-EK)"
+	  SrcPort		  1
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "IKCa"
+      Ports		      [2, 1]
+      Position		      [70, 239, 155, 261]
+      ShowName		      off
+      ShowPortLabels	      "SignalName"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "gKCa=0.0065 microS"
+      MaskPromptString	      "gKCa"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "gKCa=@1;"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "0.0065"
+      Port {
+	PortNumber		1
+	Name			"iKCa"
+	PropagatedSignals	"iKCa (nA)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"IKCa"
+	Location		[0, 72, 1243, 368]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"132"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [15, 33, 45, 47]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "In2"
+	  Position		  [125, 58, 155, 72]
+	  ShowName		  off
+	  Port			  "2"
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Cai"
+	    PropagatedSignals	    "Cai"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add"
+	  Ports			  [2, 1]
+	  Position		  [442, 90, 473, 120]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide"
+	  Ports			  [2, 1]
+	  Position		  [695, 133, 725, 177]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "c dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide1"
+	  Ports			  [2, 1]
+	  Position		  [380, 48, 410, 97]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "c inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [2, 1]
+	  Position		  [820, 21, 835, 94]
+	  ShowName		  off
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iKCa (nA)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "a"
+	  Position		  [115, 95, 240, 125]
+	  ShowName		  off
+	  Expr			  "750.0*exp((u-10.0)/12.0)"
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "ac"
+	  Ports			  [2, 1]
+	  Position		  [260, 53, 290, 102]
+	  Inputs		  "**"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "ac+bc"
+	  Ports			  [2, 1]
+	  Position		  [320, 127, 350, 158]
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "activation"
+	  Ports			  [1, 1]
+	  Position		  [765, 140, 795, 170]
+	  ShowName		  off
+	  InitialCondition	  "0.0046"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "c"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "bc"
+	  Position		  [105, 160, 265, 190]
+	  Expr			  "0.05*exp((u-10.0)/-60.0)"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "cQ10"
+	  Position		  [505, 149, 675, 181]
+	  Expr			  "u/(2.3*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "gKCa*(Vm-EK)"
+	  Position		  [520, 25, 680, 55]
+	  Expr			  "gKCa*(u-EK)"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau c"
+	  Position		  [380, 151, 435, 179]
+	  Expr			  "4.5/u"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau c (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [900, 53, 930, 67]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  InitialOutput		  "0"
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  Points		  [40, 0]
+	  Branch {
+	    Points		    [0, 70]
+	    Branch {
+	      DstBlock		      "bc"
+	      DstPort		      1
+	    }
+	    Branch {
+	      DstBlock		      "a"
+	      DstPort		      1
+	    }
+	  }
+	  Branch {
+	    DstBlock		    "gKCa*(Vm-EK)"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  Name			  "tau c (msec)"
+	  Labels		  [1, 0]
+	  SrcBlock		  "tau c"
+	  SrcPort		  1
+	  DstBlock		  "cQ10"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add"
+	  SrcPort		  1
+	  Points		  [0, 20]
+	  DstBlock		  "Divide"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "c dot"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Divide"
+	  SrcPort		  1
+	  DstBlock		  "activation"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "iKCa (nA)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "ac+bc"
+	  SrcPort		  1
+	  Points		  [10, 0]
+	  Branch {
+	    DstBlock		    "Divide1"
+	    DstPort		    2
+	  }
+	  Branch {
+	    DstBlock		    "tau c"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  Name			  "c inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Divide1"
+	  SrcPort		  1
+	  DstBlock		  "Add"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "bc"
+	  SrcPort		  1
+	  Points		  [15, 0; 0, -25]
+	  DstBlock		  "ac+bc"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "a"
+	  SrcPort		  1
+	  DstBlock		  "ac"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "ac"
+	  SrcPort		  1
+	  Points		  [5, 0]
+	  Branch {
+	    Points		    [0, 55]
+	    DstBlock		    "ac+bc"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, -20]
+	    DstBlock		    "Divide1"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  Name			  "Cai"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In2"
+	  SrcPort		  1
+	  DstBlock		  "ac"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "cQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide"
+	  DstPort		  2
+	}
+	Line {
+	  Name			  "c"
+	  Labels		  [0, 0]
+	  SrcBlock		  "activation"
+	  SrcPort		  1
+	  Points		  [0, -80]
+	  Branch {
+	    DstBlock		    "Add"
+	    DstPort		    2
+	  }
+	  Branch {
+	    DstBlock		    "Product"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  SrcBlock		  "gKCa*(Vm-EK)"
+	  SrcPort		  1
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "INaCa"
+      Ports		      [3, 1]
+      Position		      [75, 393, 165, 437]
+      ShowName		      off
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Port {
+	PortNumber		1
+	Name			"iNaCa"
+	PropagatedSignals	"iNaCa"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"INaCa"
+	Location		[0, 84, 1132, 493]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"147"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [25, 113, 55, 127]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "In2"
+	  Position		  [30, 248, 60, 262]
+	  ShowName		  off
+	  Port			  "2"
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Cai"
+	    PropagatedSignals	    "Cai"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Inport
+	  Name			  "In3"
+	  Position		  [25, 78, 55, 92]
+	  ShowName		  off
+	  Port			  "3"
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Cas"
+	    PropagatedSignals	    "Cas"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add"
+	  Ports			  [2, 1]
+	  Position		  [570, 107, 600, 138]
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "DFin-DFout"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add1"
+	  Ports			  [2, 1]
+	  Position		  [755, 202, 785, 233]
+	  Orientation		  "left"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "Cm (mcroF)1"
+	  Position		  [380, 303, 465, 337]
+	  ShowName		  off
+	  Expr			  "u^3"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "Cm (mcroF)2"
+	  Position		  [375, 33, 460, 67]
+	  ShowName		  off
+	  Expr			  "u^3"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant"
+	  Position		  [315, 305, 345, 335]
+	  ShowName		  off
+	  Value			  "Nao"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant1"
+	  Position		  [310, 35, 340, 65]
+	  ShowName		  off
+	  Value			  "Nai"
+	  VectorParams1D	  off
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "DFin"
+	  Position		  [115, 107, 450, 133]
+	  Expr			  "Nai^3*exp((3-2)*0.5*u*F/R/T/1000)"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "DFout"
+	  Position		  [125, 196, 445, 224]
+	  Expr			  "Nao^3*exp((3-2)*(0.5-1)*u*F/R/T/1000)"
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [2, 1]
+	  Position		  [500, 202, 530, 233]
+	  ShowName		  off
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product1"
+	  Ports			  [2, 1]
+	  Position		  [495, 97, 525, 128]
+	  ShowName		  off
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product2"
+	  Ports			  [3, 1]
+	  Position		  [825, 85, 860, 165]
+	  ShowName		  off
+	  Inputs		  "**/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iNaCa"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product3"
+	  Ports			  [2, 1]
+	  Position		  [500, 297, 530, 328]
+	  ShowName		  off
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product4"
+	  Ports			  [2, 1]
+	  Position		  [495, 42, 525, 73]
+	  ShowName		  off
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Q10"
+	  Position		  [545, 72, 775, 98]
+	  Value			  "KNaCa*(2.2*(T-296.0)+(310.0-T))/14.0"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "S"
+	  Position		  [620, 203, 695, 237]
+	  Orientation		  "left"
+	  Expr			  "u*DNaCa+1"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [910, 118, 940, 132]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Line {
+	  Name			  "DFin-DFout"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Add"
+	  SrcPort		  1
+	  DstBlock		  "Product2"
+	  DstPort		  2
+	}
+	Line {
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  Points		  [25, 0]
+	  Branch {
+	    DstBlock		    "DFin"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, 90]
+	    DstBlock		    "DFout"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  Points		  [10, 0; 0, -90]
+	  DstBlock		  "Add"
+	  DstPort		  2
+	}
+	Line {
+	  Name			  "Cai"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In2"
+	  SrcPort		  1
+	  Points		  [420, 0]
+	  Branch {
+	    DstBlock		    "Product"
+	    DstPort		    2
+	  }
+	  Branch {
+	    DstBlock		    "Product3"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  SrcBlock		  "DFin"
+	  SrcPort		  1
+	  DstBlock		  "Product1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Product1"
+	  SrcPort		  1
+	  DstBlock		  "Add"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "Cas"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In3"
+	  SrcPort		  1
+	  Points		  [420, 0]
+	  Branch {
+	    DstBlock		    "Product1"
+	    DstPort		    1
+	  }
+	  Branch {
+	    DstBlock		    "Product4"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  SrcBlock		  "DFout"
+	  SrcPort		  1
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Constant"
+	  SrcPort		  1
+	  DstBlock		  "Cm (mcroF)1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Cm (mcroF)1"
+	  SrcPort		  1
+	  DstBlock		  "Product3"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Constant1"
+	  SrcPort		  1
+	  DstBlock		  "Cm (mcroF)2"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Cm (mcroF)2"
+	  SrcPort		  1
+	  DstBlock		  "Product4"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Product4"
+	  SrcPort		  1
+	  Points		  [425, 1; 0, 150]
+	  DstBlock		  "Add1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Product3"
+	  SrcPort		  1
+	  Points		  [420, -1; 0, -88]
+	  DstBlock		  "Add1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Add1"
+	  SrcPort		  1
+	  DstBlock		  "S"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "iNaCa"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Product2"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "S"
+	  SrcPort		  1
+	  Points		  [-10, 0; 0, -70]
+	  DstBlock		  "Product2"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Q10"
+	  SrcPort		  1
+	  Points		  [30, 0]
+	  DstBlock		  "Product2"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "INaK"
+      Ports		      [1, 1]
+      Position		      [70, 210, 155, 230]
+      ShowName		      off
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      Port {
+	PortNumber		1
+	Name			"iNaK"
+	PropagatedSignals	"iNaK"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"INaK"
+	Location		[18, 128, 1149, 373]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"164"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [15, 42, 50, 58]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "INaK"
+	  Position		  [115, 33, 440, 67]
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Expr			  "INaK*(Nai/(Nai+KMNa))^3*(Ko/(Ko+KMK))^2*(u+150)/(u+200)"
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [2, 1]
+	  Position		  [530, 52, 560, 83]
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iNaK"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Q10"
+	  Position		  [165, 79, 390, 111]
+	  Value			  "(1.16*(T-296.0)+(310.0-T))/14.0"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [605, 63, 635, 77]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  DstBlock		  "INaK"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "INaK"
+	  SrcPort		  1
+	  Points		  [25, 0; 0, 10]
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Q10"
+	  SrcPort		  1
+	  Points		  [75, 0; 0, -20]
+	  DstBlock		  "Product"
+	  DstPort		  2
+	}
+	Line {
+	  Name			  "iNaK"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "INaf"
+      Ports		      [1, 1]
+      Position		      [70, 20, 160, 40]
+      ShowName		      off
+      ShowPortLabels	      "SignalName"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "gNaf=2.05 microS"
+      MaskPromptString	      "gNaf"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "gNaf=@1;"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "2.05"
+      Port {
+	PortNumber		1
+	Name			"iNaf"
+	PropagatedSignals	"iNaf (nA)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"INaf"
+	Location		[0, 72, 1436, 900]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"148"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [15, 23, 45, 37]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add"
+	  Ports			  [2, 1]
+	  Position		  [377, 105, 408, 135]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add1"
+	  Ports			  [2, 1]
+	  Position		  [372, 315, 403, 345]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide"
+	  Ports			  [2, 1]
+	  Position		  [625, 153, 655, 197]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "m dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide1"
+	  Ports			  [2, 1]
+	  Position		  [615, 347, 645, 398]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "h dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [3, 1]
+	  Position		  [840, 233, 875, 307]
+	  ShowName		  off
+	  Inputs		  "3"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iNaf (nA)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "gNaf*(Vm-ENa)"
+	  Position		  [280, 15, 440, 45]
+	  Expr			  "gNaf*(u-ENa)"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "h"
+	  Ports			  [1, 1]
+	  Position		  [715, 360, 745, 390]
+	  ShowName		  off
+	  InitialCondition	  "0.1102"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "h"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "h inf"
+	  Position		  [120, 280, 280, 310]
+	  Expr			  "1.0/(1.0+exp((u+66.0)/5.97))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "h inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "hQ10"
+	  Position		  [390, 369, 570, 401]
+	  Expr			  "u/(1.5*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "m"
+	  Ports			  [1, 1]
+	  Position		  [725, 159, 755, 191]
+	  ShowName		  off
+	  InitialCondition	  "0.0414"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1"
+	  LowerSaturationLimit	  "0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "m"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "m inf"
+	  Position		  [120, 70, 280, 100]
+	  Expr			  "1.0/(1.0+exp((u+31.6)/-6.98))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "m inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "mQ10"
+	  Position		  [395, 169, 575, 201]
+	  Expr			  "u/(2.3*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "m^3"
+	  Position		  [775, 220, 805, 255]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Expr			  "u^3"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau h"
+	  Position		  [115, 368, 295, 402]
+	  Expr			  "18.0*exp(-(0.043)^2*(u+62.5)^2)+1.35"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau h (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau m"
+	  Position		  [120, 170, 320, 200]
+	  Expr			  "1.15*exp(-(0.06)^2*(u+40.0)^2)+0.21"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau m (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [935, 263, 965, 277]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  InitialOutput		  "0"
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  Points		  [45, 0]
+	  Branch {
+	    Points		    [0, 55]
+	    Branch {
+	      Points		      [0, 100]
+	      Branch {
+		Points			[0, 110]
+		Branch {
+		  DstBlock		  "h inf"
+		  DstPort		  1
+		}
+		Branch {
+		  Points		  [0, 90]
+		  DstBlock		  "tau h"
+		  DstPort		  1
+		}
+	      }
+	      Branch {
+		DstBlock		"tau m"
+		DstPort			1
+	      }
+	    }
+	    Branch {
+	      DstBlock		      "m inf"
+	      DstPort		      1
+	    }
+	  }
+	  Branch {
+	    DstBlock		    "gNaf*(Vm-ENa)"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  Name			  "m inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "m inf"
+	  SrcPort		  1
+	  Points		  [100, 0]
+	  DstBlock		  "Add"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "m"
+	  Labels		  [0, 0]
+	  SrcBlock		  "m"
+	  SrcPort		  1
+	  Points		  [30, 0]
+	  Branch {
+	    DstBlock		    "m^3"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, -90; -390, 0]
+	    DstBlock		    "Add"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  Name			  "tau m (msec)"
+	  Labels		  [1, 0]
+	  SrcBlock		  "tau m"
+	  SrcPort		  1
+	  DstBlock		  "mQ10"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add"
+	  SrcPort		  1
+	  Points		  [0, 25]
+	  DstBlock		  "Divide"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "m dot"
+	  Labels		  [1, 0]
+	  SrcBlock		  "Divide"
+	  SrcPort		  1
+	  DstBlock		  "m"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "h inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "h inf"
+	  SrcPort		  1
+	  Points		  [95, 0]
+	  DstBlock		  "Add1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "h dot"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Divide1"
+	  SrcPort		  1
+	  DstBlock		  "h"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add1"
+	  SrcPort		  1
+	  Points		  [0, 10]
+	  DstBlock		  "Divide1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "tau h (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau h"
+	  SrcPort		  1
+	  DstBlock		  "hQ10"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "h"
+	  Labels		  [0, 0]
+	  SrcBlock		  "h"
+	  SrcPort		  1
+	  Points		  [20, 0; 20, -1; 0, -79]
+	  Branch {
+	    Points		    [-395, 0]
+	    DstBlock		    "Add1"
+	    DstPort		    2
+	  }
+	  Branch {
+	    DstBlock		    "Product"
+	    DstPort		    3
+	  }
+	}
+	Line {
+	  Name			  "iNaf (nA)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "mQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "hQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide1"
+	  DstPort		  2
+	}
+	Line {
+	  Labels		  [0, 0]
+	  SrcBlock		  "gNaf*(Vm-ENa)"
+	  SrcPort		  1
+	  Points		  [380, 0]
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "m^3"
+	  SrcPort		  1
+	  Points		  [0, 10]
+	  DstBlock		  "Product"
+	  DstPort		  2
+	}
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "INas"
+      Ports		      [1, 1]
+      Position		      [70, 45, 160, 65]
+      ShowName		      off
+      ShowPortLabels	      "SignalName"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskDescription	      "gNas=0.00001 microS"
+      MaskPromptString	      "gNas"
+      MaskStyleString	      "edit"
+      MaskTunableValueString  "on"
+      MaskEnableString	      "on"
+      MaskVisibilityString    "on"
+      MaskToolTipString	      "on"
+      MaskVariables	      "gNas=@1;"
+      MaskIconFrame	      on
+      MaskIconOpaque	      on
+      MaskIconRotate	      "none"
+      MaskIconUnits	      "autoscale"
+      MaskValueString	      "0.00001"
+      Port {
+	PortNumber		1
+	Name			"iNas"
+	PropagatedSignals	"iNas (nA)"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+      System {
+	Name			"INas"
+	Location		[46, 145, 1266, 697]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"125"
+	Block {
+	  BlockType		  Inport
+	  Name			  "In1"
+	  Position		  [15, 23, 45, 37]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "Vm (mV)"
+	    PropagatedSignals	    "Vm (mV)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add"
+	  Ports			  [2, 1]
+	  Position		  [352, 100, 383, 130]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Sum
+	  Name			  "Add1"
+	  Ports			  [2, 1]
+	  Position		  [377, 305, 408, 335]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Inputs		  "+-"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide"
+	  Ports			  [2, 1]
+	  Position		  [615, 140, 645, 200]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "m dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Divide1"
+	  Ports			  [2, 1]
+	  Position		  [620, 347, 650, 398]
+	  ShowName		  off
+	  Inputs		  "*/"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^-10"
+	  RndMeth		  "Floor"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "h dot"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Product
+	  Name			  "Product"
+	  Ports			  [3, 1]
+	  Position		  [840, 213, 875, 287]
+	  ShowName		  off
+	  Inputs		  "3"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	  Port {
+	    PortNumber		    1
+	    Name		    "iNas (nA)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "gNas*(Vm-ENa)"
+	  Position		  [295, 15, 455, 45]
+	  Expr			  "gNas*(u-ENa)"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "h inf"
+	  Position		  [120, 260, 280, 290]
+	  Expr			  "1.0/(1.0+exp((u+31.0)/5.2))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "h inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "hQ10"
+	  Position		  [410, 369, 590, 401]
+	  Expr			  "u/(1.5*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "hs"
+	  Ports			  [1, 1]
+	  Position		  [720, 360, 750, 390]
+	  ShowName		  off
+	  InitialCondition	  "0.9870"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1.0"
+	  LowerSaturationLimit	  "0.0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "h"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "m inf"
+	  Position		  [120, 70, 280, 100]
+	  Expr			  "1.0/(1.0+exp((u+11.3)/-5.45))"
+	  Port {
+	    PortNumber		    1
+	    Name		    "m inf"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "mQ10"
+	  Position		  [405, 169, 585, 201]
+	  Expr			  "u/(2.3*(T-296.0)+(310.0-T))*14.0"
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "m^3"
+	  Position		  [756, 210, 784, 235]
+	  Orientation		  "down"
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	  Expr			  "u^3"
+	}
+	Block {
+	  BlockType		  Integrator
+	  Name			  "ms"
+	  Ports			  [1, 1]
+	  Position		  [700, 154, 730, 186]
+	  ShowName		  off
+	  InitialCondition	  "0.0004"
+	  LimitOutput		  on
+	  UpperSaturationLimit	  "1.0"
+	  LowerSaturationLimit	  "0.0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "m"
+	    TestPoint		    on
+	    RTWStorageClass	    "Auto"
+	    DataLogging		    on
+	    DataLoggingNameMode	    "SignalName"
+	    DataLoggingDecimateData on
+	    DataLoggingDecimation   "3"
+	    DataLoggingLimitDataPoints on
+	    DataLoggingMaxPoints    "10"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau h"
+	  Position		  [120, 368, 330, 402]
+	  Expr			  "10.75*exp(-(0.067)^2*(u+13.5)^2)+3.15"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau h (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Fcn
+	  Name			  "tau ms"
+	  Position		  [120, 170, 320, 200]
+	  Expr			  "1.45*exp(-(0.058)^2*(u+14.5)^2)+0.26"
+	  Port {
+	    PortNumber		    1
+	    Name		    "tau m (msec)"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Out1"
+	  Position		  [935, 243, 965, 257]
+	  ShowName		  off
+	  IconDisplay		  "Signal name"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  InitialOutput		  "0"
+	}
+	Line {
+	  Name			  "Vm (mV)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "In1"
+	  SrcPort		  1
+	  Points		  [45, 0]
+	  Branch {
+	    Points		    [0, 55]
+	    Branch {
+	      Points		      [0, 100]
+	      Branch {
+		Points			[0, 90]
+		Branch {
+		  DstBlock		  "h inf"
+		  DstPort		  1
+		}
+		Branch {
+		  Points		  [0, 110]
+		  DstBlock		  "tau h"
+		  DstPort		  1
+		}
+	      }
+	      Branch {
+		DstBlock		"tau ms"
+		DstPort			1
+	      }
+	    }
+	    Branch {
+	      DstBlock		      "m inf"
+	      DstPort		      1
+	    }
+	  }
+	  Branch {
+	    DstBlock		    "gNas*(Vm-ENa)"
+	    DstPort		    1
+	  }
+	}
+	Line {
+	  Name			  "m inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "m inf"
+	  SrcPort		  1
+	  DstBlock		  "Add"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "m"
+	  Labels		  [0, 0]
+	  SrcBlock		  "ms"
+	  SrcPort		  1
+	  Points		  [35, 0]
+	  Branch {
+	    DstBlock		    "m^3"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Labels		    [2, 0]
+	    Points		    [0, -85]
+	    DstBlock		    "Add"
+	    DstPort		    2
+	  }
+	}
+	Line {
+	  Name			  "tau m (msec)"
+	  Labels		  [1, 0]
+	  SrcBlock		  "tau ms"
+	  SrcPort		  1
+	  DstBlock		  "mQ10"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add"
+	  SrcPort		  1
+	  Points		  [0, 20]
+	  DstBlock		  "Divide"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "m dot"
+	  Labels		  [1, 0]
+	  SrcBlock		  "Divide"
+	  SrcPort		  1
+	  DstBlock		  "ms"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "h inf"
+	  Labels		  [0, 0]
+	  SrcBlock		  "h inf"
+	  SrcPort		  1
+	  Points		  [100, 0]
+	  DstBlock		  "Add1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "h dot"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Divide1"
+	  SrcPort		  1
+	  DstBlock		  "hs"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Add1"
+	  SrcPort		  1
+	  Points		  [0, 20]
+	  DstBlock		  "Divide1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "tau h (msec)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "tau h"
+	  SrcPort		  1
+	  DstBlock		  "hQ10"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "h"
+	  Labels		  [0, 0]
+	  SrcBlock		  "hs"
+	  SrcPort		  1
+	  Points		  [55, 0; 0, -100]
+	  Branch {
+	    Labels		    [1, 0]
+	    Points		    [-410, 0]
+	    DstBlock		    "Add1"
+	    DstPort		    2
+	  }
+	  Branch {
+	    DstBlock		    "Product"
+	    DstPort		    3
+	  }
+	}
+	Line {
+	  Name			  "iNas (nA)"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Product"
+	  SrcPort		  1
+	  DstBlock		  "Out1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "mQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "hQ10"
+	  SrcPort		  1
+	  DstBlock		  "Divide1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "gNas*(Vm-ENa)"
+	  SrcPort		  1
+	  Points		  [365, 0]
+	  DstBlock		  "Product"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "m^3"
+	  SrcPort		  1
+	  Points		  [0, 10]
+	  DstBlock		  "Product"
+	  DstPort		  2
+	}
+      }
+    }
+    Block {
+      BlockType		      Integrator
+      Name		      "Integrator"
+      Ports		      [1, 1]
+      Position		      [538, 40, 572, 70]
+      Orientation	      "up"
+      ShowName		      off
+      InitialCondition	      "-56.34"
+      UpperSaturationLimit    "100"
+      LowerSaturationLimit    "-100"
+      Port {
+	PortNumber		1
+	Name			"Vm (mV)"
+	TestPoint		on
+	RTWStorageClass		"Auto"
+	DataLogging		on
+	DataLoggingNameMode	"SignalName"
+	DataLoggingDecimateData	on
+	DataLoggingDecimation	"3"
+	DataLoggingLimitDataPoints on
+	DataLoggingMaxPoints	"10"
+      }
+    }
+    Block {
+      BlockType		      SubSystem
+      Name		      "Istim"
+      Tag		      "STV Subsys"
+      Ports		      [0, 1]
+      Position		      [290, 52, 365, 128]
+      ShowName		      off
+      CopyFcn		      "sigbuilder_block('copy');"
+      DeleteFcn		      "sigbuilder_block('delete');"
+      LoadFcn		      "sigbuilder_block('load');"
+      ModelCloseFcn	      "sigbuilder_block('modelClose');"
+      PreSaveFcn	      "sigbuilder_block('preSave');"
+      StartFcn		      "sigbuilder_block('start');"
+      StopFcn		      "sigbuilder_block('stop');"
+      NameChangeFcn	      "sigbuilder_block('namechange');"
+      ClipboardFcn	      "sigbuilder_block('clipboard');"
+      OpenFcn		      "sigbuilder_block('open',[293.25 508.5 663.75 206.25 ]);"
+      CloseFcn		      "sigbuilder_block('close');"
+      MinAlgLoopOccurrences   off
+      RTWSystemCode	      "Auto"
+      FunctionWithSeparateData off
+      MaskType		      "Sigbuilder block"
+      MaskDescription	      "Sigbuilder GUI"
+      MaskInitialization      "if ~strcmp(get_param(bdroot(gcbh),'SimulationStatus'),'stopped') tuvar = sigbuilder_block('maskInit'); end"
+      MaskDisplay	      "plot(0,0,100,100,[10,10,40,40,10],[80,20,20,80,80],[40,10],[50,50], [40,27,10],[65,72,56],[40,25,25,10],[28,28,43,43]);"
+      MaskIconFrame	      on
+      MaskIconOpaque	      off
+      MaskIconRotate	      "port"
+      MaskIconUnits	      "autoscale"
+      MaskCapabilities	      "slmaskedcaps(gcbh)"
+      System {
+	Name			"Istim"
+	Location		[480, 85, 980, 386]
+	Open			off
+	ModelBrowserVisibility	off
+	ModelBrowserWidth	200
+	ScreenColor		"white"
+	PaperOrientation	"landscape"
+	PaperPositionMode	"auto"
+	PaperType		"usletter"
+	PaperUnits		"inches"
+	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
+	TiledPageScale		1
+	ShowPageBoundaries	off
+	ZoomFactor		"100"
+	Block {
+	  BlockType		  Demux
+	  Name			  "Demux"
+	  Tag			  "STV Demux"
+	  Ports			  [1, 1]
+	  Position		  [150, 42, 160, 618]
+	  Outputs		  "1"
+	}
+	Block {
+	  BlockType		  FromWorkspace
+	  Name			  "FromWs"
+	  Tag			  "STV FromWs"
+	  Position		  [30, 300, 115, 350]
+	  VariableName		  "tuvar"
+	  SampleTime		  "0"
+	  ZeroCross		  on
+	  SigBuilderData	  "DataTag0"
+	  VnvData		  "DataTag1"
+	}
+	Block {
+	  BlockType		  Outport
+	  Name			  "Signal 1"
+	  Tag			  "STV Outport"
+	  Position		  [280, 30, 300, 40]
+	  IconDisplay		  "Port number"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Line {
+	  SrcBlock		  "FromWs"
+	  SrcPort		  1
+	  Points		  [15, 0]
+	  DstBlock		  "Demux"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Demux"
+	  SrcPort		  1
+	  DstBlock		  "Signal 1"
+	  DstPort		  1
+	}
+      }
+    }
+    Block {
+      BlockType		      Sum
+      Name		      "iCatotal"
+      Ports		      [4, 1]
+      Position		      [220, 306, 250, 359]
+      ShowName		      off
+      Inputs		      "++++"
+      CollapseMode	      "All dimensions"
+      InputSameDT	      off
+      OutDataTypeMode	      "Inherit via internal rule"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^-10"
+      SaturateOnIntegerOverflow	off
+      Port {
+	PortNumber		1
+	Name			"iCatotal"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+    }
+    Block {
+      BlockType		      Sum
+      Name		      "iKtotal"
+      Ports		      [5, 1]
+      Position		      [200, 114, 220, 266]
+      ShowName		      off
+      Inputs		      "+++++"
+      CollapseMode	      "All dimensions"
+      InputSameDT	      off
+      OutDataTypeMode	      "Inherit via internal rule"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^-10"
+      SaturateOnIntegerOverflow	off
+      Port {
+	PortNumber		1
+	Name			"iKtotal"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+    }
+    Block {
+      BlockType		      Sum
+      Name		      "iNatotal"
+      Ports		      [3, 1]
+      Position		      [215, 39, 245, 71]
+      ShowName		      off
+      Inputs		      "+++"
+      CollapseMode	      "All dimensions"
+      InputSameDT	      off
+      OutDataTypeMode	      "Inherit via internal rule"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^-10"
+      SaturateOnIntegerOverflow	off
+      Port {
+	PortNumber		1
+	Name			"iNatotal"
+	RTWStorageClass		"Auto"
+	DataLoggingNameMode	"SignalName"
+      }
+    }
+    Block {
+      BlockType		      Outport
+      Name		      "Out1"
+      Position		      [385, 24, 450, 46]
+      Orientation	      "left"
+      NamePlacement	      "alternate"
+      ShowName		      off
+      IconDisplay	      "Signal name"
+      OutDataType	      "sfix(16)"
+      OutScaling	      "2^0"
+    }
+    Block {
+      BlockType		      SignalViewerScope
+      Name		      "Scope1"
+      Ports		      []
+      Position		      [20, 15, 60, 55]
+      IOType		      "viewer"
+      List {
+	ListType		IOSignalStrings
+	set0ParseKeys		"13"
+	set0Sigs		"Integrator:o1"
+      }
+      Location		      [545, 526, 1232, 1017]
+      Open		      on
+      NumInputPorts	      "1"
+      List {
+	ListType		AxesTitles
+	axes1			"%<SignalLabel>"
+      }
+      ShowDataMarkers	      off
+      ShowLegends	      on
+      LegendLocations	      "567.3333           436            97      20.33333"
+      TimeRange		      "1000"
+      YMin		      "-80"
+      YMax		      "80"
+      DataFormat	      "Array"
+      LimitDataPoints	      off
+      MaxDataPoints	      "7500"
+      RefreshTime	      0.035000
+    }
+    Line {
+      SrcBlock		      "Cm"
+      SrcPort		      1
+      DstBlock		      "Integrator"
+      DstPort		      1
+    }
+    Line {
+      Name		      "I (nA)"
+      Labels		      [0, 0]
+      SrcBlock		      "Add"
+      SrcPort		      1
+      DstBlock		      "Cm"
+      DstPort		      1
+    }
+    Line {
+      Name		      "iNaf"
+      Labels		      [0, 0]
+      SrcBlock		      "INaf"
+      SrcPort		      1
+      Points		      [35, 0]
+      DstBlock		      "iNatotal"
+      DstPort		      1
+    }
+    Line {
+      Name		      "iNas"
+      Labels		      [0, 0]
+      SrcBlock		      "INas"
+      SrcPort		      1
+      DstBlock		      "iNatotal"
+      DstPort		      2
+    }
+    Line {
+      Name		      "iK"
+      Labels		      [0, 0]
+      SrcBlock		      "IK"
+      SrcPort		      1
+      DstBlock		      "iKtotal"
+      DstPort		      1
+    }
+    Line {
+      Name		      "iA"
+      Labels		      [0, 0]
+      SrcBlock		      "IA"
+      SrcPort		      1
+      DstBlock		      "iKtotal"
+      DstPort		      2
+    }
+    Line {
+      Name		      "iD"
+      Labels		      [0, 0]
+      SrcBlock		      "ID"
+      SrcPort		      1
+      DstBlock		      "iKtotal"
+      DstPort		      3
+    }
+    Line {
+      Name		      "iNaK"
+      Labels		      [0, 0]
+      SrcBlock		      "INaK"
+      SrcPort		      1
+      DstBlock		      "iKtotal"
+      DstPort		      4
+    }
+    Line {
+      Name		      "Cas"
+      Labels		      [0, 1]
+      SrcBlock		      "Cas"
+      SrcPort		      1
+      Points		      [-15, 0; 0, -30]
+      DstBlock		      "INaCa"
+      DstPort		      3
+    }
+    Line {
+      Name		      "Cai"
+      Labels		      [0, 0]
+      SrcBlock		      "Cai"
+      SrcPort		      1
+      Points		      [-30, 0]
+      Branch {
+	Points			[0, -80]
+	Branch {
+	  DstBlock		  "INaCa"
+	  DstPort		  2
+	}
+	Branch {
+	  Points		  [0, -160]
+	  DstBlock		  "IKCa"
+	  DstPort		  2
+	}
+      }
+      Branch {
+	Labels			[2, 0]
+	Points			[0, 50]
+	DstBlock		"ICaPump"
+	DstPort			1
+      }
+    }
+    Line {
+      Name		      "iKCa"
+      Labels		      [0, 0]
+      SrcBlock		      "IKCa"
+      SrcPort		      1
+      DstBlock		      "iKtotal"
+      DstPort		      5
+    }
+    Line {
+      Name		      "iBNa"
+      Labels		      [0, 0]
+      SrcBlock		      "IB"
+      SrcPort		      1
+      Points		      [35, 0]
+      DstBlock		      "iNatotal"
+      DstPort		      3
+    }
+    Line {
+      Name		      "iCat"
+      Labels		      [0, 0]
+      SrcBlock		      "ICat"
+      SrcPort		      1
+      Points		      [40, 0]
+      DstBlock		      "iCatotal"
+      DstPort		      1
+    }
+    Line {
+      Name		      "iCan"
+      Labels		      [0, 0]
+      SrcBlock		      "ICan"
+      SrcPort		      1
+      DstBlock		      "iCatotal"
+      DstPort		      2
+    }
+    Line {
+      Name		      "iCatotal"
+      Labels		      [0, 0]
+      SrcBlock		      "iCatotal"
+      SrcPort		      1
+      Points		      [130, 0]
+      Branch {
+	Points			[0, 160]
+	DstBlock		"Add1"
+	DstPort			2
+      }
+      Branch {
+	Points			[0, -95]
+	DstBlock		"Add"
+	DstPort			4
+      }
+    }
+    Line {
+      Name		      "iCaP"
+      Labels		      [0, 0]
+      SrcBlock		      "ICaPump"
+      SrcPort		      1
+      Points		      [190, 0; 0, -40]
+      DstBlock		      "Add1"
+      DstPort		      3
+    }
+    Line {
+      Name		      "iNaCa"
+      Labels		      [0, 0]
+      SrcBlock		      "INaCa"
+      SrcPort		      1
+      Points		      [35, 0]
+      Branch {
+	DstBlock		"iCatotal"
+	DstPort			4
+      }
+      Branch {
+	DstBlock		"Gain"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Add1"
+      SrcPort		      1
+      Points		      [-55, 0]
+      Branch {
+	Points			[0, -35]
+	DstBlock		"Cas"
+	DstPort			1
+      }
+      Branch {
+	DstBlock		"Cai"
+	DstPort			1
+      }
+    }
+    Line {
+      SrcBlock		      "Gain"
+      SrcPort		      1
+      Points		      [70, 0; 0, 70]
+      DstBlock		      "Add1"
+      DstPort		      1
+    }
+    Line {
+      Name		      "iKtotal"
+      Labels		      [0, 0]
+      SrcBlock		      "iKtotal"
+      SrcPort		      1
+      DstBlock		      "Add"
+      DstPort		      3
+    }
+    Line {
+      Name		      "iNatotal"
+      Labels		      [1, 0]
+      SrcBlock		      "iNatotal"
+      SrcPort		      1
+      Points		      [15, 0; 0, 86]
+      DstBlock		      "Add"
+      DstPort		      2
+    }
+    Line {
+      Name		      "Vm (mV)"
+      Labels		      [0, 0]
+      SrcBlock		      "Integrator"
+      SrcPort		      1
+      Points		      [0, -25; -80, 0]
+      Branch {
+	Points			[0, 25]
+	DstBlock		"Out1"
+	DstPort			1
+      }
+      Branch {
+	Points			[-455, 0; 0, 20]
+	Branch {
+	  DstBlock		  "INaf"
+	  DstPort		  1
+	}
+	Branch {
+	  Points		  [0, 25]
+	  Branch {
+	    DstBlock		    "INas"
+	    DstPort		    1
+	  }
+	  Branch {
+	    Points		    [0, 25]
+	    Branch {
+	      DstBlock		      "IB"
+	      DstPort		      1
+	    }
+	    Branch {
+	      Points		      [0, 50]
+	      Branch {
+		Points			[0, 30]
+		Branch {
+		  DstBlock		  "IA"
+		  DstPort		  1
+		}
+		Branch {
+		  Points		  [0, 30]
+		  Branch {
+		    DstBlock		    "ID"
+		    DstPort		    1
+		  }
+		  Branch {
+		    Points		    [0, 30]
+		    Branch {
+		    DstBlock		    "INaK"
+		    DstPort		    1
+		    }
+		    Branch {
+		    Points		    [0, 25]
+		    Branch {
+		    Points		    [0, 50]
+		    Branch {
+		    Points		    [0, 30]
+		    Branch {
+		    Points		    [0, 30]
+		    Branch {
+		    DstBlock		    "IBCa"
+		    DstPort		    1
+		    }
+		    Branch {
+		    Points		    [0, 45]
+		    DstBlock		    "INaCa"
+		    DstPort		    1
+		    }
+		    }
+		    Branch {
+		    DstBlock		    "ICan"
+		    DstPort		    1
+		    }
+		    }
+		    Branch {
+		    DstBlock		    "ICat"
+		    DstPort		    1
+		    }
+		    }
+		    Branch {
+		    DstBlock		    "IKCa"
+		    DstPort		    1
+		    }
+		    }
+		  }
+		}
+	      }
+	      Branch {
+		DstBlock		"IK"
+		DstPort			1
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    Line {
+      SrcBlock		      "Istim"
+      SrcPort		      1
+      DstBlock		      "Add"
+      DstPort		      1
+    }
+    Line {
+      Name		      "iBCa"
+      Labels		      [0, 0]
+      SrcBlock		      "IBCa"
+      SrcPort		      1
+      Points		      [30, 0; 0, -15]
+      DstBlock		      "iCatotal"
+      DstPort		      3
+    }
+    Annotation {
+      Name		      "Istim"
+      Position		      [421, 86]
+    }
+  }
+}
+MatData {
+  NumRecords		  2
+  DataRecord {
+    Tag			    DataTag1
+    Data		    "  %)30     .    R ,   8    (     @         %    \"     $    !     0         %  0 $0    $   #,    =F5R:69Y0FQK4&%T:',   !V97)I9GE\";&M(86YD;&5S '9N=DUG<DED>           86-T:79E1W)O=7        !R97%$:7-P4')C;G0      &)L:T1I<W!-;V1E        9W)O=7!#;G0           !G<F]U<%)E<4-N=        &=R;W5P1$]/4E-I9       ;6]D96Q(              !B;&]C:T@              &]V97)I9&53971T:6YG<P        X    P    !@    @    &          4    (               !          D         #@   #     &    \"     8         !0    @               $         \"0         .    ,     8    (    !@         %    \"                0         )          X    X    !@    @    &          4    (     0    $    !          D    (            \\#\\.    ,     8    (    !@         %    \"                0         )          X    P    !@    @    &          4    (               !          D         #@   #@    &    \"     8         !0    @    !     0    $         \"0    @           #P/PX    P    !@    @    &          4    (               !          D         #@   #     &    \"     8         !0    @               $         \"0         .    .     8    (    !@         %    \"     $    !     0         )    \"            @A #@   #@    &    \"     8         !0    @    !     0    $         \"0    @       \"@  R>0 X    P    !@    @    &          4    (               !          D         "
+  }
+  DataRecord {
+    Tag			    DataTag0
+    Data		    "  %)30     .    $ P   8    (     @         %    \"     $    !     0         %  0 %@    $   \":    9W)I9%-E='1I;F<              &-H86YN96QS                  !A>&5S                        8V]M;6]N                     &1A=&%3970                   !D871A4V5T261X                :7-697)I9FEC871I;VY6:7-I8FQE          X    P    !@    @    $          4    (     0    (    !         !   @!O;@  #@   ,@$   &    \"     (         !0    @    !     0    $         !0 $  H    !    @@   'A$871A      !Y1&%T80      <W1E<%@      '-T97!9      !Y36EN        >4UA>        &-O;&]R      !L:6YE4W1Y;&4 ;&EN95=I9'1H &QA8F5L      !O=71);F1E>   86QL6$1A=&$  &%L;%E$871A           .    4     8    (    !@         %    \"     $    $     0         )    (                     ! ?T       $!_0       0(] #@   %     &    \"     8         !0    @    !    !     $         \"0   \"                          >Q2N1^%ZI#][%*Y'X7JD/PX    X    !@    @    &          4    (     0    $    !          D    (               .    .     8    (    !@         %    \"     $    !     0         )    \"               #@   #@    &    \"     8         !0    @    !     0    $         \"0    @           #P_PX    X    !@    @    &          4    (     0    $    !          D    (            \\'\\.    2     8    (    !@         %    \"     $    #     0         )    &    -B!<T:4]N8_          #8@7-&E/;F/PX    P    !@    @    $          4    (     0    $    !         !   0 M    #@   #@    &    \"     8         !0    @    !     0    $         \"0    @           #X/PX    X    !@    @    $          4    (     0    @    !         !     (    4VEG;F%L(#$.    .     8    (    !@         %    \"     $    !     0         )    \"            / _#@   (     &    \"     $         !0    @    !     0    $         #@   %     &    \"     8         !0    @    !    !     $         \"0   \"                      0']       ! ?T       $\"/0 X   \"     !@    @    !          4    (     0    $    !          X   !0    !@    @    &          4    (     0    0    !          D    @                         'L4KD?A>J0_>Q2N1^%ZI#\\.    L $   8    (     @         %    \"     $    !     0         %  0 \"P    $    W    8VAA;FYE;',   !Y3&EM         &QA8F5L4&]S    ;&%B96Q(      !L86)E;%!A=&-H   .    .     8    (    !@         %    \"     $    !     0         )    \"            / _#@   $     &    \"     8         !0    @    !     @    $         \"0   !    ![%*Y'X7ITOPK7HW ]\"J<_#@   #     &    \"     0         !0    @    !     @    $         $  \" %1,   .    .     8    (    !@         %    \"     $    !     0         )    \"        ,  V(A #@   #@    &    \"     8         !0    @    !     0    $         \"0    @       #  -\"(0 X   !H @  !@    @    \"          4    (     0    $    !          4 !  .     0   &(   !D:7-P5&EM90       &1I<W!-;V1E        ;6EN5&EM90        !M87A4:6UE         &%F=&5R1FEN86Q3='( <V%M<&QE5&EM90    !Z97)O0W)O<W,               X   !     !@    @    &          4    (     0    (    !          D    0                     $\"/0 X    X    !@    @    &          4    (     0    $    !          D    (            \\#\\.    .     8    (    !@         %    \"     $    !     0         )    \"               #@   #@    &    \"     8         !0    @    !     0    $         \"0    @          $\"/0 X   !     !@    @    $          4    (     0    L    !         !     +    17AT<F%P;VQA=&4       X    X    !@    @    &          4    (     0    $    !          D    (               .    ,     8    (    !          %    \"     $    \"     0         0  ( ;VX   X   \"  0  !@    @    \"          4    (     0    $    !          4 !  .     0   #@   !A8W1I=F5$:7-P261X '1I;65286YG90      ;F%M90            !D:7-P;&%Y4F%N9V4   X    X    !@    @    &          4    (     0    $    !          D    (            \\#\\.    0     8    (    !@         %    \"     $    \"     0         )    $                     ! CT .    .     8    (    !          %    \"     $    '     0         0    !P   $=R;W5P(#$ #@   $     &    \"     8         !0    @    !     @    $         \"0   !                      0(] #@   #@    &    \"     8         !0    @    !     0    $         \"0    @           #P/PX    X    !@    @    &          4    (     0    $    !          D    (               "
+  }
+}
+# Finite State Machines
+#
+#    Stateflow Version 6.7 (R2007b) dated Aug  7 2007, 16:48:14
+#
+#
+
+
+Stateflow {
+  machine {
+    id			    1
+    name		    "NodoseNeuron"
+    created		    "20-Aug-2007 06:02:31"
+    isLibrary		    0
+    firstTarget		    2
+    sfVersion		    67014000.000001
+  }
+  target {
+    id			    2
+    name		    "sfun"
+    description		    "Default Simulink S-Function Target."
+    machine		    1
+    linkNode		    [1 0 0]
+  }
+}

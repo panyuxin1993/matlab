@@ -8,7 +8,7 @@ masklick='no';
 frameNumTime=[2,3];%from 5s before align point to 5s after align point
 roiNo=1;
 
-CurrFolder = 'F:\pyx095_20180810\im_data_reg_cpu\result_save';
+CurrFolder = 'H:\2P\pyx095_20180810\im_data_reg\result_save';
 rootname='pyx095_20180810';
 load([CurrFolder,'\',rootname, '-imaging_Virables.mat']);%load behavior data
 dirmat=strcat(CurrFolder,'\*.mat');

@@ -1,13 +1,14 @@
-function [ dff_aligned, behEvent_aligned, licking_aligned ] = fAlignSigBehEvent( dff, behEventFrameIndex, lickingFrameIndex, alignTo,frameNum )
+function [ dff_aligned, behEvent_aligned, licking_aligned ] = fAlignSigBehEvent( dff, behEventFrameIndex, lickingFrameIndex, alignTo,frameNum,varargin )
 %FALIGNSIGBEHEVENT Align signals to different behavior events
 %   Detailed explanation 
-%   Input is dff( in a continues whole-session-long trial,is a vector for a ROI), 
+%Input is dff( in a continues whole-session-long trial,is a vector for a ROI), 
 %   behavior event frame index( struct, including stimOnset, answer time, 
 %   first lick and so on), 
 %   align to which event(string can be in {'stimOnset', 'go cue','first lick',...
 %   'first left lick','first right lick', 'answer','reward'}, and
 %   frame number( [frame number before 0, frame number after 0])
-%   Output is dff_aligned( matrix of dff, each row a trial),
+%   varargin- 'BaselineCorrected'(default)|'raw'
+%Output is dff_aligned( matrix of dff, each row a trial),
 %   behEvent_aligned(struct, each event stored in one field, which is a vector)
 %  
 switch alignTo
@@ -52,9 +53,15 @@ for i=1:length(base) %caution, Subscript indices must either be real positive in
     licking_aligned.leftLick{i} = lickingFrameIndex.leftLick{i} - base(i)+frameNum(1)+1;
     licking_aligned.rightLick{i} = lickingFrameIndex.rightLick{i}- base(i)+frameNum(1)+1;
 end
-if strcmp(alignTo,'stim onset')|| strcmp(alignTo,'delay onset')
+if ~isempty(varargin) && strcmp(varargin{1},'raw')
+    dff_aligned=dff_aligned;
+elseif strcmp(alignTo,'stim onset')|| strcmp(alignTo,'delay onset') %and other condition
     for i=1:size(dff_aligned,1)
-        baseline(i)=mean(dff_aligned(i,1:behEvent_aligned.stimOnset(i)),2);%for each trial(each row),pre-aligned point baseline
+        if isnan(behEvent_aligned.stimOnset(i))
+            baseline(i)=nan;
+        else
+            baseline(i)=nanmean(dff_aligned(i,1:behEvent_aligned.stimOnset(i)),2);%for each trial(each row),pre-aligned point baseline
+        end
     end
     baseline=reshape(baseline,[],1);
     dff_aligned=dff_aligned-repmat(baseline,1,size(dff_aligned,2));%substract baseline for each trial(row)

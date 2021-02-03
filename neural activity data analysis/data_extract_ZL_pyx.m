@@ -8,7 +8,7 @@
 Cover_option = 1;
 % CurrFolder = pwd;
 % CurrFolder = 'F:\2P\pyx252_20200111\im_data_reg\result_save';
-CurrFolder = 'H:\2P\pyx314_20200906\im_data_reg\result_save';% rootpath='F:\FP\pyx241_20191130';
+CurrFolder = 'D:\pyx340_20210202\im_data_reg\result_save';% rootpath='F:\FP\pyx241_20191130';
 % savePath = [CurrFolder '\Data_Virables\'];
 % if ~exist('Data_Virables')
 %     mkdir('Data_Virables');

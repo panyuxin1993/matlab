@@ -142,7 +142,7 @@ for nResult=1:size(trialType,1) %4 column(correct/error/miss/violation),companie
                 box off;
                 set(gca,'Ylim',[0 sum(selectedTrialInd)+1]);
                 y_opto=sum(selectedTrialInd)+1;
-                plot([mean(oon),mean(ooff)],[y_opto,y_opto],'r-','LineWidth',1);
+                plot([min(oon),max(ooff)],[y_opto,y_opto],'r-','LineWidth',1);
                 hold on;
             end
             xlim(x_lim);
@@ -184,7 +184,7 @@ for nResult=1:size(trialType,1) %4 column(correct/error/miss/violation),companie
         end
     end
     if nOpto==2 && strcmp(behEventAlign,'delay onset') && nStim==size(trialType,2) && nResult ~=size(trialType,1) %not plot violation
-        xpatch_opto=[mean(oon),mean(ooff),mean(ooff),mean(oon)];
+        xpatch_opto=[min(oon),max(ooff),max(ooff),min(oon)];
         ypatch_opto=[y_lim(1),y_lim(1),y_lim(end),y_lim(end)];
         p_opto=patch(xpatch_opto,ypatch_opto,'b');
         p_opto.FaceAlpha=0.1;

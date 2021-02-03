@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<appProperties xmlns="http://schemas.mathworks.com/matlab/app/2012/appProperties" signature="C0C50E5D205D87E116C7AEA1DD245040B9A42BEA">
+
+  <entryPoint>AP</entryPoint>
+
+  <name>Action Potential Simulator</name>
+
+  <version>1.0</version>
+
+  <createdByMATLABRelease>(R2013a)</createdByMATLABRelease>
+
+  <GUID>e6fc2969-57b8-4888-aef2-c99d206cf781</GUID>
+
+  <author>
+    <name>Tanu Singla</name>
+    <contact></contact>
+    <organization></organization>
+  </author>
+
+  <supportedPlatforms/>
+
+  <requiredProducts>
+    <product identifier="1" name="MATLAB" version="8.1"/>
+  </requiredProducts>
+
+  <numFiles>2</numFiles>
+
+  <created>2014-07-25T21:48:58Z</created>
+
+  <appEntries>
+    <appFile>/AP.m</appFile>
+    <appFile>/AP.fig</appFile>
+  </appEntries>
+
+</appProperties>

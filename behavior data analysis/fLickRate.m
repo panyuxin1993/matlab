@@ -10,7 +10,7 @@ function [ lickMat,lickRate ] = fLickRate( lickTime, binSize,trialLength,timeMin
 %   timeMin- the start of each 'trial', relative to base as time 0.
 %   trialInd- index of trial choosing to calculate licking rate.
 %See also fLickRateAligned
-sampleNum=floor((trialLength-binSize)/binStep)+1;
+sampleNum=floor(trialLength/binStep)+1;
 lickMat=zeros(length(lickTime),trialLength,3);%第一维trials,第二维单个trial长度，第三维代表总舔水，左右舔水
 lickRate=zeros(sampleNum,3);%第一维代表trial长度/采样数量，第二维代表总舔水，左右舔水
 for i=1:length(lickTime)
@@ -28,8 +28,10 @@ end
 lickMat(:,:,1)=lickMat(:,:,2)+lickMat(:,:,3);
 lickMat(~trialInd,:,:)=nan;%if trials not chosen, set to nan
 for i=1:3
-    for j=1:sampleNum-ceil(binSize/binStep)
-        lickRate(j+ceil(binSize/binStep),i)=nansum(nansum(lickMat(:,(binStep*(j+ceil(binSize/binStep)-1)-binSize+1):(binStep*(j+ceil(binSize/binStep)-1)),i)))*1000/binSize/sum(trialInd);
+    for j=1:sampleNum
+        ind1=max(1,binStep*(j-1)+1-floor(binSize/2));
+        ind2=min(trialLength,binStep*(j-1)+1+floor(binSize/2));
+        lickRate(j+ceil(binSize/binStep),i)=nansum(nansum(lickMat(:,ind1:ind2,i)))*1000/binSize/sum(trialInd);
     end
 end
 

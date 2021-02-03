@@ -1,32 +1,52 @@
 %combine table of sensory and choice AUC together and save combined table
-%{
+%
 %for FP data
 clear;
-filepath={'F:\FP\summary\SC vgat-mixed-Soma-grouped bysensory-combineCorErr-binCenteredSize3-alignTo-delay onset-timeWindow1-1.5-EpochWindow stim-0.5delay-0.5-shuffle1000-n28-sites8-AUC.mat',
-    'F:\FP\summary\SC vgat-mixed-Soma-grouped bychoice-combineCorErr-binCenteredSize3-alignTo-delay onset-timeWindow1-1.5-EpochWindow stim-0.5delay-0.5-shuffle1000-n28-sites8-AUC.mat',
-    'F:\FP\summary\SC vglut2-mixed-Soma-grouped bysensory-combineCorErr-binCenteredSize3-alignTo-delay onset-timeWindow1-1.5-EpochWindow stim-0.5delay-0.5-shuffle1000-n14-sites6-AUC.mat',
-    'F:\FP\summary\SC vglut2-mixed-Soma-grouped bychoice-combineCorErr-binCenteredSize3-alignTo-delay onset-timeWindow1-1.5-EpochWindow stim-0.5delay-0.5-shuffle1000-n14-sites6-AUC.mat'
+filepath={'H:\FP\summary\SC vglut2-mixed-Soma-grouped bysensorycombineCorErr-shuffle1000-lick time1sSensoryChoiceOrthogonalSubtraction-n14-sites6-EpochAUC.mat',
+    'H:\FP\summary\SC vglut2-mixed-Soma-grouped bychoicecombineCorErr-shuffle1000-lick time1sSensoryChoiceOrthogonalSubtraction-n14-sites6-EpochAUC.mat',
+    'H:\FP\summary\SC vgat-mixed-Soma-grouped bysensorycombineCorErr-shuffle1000-lick time1sSensoryChoiceOrthogonalSubtraction-n24-sites8-EpochAUC.mat',
+    'H:\FP\summary\SC vgat-mixed-Soma-grouped bychoicecombineCorErr-shuffle1000-lick time1sSensoryChoiceOrthogonalSubtraction-n24-sites8-EpochAUC.mat'
     };
-celltypestr={'vgat','vgat','vglut2','vglut2'};
+celltypestr={'vglut2','vglut2','vgat','vgat'};
 AUCtypestr={'sensory','choice','sensory','choice'};
 for i=1:4
-load(filepath{i});
-TAUCsessionTemp=TAUCepochSession(:,1:5);
-TAUCsessionTemp=fExtend(TAUCsessionTemp,{celltypestr{i},AUCtypestr{i}},{'celltype','AUCtype'});
-TAUCsiteTemp=TAUCepochSite(:,1:5);
-TAUCsiteTemp=fExtend(TAUCsiteTemp,{celltypestr{i},AUCtypestr{i}},{'celltype','AUCtype'});
-%combine AUC table
-if exist('TAUCsession','var')
-    TAUCsession=vertcat(TAUCsession,TAUCsessionTemp);
-    TAUCsite=vertcat(TAUCsite,TAUCsiteTemp);
-else
-    TAUCsession=TAUCsessionTemp;
-    TAUCsite=TAUCsiteTemp;
-end
+    load(filepath{i});
+    TAUCsessionTemp=addvars(T_AUC,T_pvalues.ITI,T_pvalues.sound,T_pvalues.delay,T_pvalues.response,T_pvalues.lick,'NewVariableNames',{'pITI','psound','pdelay','presponse','plick'});
+    TAUCsessionTemp=fExtend(TAUCsessionTemp,{celltypestr{i},AUCtypestr{i}},{'celltype','AUCtype'});
+    TAUCsiteTemp=T_AUC_site(:,1:5);
+    TAUCsiteTemp=fExtend(TAUCsiteTemp,{celltypestr{i},AUCtypestr{i}},{'celltype','AUCtype'});
+    %combine AUC table
+    if exist('TAUCsession','var')
+        TAUCsession=vertcat(TAUCsession,TAUCsessionTemp);
+        TAUCsite=vertcat(TAUCsite,TAUCsiteTemp);
+    else
+        TAUCsession=TAUCsessionTemp;
+        TAUCsite=TAUCsiteTemp;
+    end
 end
 
-save(['F:\FP\summary\AUCsensoryVSchoiceTable.mat'],'TAUCsession','TAUCsite');
-load('F:\FP\summary\AUCsensoryVSchoiceTable.mat');
+save(['H:\FP\summary\AUCsensoryVSchoiceTable_5epoch.mat'],'TAUCsession','TAUCsite');
+%}
+%
+%for AUC during different epoch
+load('H:\FP\summary\AUCsensoryVSchoiceTable_5epoch.mat');
+figAUCearly=figure;
+set(gcf,'position',[100,100,1200,200]);
+pSig=0.05;
+epochstr={'ITI','sound','delay','response','lick'};
+celltypeStr={'vglut2','vglut2','vgat','vgat'};
+set(gcf,'PaperPosition',[0,0,2*length(epochstr),2]);
+for i=1:length(epochstr)
+    subplot(1,length(epochstr),i);
+    fCmpSensoryChoiceAUC(TAUCsession,epochstr{i},pSig,'vglut2');
+    title(epochstr{i});
+end
+set(gcf,'paperPosition',[0,0,11,2]);
+saveas(figAUCearly,'H:\2P\summary\SC AUCsensoryVSchoice_rawFigure.pdf','pdf');
+%}
+%{
+%for AUC during early and late period
+load('H:\FP\summary\AUCsensoryVSchoiceTable.mat');
 %plot early AUC comparison
 figAUCearly=figure;
 pSig=0.05;
@@ -43,7 +63,7 @@ title('early vgat');
 subplot(2,2,4);
 fCmpSensoryChoiceAUC(TAUCsession,'late',pSig,'vgat');
 title('late vgat');
-saveas(figAUCearly,'F:\FP\summary\AUCsensoryVSchoice_rawFigure.pdf','pdf');
+saveas(figAUCearly,'H:\FP\summary\AUCsensoryVSchoice_rawFigure.pdf','pdf');
 %}
 
 %% load 2P data
@@ -71,7 +91,7 @@ save(['H:\2P\summary\AUCsensoryVSchoiceTable.mat'],'TAUCsession');
 load('H:\2P\summary\AUCsensoryVSchoiceTable.mat');
 %plot early AUC comparison
 figAUCearly=figure;
-set(gcf,'position',[100,100,1000,200]);
+set(gcf,'position',[100,100,1200,200]);
 pSig=0.05;
 epochstr={'ITI','sound','delay','response','lick'};
 set(gcf,'PaperPosition',[0,0,2*length(epochstr),2]);
@@ -80,7 +100,7 @@ for i=1:length(epochstr)
     fCmpSensoryChoiceAUC(TAUCsession,epochstr{i},pSig,'syn');
     title(epochstr{i});
 end
-
+set(gcf,'paperPosition',[0,0,11,2]);
 saveas(figAUCearly,'H:\2P\summary\SC AUCsensoryVSchoice_rawFigure.pdf','pdf');
 %}
 
@@ -170,12 +190,20 @@ indSensory=logical((abs(AUCsensory-0.5)>abs(AUCchoice-0.5)).*(indSigSensory));
 indChoice=logical((abs(AUCsensory-0.5)<abs(AUCchoice-0.5)).*(indSigChoice));
 colorDot={'FF34E6','2EAF4A','000000'};
 colorDot=fHex2RGB(colorDot);
+colorShade={'E7E7E7'};
+colorShade=fHex2RGB(colorShade);
+xpatch=[0,0.5,1];hold on;
+ypatch1=[0,0.5,0];
+ypatch2=[1,0.5,1];
+patch(xpatch,ypatch1,colorShade{1},'EdgeColor','none','FaceAlpha',0.5);
+patch(xpatch,ypatch2,colorShade{1},'EdgeColor','none','FaceAlpha',0.5);
+plot([0,1],[0.5,0.5],'k-');
+plot([0.5,0.5],[1,0],'k-');
 curve1=scatter(AUCsensory(indNS),AUCchoice(indNS),15,colorDot{3});hold on;
 curve2=scatter(AUCsensory(indSensory),AUCchoice(indSensory),15,colorDot{1});
 curve3=scatter(AUCsensory(indChoice),AUCchoice(indChoice),15,colorDot{2});
 set(gca,'Xlim',[0,1],'Ylim',[0,1]);
-plot([0,1],[0,1],'k.-.');
-plot([0,1],[1,0],'k.-.');
+
 ylabel('choice AUC');
 xlabel('sensory AUC');
 nSensoryAUC=sum(indSensory);
@@ -199,7 +227,7 @@ text(0.9,0.45,{['sensory',num2str(nSensoryAUC)];['choice',num2str(nChoiceAUC)];[
 % end
 % text(0.9,0.85,pstr,'Unit','Normalized');
 %v1.1 compare all data points using ranksum test
-%{
+%
 unsignedAUCsensory=abs(AUCsensory-0.5)+0.5;
 unsignedAUCchoice=abs(AUCchoice-0.5)+0.5;
 p=signrank(unsignedAUCsensory,unsignedAUCchoice);

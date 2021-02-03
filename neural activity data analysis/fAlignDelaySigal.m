@@ -41,7 +41,11 @@ if ~isempty(varargin) && strcmp(varargin{1},'raw')
 else
     baseline=zeros(size(dff_aligned,1),1);
     for i=1:size(dff_aligned,1)
-        baseline(i)=mean(dff_aligned(i,1:behEvent_aligned.stimOnset(i)),2);%for each trial(each row),pre-aligned point baseline
+        if isnan(behEvent_aligned.stimOnset(i))
+            baseline(i)=nan;
+        else
+            baseline(i)=mean(dff_aligned(i,1:behEvent_aligned.stimOnset(i)),2);%for each trial(each row),pre-aligned point baseline
+        end
     end
     dff_aligned=dff_aligned-repmat(baseline,1,size(dff_aligned,2));%substract baseline for each trial(row)
 end

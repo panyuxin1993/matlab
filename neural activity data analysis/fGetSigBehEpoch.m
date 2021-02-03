@@ -24,8 +24,7 @@ if strcmp(str_nFrames,'500ms')
             sound(i)=nanmean(dff(behEventFrameIndex.stimOnset(i):behEventFrameIndex.stimOffset(i)))-baseline;
             delay(i)=nanmean(dff(max(behEventFrameIndex.go(i)-nFrames500+1,behEventFrameIndex.stimOffset(i)+1):behEventFrameIndex.go(i)-1))-baseline;
             response(i)=nanmean(dff(behEventFrameIndex.go(i):behEventFrameIndex.ansTime(i)-1))-baseline;
-            %         lick(i)=nanmean(dff(behEventFrameIndex.ansTime(i):behEventFrameIndex.ansTime(i)+2*nFrames1k));
-            lick(i)=nanmean(dff(behEventFrameIndex.ansTime(i):behEventFrameIndex.ansTime(i)+nFrames500))-baseline;
+            lick(i)=nanmean(dff(behEventFrameIndex.ansTime(i):behEventFrameIndex.ansTime(i)+2*nFrames500))-baseline;
         end
     end
 elseif strcmp(str_nFrames,'1s')
@@ -39,7 +38,6 @@ elseif strcmp(str_nFrames,'1s')
             sound(i)=nanmean(dff(behEventFrameIndex.stimOnset(i):behEventFrameIndex.stimOffset(i)))-baseline;
             delay(i)=nanmean(dff(max(behEventFrameIndex.go(i)-nFrames500+1,behEventFrameIndex.stimOffset(i)+1):behEventFrameIndex.go(i)-1))-baseline;
             response(i)=nanmean(dff(behEventFrameIndex.go(i):behEventFrameIndex.ansTime(i)-1))-baseline;
-            %         lick(i)=nanmean(dff(behEventFrameIndex.ansTime(i):behEventFrameIndex.ansTime(i)+2*nFrames1k));
             lick(i)=nanmean(dff(behEventFrameIndex.ansTime(i):behEventFrameIndex.ansTime(i)+2*nFrames1k))-baseline;
         end
     end

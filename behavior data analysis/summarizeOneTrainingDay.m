@@ -6,10 +6,10 @@
 close all;
 clear;
 %specify the path and file name, etc. 
-path='D:\xulab\behavior';
+path='H:\xulab\behavior';
 ndelaygroup=4;
-date='2020_11_11';
-animal='pyx332';
+date='2020_02_03';
+animal='pyx355';
 fileFolder=[path, filesep,animal];
 npast=10;%how many sessions performance will be plotted
 %% plot performance in recent trainning days

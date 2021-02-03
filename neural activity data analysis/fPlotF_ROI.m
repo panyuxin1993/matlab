@@ -137,9 +137,9 @@ else%plot multiple neural traces, with no y tick labels, just pile up one by one
     %scalebar_lengthy=round(scalebar_lengthy/10^n_digit)*10^n_digit;
     xlim=get(gca,'Xlim');
     plot([xlim(end),xlim(end)],[0,scalebar_lengthy],'k-','LineWidth',2);
-    text(xlim(end),scalebar_lengthy/2,['\it\DeltaF/F ','\rm',num2str(scalebar_lengthy)],'FontName','Arial','FontSize',10);
+    text(xlim(end),scalebar_lengthy/2,['\it\DeltaF/F ','\rm',num2str(scalebar_lengthy)],'FontName','Arial','FontSize',14);
     plot(xlim(end)-[0,scalebar_lengthx*round(1000/frT)],zeros(2,1),'k-','LineWidth',2);
-    text(xlim(end)-scalebar_lengthx*round(1000/frT)/2,0,[num2str(scalebar_lengthx),'s'],'FontName','Arial','FontSize',10);
+    text(xlim(end)-scalebar_lengthx*round(1000/frT)/2,-2,[num2str(scalebar_lengthx),'s'],'FontName','Arial','FontSize',14);
 %     ylabelstr=strcat('f raw(',num2str(scalebar_length),')');
 end       
     
@@ -149,7 +149,7 @@ n_tick=10;
 binTime=floor(trialLengthTime/n_tick);
 set(gca,'xtick',[1:round(1000/frT)*binTime:trialLengthTime*1000/frT],'xticklabel',[0:binTime:trialLengthTime]);
 %set(gca,'xtick',[],'xticklabel',[]);%for simplicity
-xlabel('Time from trial start(s)');
+xlabel('Time from trial start (s)');
 ylabel(ylabelstr);
 title(titlestr);
 set(gca,'FontName','Arial','FontSize',14);
@@ -183,12 +183,12 @@ if exist('Data_extract','var')
 %         p=patch(xpatch,ypatch,[0.5,0.5,0.5]);
 %         p.FaceAlpha=0.3;
 %         hold on;
-%         if isfield(Data_extract,'Opto_trial_index') && Data_extract.Opto_trial_index(1,ind_trial(j))==1% for opto trials, plot opto-stimuli duration
-%             xopto=relativeTrialStart(j)*1000/frT+[Data_extract.Opto_Onset_Time(1,ind_trial(j))/frT,Data_extract.Opto_Off_Time(1,ind_trial(j))/frT,Data_extract.Opto_Off_Time(1,ind_trial(j))/frT,Data_extract.Opto_Onset_Time(1,ind_trial(j))/frT];
-%             p_opto=patch(xopto,ypatch,[0.5,0.5,1]);
-%             p_opto.FaceAlpha=0.3;
-%             hold on;
-%         end
+        if isfield(Data_extract,'Opto_trial_index') && Data_extract.Opto_trial_index(1,ind_trial(j))==1% for opto trials, plot opto-stimuli duration
+            xopto=relativeTrialStart(j)*1000/frT+[Data_extract.Opto_Onset_Time(1,ind_trial(j))/frT,Data_extract.Opto_Off_Time(1,ind_trial(j))/frT,Data_extract.Opto_Off_Time(1,ind_trial(j))/frT,Data_extract.Opto_Onset_Time(1,ind_trial(j))/frT];
+            p_opto=patch(xopto,ypatch,[0.5,0.5,1]);
+            p_opto.FaceAlpha=0.3;
+            hold on;
+        end
         % plot([Data_extract.Stim_onset_time(1,ind_trial(j))/frT,Data_extract.Stim_onset_time(1,ind_trial(j))/frT],[ylim(1) ylim(2)],'k');%stim onset time
         % hold on;
         % plot([Data_extract.Stim_offset_time(1,ind_trial(j))/frT,Data_extract.Stim_offset_time(1,ind_trial(j))/frT],[ylim(1) ylim(2)],'k');%stim offset time

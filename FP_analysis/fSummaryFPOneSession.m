@@ -40,7 +40,7 @@ trialType(3:4,:,:)=[];%do not plot vio and miss
 FrameRate=40;
 FrameTime=1000/FrameRate;
 frT=FrameTime*2;%2 channel, so framerate and frametime should be half
-frameNumTime=[1,2];%from 2s before align point to 5s after align point
+frameNumTime=[1,3];%from 2s before align point to 5s after align point
 frameNum=double(round(frameNumTime*1000/frT));
 [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime(Data_extract,round(double(TrialStart_FrameCount')/2),frT);
 %% compare different dff('dff baseline correction first','dff motion correction first','dff470','dff410')

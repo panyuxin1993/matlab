@@ -29,8 +29,18 @@ for i=1:size(T,1)
     end
 end
 %settings of label and legend
-i_selectivity=4;%*********variable**************
+i_selectivity=3;%*********variable**************
 selectivitystr={'stimuli','sensory difficulty','sensory','choice'};%sensory means grouping difficulties;
+AUCtype=selectivitystr{i_selectivity};
+trialTypeStr='cor and err';%'divideCorErr'
+if strcmp(trialTypeStr,'cor and err')%used to test whether it is sensory or choice AUC,in order to be more fair, keep trial numbers balenced for correct and error trials
+    combineCorErr='combineCorErr';%{'combineCorErr','divideCorErr'}
+    n_result=1;
+else
+    combineCorErr='divideCorErr';%{'combineCorErr','divideCorErr'}
+    n_result=2;
+end
+AUCCorrectedMethod='SensoryChoiceOrthogonalSubtraction';%'';
 trialTypeVar=[1,2,4,3];%corresponding to variable 'selectivitystr',decide what trial type means
 fiberstr={'Soma'};%fiberstr={'Soma','Terminal'};
 dffstr={'dff baseline correction first','dff motion correction first','dff470','dff410'};
@@ -64,7 +74,8 @@ whichAnimal='';
 celltype={'SC vglut2','SC vgat'};
 n_siteCell=cell(1,2);%each cell store a cell type
 n_datapointCell=cell(1,2);%each cell store a cell type
-dataProcessStr=strcat('-grouped by ',selectivitystr{i_selectivity},'-shuffle',num2str(nshuffle),'-lick time1s');%string of data process,used to label file name
+timeBinEpoch='1s';%'500ms'
+dataProcessStr=strcat('-grouped by ',selectivitystr{i_selectivity},combineCorErr,'-shuffle',num2str(nshuffle),'-lick time',timeBinEpoch,AUCCorrectedMethod);%string of data process,used to label file name
 %
 for i_celltype=1:2
     %select sessions for summary analysis
@@ -101,8 +112,8 @@ for i_celltype=1:2
         end
     end
     %
-    [dff_aligned_cat_animal,trialType_cat_animal,behEvent_aligned_cat_animal,licking_aligned_cat_animal,Tsignal_cat_animal]=deal(cell(2,n_site(1)));%two fibers so two cells to store,for multiple sessions, store 1D--1-soma,2-terminal data,2D--sites; note soma sites are more than terminal sites
-%     [dff_aligned_by_session,trialType_by_session,behEvent_aligned_by_session,licking_aligned_by_session]=deal(cell(2,n_datapoint(1)));%2D-data points, each means one site one session
+    [dff_aligned_cat_animal,trialType_cat_animal,behEvent_aligned_cat_animal,licking_aligned_cat_animal,Tsignal_cat_animal,dff_aligned_cat_animal_ortho,trialType_cat_animal_ortho]=deal(cell(2,n_site(1)));%two fibers so two cells to store,for multiple sessions, store 1D--1-soma,2-terminal data,2D--sites; note soma sites are more than terminal sites
+    [dff_aligned_by_session,trialType_by_session,behEvent_aligned_by_session,licking_aligned_by_session]=deal(cell(2,n_datapoint(1)));%2D-data points, each means one site one session
     for nfiber=1:length(fiberstr)%here means fiber bilaterally implanted,1-soma, 2-terminal
         %store AUC and p-value
         dataInfoStr=strcat(experiment,'-',regionstr{i_region},'-',fiberstr{nfiber});
@@ -110,14 +121,14 @@ for i_celltype=1:2
         fileNameAUC=strcat(savepath,filesep,dataInfoStr,dataProcessStr,'-n',num2str(n_datapoint(nfiber)),'-sites',num2str(n_site(nfiber)),'-EpochAUC.mat');
         datapointNameCell=cell(n_datapoint(nfiber),1);
         varTypes = {'string','categorical','double','double','double','double','double'};
-        T_AUC=table('Size',[n_datapoint(nfiber)*2,7],'VariableTypes',varTypes,...
+        T_AUC=table('Size',[n_datapoint(nfiber)*n_result,7],'VariableTypes',varTypes,...
             'VariableNames',{'SessionName','Answer','ITI','sound','delay','response','lick'});
-        T_pvalues=table('Size',[n_datapoint(nfiber)*2,7],'VariableTypes',varTypes,...
+        T_pvalues=table('Size',[n_datapoint(nfiber)*n_result,7],'VariableTypes',varTypes,...
             'VariableNames',{'SessionName','Answer','ITI','sound','delay','response','lick'});
         siteNameCell=[];%later will be struct with field 'nameSite','nameCases'  
-        T_AUC_site=table('Size',[n_site(nfiber)*2,7],'VariableTypes',varTypes,...
+        T_AUC_site=table('Size',[n_site(nfiber)*n_result,7],'VariableTypes',varTypes,...
             'VariableNames',{'SiteName','Answer','ITI','sound','delay','response','lick'});
-        T_pvalues_site=table('Size',[n_site(nfiber)*2,7],'VariableTypes',varTypes,...
+        T_pvalues_site=table('Size',[n_site(nfiber)*n_result,7],'VariableTypes',varTypes,...
             'VariableNames',{'SiteName','Answer','ITI','sound','delay','response','lick'});
         %store ttest p-value
         fileNameTtest=strcat(savepath,filesep,dataInfoStr,dataProcessStr,'-n',num2str(n_datapoint(nfiber)),'-sites',num2str(n_site(nfiber)),'-EpochTtest.mat');
@@ -152,7 +163,7 @@ for i_celltype=1:2
             end
             sessiondate=datevec(T.date(ind_session(i)),'yyyy/mm/dd');
             formatOut = 'yyyymmdd';
-            rootpath=strcat('F:\FP\',T.animal(ind_session(i)),'_',datestr(sessiondate,formatOut));%根据总结文件找到对应session的文件夹
+            rootpath=strcat('H:\FP\',T.animal(ind_session(i)),'_',datestr(sessiondate,formatOut));%根据总结文件找到对应session的文件夹
             rootpath=rootpath{1};%change from cell array to char array
             files = dir(strcat(rootpath,'\*Virables.mat'));
             if length(files)==1
@@ -219,7 +230,7 @@ for i_celltype=1:2
                     siteNameCell(ind_site).nameCases{ind_session4site(1)}=datapointNameCell{ind_datapoint,1};            
                 end
                 %get trial type
-                [trialType,behrule,trialTypeStr] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix',fiberSide{i_fiber});%decide trial type, 1d cor/err/miss/vio, each 2d one stimulus, 3d trials
+                [trialType,behrule,trialTypeStr] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix',fiberSide{i_fiber},combineCorErr);%decide trial type, 1d cor/err/miss/vio, each 2d one stimulus, 3d trials
 %                 %this block choose only easy trials
 %                 tempTrialType=zeros(size(trialType,1),2,size(trialType,3));
 %                 tempTrialType(:,1,:)=trialType(:,1,:);
@@ -230,9 +241,14 @@ for i_celltype=1:2
                 % }
                 trialType_cat_animal{nfiber,ind_site}=cat(3,trialType_cat_animal{nfiber,ind_site},trialType);
                 trialType_by_session{nfiber,ind_datapoint}=trialType;
+                %get trial type for orthogonal
+                if strcmp(AUCtype,'choice')|| strcmp(AUCtype,'sensory') 
+                    trialType_ortho = fGetTrialType( Data_extract,[],7-trialTypeVar(i_selectivity),'matrix',fiberSide{i_fiber},combineCorErr);%decide trial type, 1d cor/err/miss/vio, each 2d one stimulus, 3d trials
+                    trialType_cat_animal_ortho{nfiber,ind_site}=cat(3,trialType_cat_animal_ortho{nfiber,ind_site},trialType_ortho);
+                end
                 %% concatenate dff, trial type maxtrix and behavior event, etc.
                 for ndff=[1] %plot for each dff, see which is better and test whether 410 signals have similar trend
-                    T_SigbyEpoch = fGetSigBehEpoch(behEventFrameIndex,dff{1,ndff}(ind_fiber(i_fiber),:),frT);
+                    T_SigbyEpoch = fGetSigBehEpoch(behEventFrameIndex,dff{1,ndff}(ind_fiber(i_fiber),:),frT,timeBinEpoch);
                     if isempty(Tsignal_cat_animal{nfiber,ind_site})
                         Tsignal_cat_animal{nfiber,ind_site}=T_SigbyEpoch;
                     else
@@ -241,37 +257,52 @@ for i_celltype=1:2
                 end
                 %save corresponding datapoint name- which session and which sites
                 fileNameAUC_datapoint=strcat(savepath,filesep,dataInfoStr,'-',datapointNameCell{ind_datapoint,1},dataProcessStr,'-epochAUC.mat');%adding datapoint name to the AUC file name
-                stranswer={'correct','error'};
+                if (size(trialType,1)-2)==2
+                    stranswer={'correct','error'};
+                else
+                    stranswer={'correct and error'};
+                end
                 if exist(fileNameAUC_datapoint,'file')
                     load(fileNameAUC_datapoint);
                     for nResult=1:size(trialType,1)-2
-                        T_AUC(2*ind_datapoint+nResult-2,:) = T_AUC_case(nResult,:);
-                        T_pvalues(2*ind_datapoint+nResult-2,:) = T_pvalues_case(nResult,:);
+                        T_AUC(n_result*ind_datapoint+nResult-n_result,:) = T_AUC_case(nResult,:);
+                        T_pvalues(n_result*ind_datapoint+nResult-n_result,:) = T_pvalues_case(nResult,:);
                     end
-                    if ~strcmp(datapointNameCell{ind_datapoint,1},T_AUC.SessionName(2*ind_datapoint+nResult-2))
+                    if ~strcmp(datapointNameCell{ind_datapoint,1},T_AUC.SessionName(n_result*ind_datapoint+nResult-n_result))
                         warning('Name of data point mismatch, double check');
                     end
                 end
-                for nResult=1:size(trialType,1)
+                for nResult=1:size(trialType,1)-2
                     %calculate moving p to decide when selectivity becoming significant
                     label = fTrialType2Label(trialType,2);
                     indTrial=trialType(nResult,:,:);
                     indTrial=sum(squeeze(indTrial),1);
                     ind_trial=logical(squeeze(indTrial));
+                    ind_trial=ind_trial';
+                    label=label(ind_trial);
+                    if strcmp(AUCtype,'choice')|| strcmp(AUCtype,'sensory')
+                        labelortho = fTrialType2Label(trialType_ortho,2);
+                        labelortho=labelortho(ind_trial);
+                    end
+                    if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                        T_SigbyEpoch2=fOrthogonalSubtraction(T_SigbyEpoch,ind_trial,label,labelortho);
+                    else
+                        T_SigbyEpoch2=T_SigbyEpoch(ind_trial,:);
+                    end
                     poslabel=2;
                     %plot moving AUC, method 1
                     if nResult<size(trialType,1)-1 && nfiber==1 %only calculate AUC from cor/err soma
-                        if  ismissing(T_AUC.SessionName(2*ind_datapoint+nResult-2)) % initialized but not assigned value
+                        if  ismissing(T_AUC.SessionName(n_result*ind_datapoint+nResult-n_result)) % initialized but not assigned value
                             %calculate AUC in different epoch
-                            [T_AUC.SessionName(2*ind_datapoint+nResult-2), T_pvalues.SessionName(2*ind_datapoint+nResult-2)]= deal(datapointNameCell{ind_datapoint,1});
-                            [T_AUC.Answer(2*ind_datapoint+nResult-2),T_pvalues.Answer(2*ind_datapoint+nResult-2)] = deal(stranswer{nResult});
-                            [T_AUC.ITI(2*ind_datapoint+nResult-2),T_pvalues.ITI(2*ind_datapoint+nResult-2)]=fAUC(label(ind_trial),T_SigbyEpoch.ITI(ind_trial),poslabel,1000);
-                            [T_AUC.sound(2*ind_datapoint+nResult-2),T_pvalues.sound(2*ind_datapoint+nResult-2)]=fAUC(label(ind_trial),T_SigbyEpoch.sound(ind_trial),poslabel,1000);
-                            [T_AUC.delay(2*ind_datapoint+nResult-2),T_pvalues.delay(2*ind_datapoint+nResult-2)]=fAUC(label(ind_trial),T_SigbyEpoch.delay(ind_trial),poslabel,1000);
-                            [T_AUC.response(2*ind_datapoint+nResult-2),T_pvalues.response(2*ind_datapoint+nResult-2)]=fAUC(label(ind_trial),T_SigbyEpoch.response(ind_trial),poslabel,1000);
-                            [T_AUC.lick(2*ind_datapoint+nResult-2),T_pvalues.lick(2*ind_datapoint+nResult-2)]=fAUC(label(ind_trial),T_SigbyEpoch.lick(ind_trial),poslabel,1000);   
-                            T_AUC_case(nResult,:)=T_AUC(2*ind_datapoint+nResult-2,:);
-                            T_pvalues_case(nResult,:) = T_pvalues(2*ind_datapoint+nResult-2,:);
+                            [T_AUC.SessionName(n_result*ind_datapoint+nResult-n_result), T_pvalues.SessionName(n_result*ind_datapoint+nResult-n_result)]= deal(datapointNameCell{ind_datapoint,1});
+                            [T_AUC.Answer(n_result*ind_datapoint+nResult-n_result),T_pvalues.Answer(n_result*ind_datapoint+nResult-n_result)] = deal(stranswer{nResult});
+                            [T_AUC.ITI(n_result*ind_datapoint+nResult-n_result),T_pvalues.ITI(n_result*ind_datapoint+nResult-n_result)]=fAUC(label,T_SigbyEpoch2.ITI,poslabel,1000);
+                            [T_AUC.sound(n_result*ind_datapoint+nResult-n_result),T_pvalues.sound(n_result*ind_datapoint+nResult-n_result)]=fAUC(label,T_SigbyEpoch2.sound,poslabel,1000);
+                            [T_AUC.delay(n_result*ind_datapoint+nResult-n_result),T_pvalues.delay(n_result*ind_datapoint+nResult-n_result)]=fAUC(label,T_SigbyEpoch2.delay,poslabel,1000);
+                            [T_AUC.response(n_result*ind_datapoint+nResult-n_result),T_pvalues.response(n_result*ind_datapoint+nResult-n_result)]=fAUC(label,T_SigbyEpoch2.response,poslabel,1000);
+                            [T_AUC.lick(n_result*ind_datapoint+nResult-n_result),T_pvalues.lick(n_result*ind_datapoint+nResult-n_result)]=fAUC(label,T_SigbyEpoch2.lick,poslabel,1000);   
+                            T_AUC_case(nResult,:)=T_AUC(n_result*ind_datapoint+nResult-n_result,:);
+                            T_pvalues_case(nResult,:) = T_pvalues(n_result*ind_datapoint+nResult-n_result,:);
                         end
                     end
                 end
@@ -283,14 +314,18 @@ for i_celltype=1:2
         for ind_site=1:n_site(1)
             fileNameAUC_site=strcat(savepath,filesep,dataInfoStr,'-',siteNameCell(ind_site).nameSite,dataProcessStr,'-epochAUC.mat');%adding datapoint name to the AUC file name
             fileNameAUC_site=fileNameAUC_site{1};
-            stranswer={'correct','error'};
+            if (size(trialType,1)-2)==2
+                stranswer={'correct','error'};
+            else
+                stranswer={'correct and error'};
+            end
             if exist(fileNameAUC_site,'file')
                 load(fileNameAUC_site);
                 %check whether site include same dataset
                 if fEqual(nameCases,siteNameCell(ind_site).nameCases)
                     for nResult=1:size(trialType,1)-2
-                        T_AUC_site(2*ind_site+nResult-2,:) = T_AUC_site_case(nResult,:);
-                        T_pvalues_site(2*ind_site+nResult-2,:) = T_pvalues_site_case(nResult,:);
+                        T_AUC_site(n_result*ind_site+nResult-n_result,:) = T_AUC_site_case(nResult,:);
+                        T_pvalues_site(n_result*ind_site+nResult-n_result,:) = T_pvalues_site_case(nResult,:);
                     end
                 else
                     nameSite=siteNameCell(ind_site).nameSite;
@@ -302,23 +337,34 @@ for i_celltype=1:2
             end
             nameCases=unique(nameCases);%remove elements that replicate
             siteNameCell(ind_site).nameCases=unique(siteNameCell(ind_site).nameCases);
-            for nResult=1:2 %only calculated cor/err trials
+            for nResult=1:size(trialType,1)-2 %only calculated cor/err trials
                 label = fTrialType2Label(trialType_cat_animal{1,ind_site},2);
                 indTrial=trialType_cat_animal{1,ind_site}(nResult,:,:);
                 indTrial=sum(squeeze(indTrial),1);
                 ind_trial=logical(squeeze(indTrial));
+                ind_trial=ind_trial';
+                label=label(ind_trial);
+                if strcmp(AUCtype,'choice')|| strcmp(AUCtype,'sensory')
+                    labelortho = fTrialType2Label(trialType_cat_animal_ortho{1,ind_site},2);
+                    labelortho=labelortho(ind_trial);
+                end
+                if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                    T_SigbyEpoch_animal=fOrthogonalSubtraction(Tsignal_cat_animal{nfiber,ind_site},ind_trial,label,labelortho);
+                else
+                    T_SigbyEpoch_animal=Tsignal_cat_animal{nfiber,ind_site}(ind_trial,:);
+                end
                 poslabel=2;
-                if  ismissing(T_AUC_site.SiteName(2*ind_site+nResult-2))
+                if  ismissing(T_AUC_site.SiteName(n_result*ind_site+nResult-n_result))
                     %calculate AUC in different epoch
-                    [T_AUC_site.SiteName(2*ind_site+nResult-2), T_pvalues_site.SiteName(2*ind_site+nResult-2)]= deal(siteNameCell(ind_site).nameSite);
-                    [T_AUC_site.Answer(2*ind_site+nResult-2),T_pvalues_site.Answer(2*ind_site+nResult-2)] = deal(stranswer{nResult});
-                    [T_AUC_site.ITI(2*ind_site+nResult-2),T_pvalues_site.ITI(2*ind_site+nResult-2)]=fAUC(label(ind_trial),Tsignal_cat_animal{nfiber,ind_site}.ITI(ind_trial),poslabel,1000);
-                    [T_AUC_site.sound(2*ind_site+nResult-2),T_pvalues_site.sound(2*ind_site+nResult-2)]=fAUC(label(ind_trial),Tsignal_cat_animal{nfiber,ind_site}.sound(ind_trial),poslabel,1000);
-                    [T_AUC_site.delay(2*ind_site+nResult-2),T_pvalues_site.delay(2*ind_site+nResult-2)]=fAUC(label(ind_trial),Tsignal_cat_animal{nfiber,ind_site}.delay(ind_trial),poslabel,1000);
-                    [T_AUC_site.response(2*ind_site+nResult-2),T_pvalues_site.response(2*ind_site+nResult-2)]=fAUC(label(ind_trial),Tsignal_cat_animal{nfiber,ind_site}.response(ind_trial),poslabel,1000);
-                    [T_AUC_site.lick(2*ind_site+nResult-2),T_pvalues_site.lick(2*ind_site+nResult-2)]=fAUC(label(ind_trial),Tsignal_cat_animal{nfiber,ind_site}.lick(ind_trial),poslabel,1000);
-                    T_AUC_site_case(nResult,:)=T_AUC_site(2*ind_site+nResult-2,:);
-                    T_pvalues_site_case(nResult,:) = T_pvalues_site(2*ind_site+nResult-2,:);
+                    [T_AUC_site.SiteName(n_result*ind_site+nResult-n_result), T_pvalues_site.SiteName(n_result*ind_site+nResult-n_result)]= deal(siteNameCell(ind_site).nameSite);
+                    [T_AUC_site.Answer(n_result*ind_site+nResult-n_result),T_pvalues_site.Answer(n_result*ind_site+nResult-n_result)] = deal(stranswer{nResult});
+                    [T_AUC_site.ITI(n_result*ind_site+nResult-n_result),T_pvalues_site.ITI(n_result*ind_site+nResult-n_result)]=fAUC(label,T_SigbyEpoch_animal.ITI,poslabel,1000);
+                    [T_AUC_site.sound(n_result*ind_site+nResult-n_result),T_pvalues_site.sound(n_result*ind_site+nResult-n_result)]=fAUC(label,T_SigbyEpoch_animal.sound,poslabel,1000);
+                    [T_AUC_site.delay(n_result*ind_site+nResult-n_result),T_pvalues_site.delay(n_result*ind_site+nResult-n_result)]=fAUC(label,T_SigbyEpoch_animal.delay,poslabel,1000);
+                    [T_AUC_site.response(n_result*ind_site+nResult-n_result),T_pvalues_site.response(n_result*ind_site+nResult-n_result)]=fAUC(label,T_SigbyEpoch_animal.response,poslabel,1000);
+                    [T_AUC_site.lick(n_result*ind_site+nResult-n_result),T_pvalues_site.lick(n_result*ind_site+nResult-n_result)]=fAUC(label,T_SigbyEpoch_animal.lick,poslabel,1000);
+                    T_AUC_site_case(nResult,:)=T_AUC_site(n_result*ind_site+nResult-n_result,:);
+                    T_pvalues_site_case(nResult,:) = T_pvalues_site(n_result*ind_site+nResult-n_result,:);
                 end
              end
             save(fileNameAUC_site,'T_AUC_site_case','T_pvalues_site_case','nameCases');   
@@ -420,4 +466,25 @@ set(gca,'xticklabel',[]);% 将原有的标签隐去
 
 set(gca,'FontSize',12);
 
+end
+function [Tout]=fOrthogonalSubtraction(Tin,ind_trial,label_AUC,label_AUC_orthogonal)
+if istable(Tin)
+    Tout=table2array(Tin(ind_trial,:));
+else
+    Tout=Tin(ind_trial,:);
+end
+n_condition=length(unique(label_AUC));
+n_condition_orth=length(unique(label_AUC_orthogonal));
+for i=1:n_condition_orth
+    mean_orth=zeros(n_condition,size(Tout,2));
+    for j=1:n_condition
+        indTrial=logical((label_AUC==j).*(label_AUC_orthogonal==i));
+        mean_orth(j,:)=nanmean(Tout(indTrial,:));   
+    end
+    indTrial_orth=(label_AUC_orthogonal==i);
+    Tout(indTrial_orth,:)=Tout(indTrial_orth,:)-nanmean(mean_orth);
+end
+if istable(Tin)
+    Tout=array2table(Tout,'VariableNames',Tin.Properties.VariableNames);
+end
 end

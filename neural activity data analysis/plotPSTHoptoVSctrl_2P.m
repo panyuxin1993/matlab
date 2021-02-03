@@ -4,13 +4,13 @@ behEventAlign='delay onset';%align to which event(string can be in {'stimOnset',
 behEventSort='go cue';% string can be in{'first lick','reward','go cue'};
 masklick='no';
 frameNumTime=[1,3.5];%from 5s before align point to 5s after align point
-yrange=[ -0.5 , 1 ];
+% yrange=[ -0.5 , 1 ];
 i_selectivity=4;%*********variable**************
 selectivitystr={'stimuli','difficulty','sensory','choice'};%sensory means grouping difficulties;
 
-cd 'H:\2P\pyx310_20200920\im_data_reg\result_save';
+cd 'D:\pyx338_20210203\im_data_reg\result_save';
 CurrFolder = pwd;
-rootname='pyx310_20200920';
+rootname='pyx338_20210203';
 savefolder=rootname;%'1-200trials';%'segNP';
 % load([CurrFolder,'\',rootname, '_imaging_Virables.mat']);%load behavior data
 dirmat=strcat(CurrFolder,'\*.mat');

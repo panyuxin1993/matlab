@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<addonCore>
+
+  <label>Action Potential Simulator</label>
+
+  <version>1.0</version>
+
+  <type>app</type>
+
+  <packagedBy>(R2013a)</packagedBy>
+
+  <identifier>e6fc2969-57b8-4888-aef2-c99d206cf781</identifier>
+
+  <createdBy name="Tanu Singla"/>
+
+  <icons>
+    <icon tag="0">resources/icon_48.png</icon>
+    <icon tag="1">resources/icon_24.png</icon>
+    <icon tag="2">resources/icon_16.png</icon>
+  </icons>
+
+</addonCore>

@@ -26,12 +26,12 @@ rootpath='C:\Users\PYX\Documents\MATLAB\FigForProgressReport\';
 % fig22=figure;
 % fig22=fPlotImagingExample(fig22,[0.1,0.1,4,6]);
 % print(fig22,[rootpath,'Example imaging cell-2B'],'-dpdf');
-% fig33=figure;
-% fig33=fPlotIHCinFig(fig33,[1,1,3,3]);
+fig33=figure;
+fig33=fPlotIHCinFig(fig33,[1,1,3,3]);
 % print(fig33,[rootpath,'Cell type of SC neurons-3C'],'-dpdf')
 fig34=figure;
 fig34=fPlotEphysExample(fig34,[4,1,4,3]);
-saveas(fig34,[rootpath,'Cell type of SC neurons-3D.pdf'],'pdf');
+% saveas(fig34,[rootpath,'Cell type of SC neurons-3D.pdf'],'pdf');
 
 % fig35=figure;
 % fig35=fPlotEphysSummary(fig35,[1,1,4,3]);
