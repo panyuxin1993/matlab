@@ -8,9 +8,9 @@ frameNumTime=[1,3.5];%from 5s before align point to 5s after align point
 i_selectivity=4;%*********variable**************
 selectivitystr={'stimuli','difficulty','sensory','choice'};%sensory means grouping difficulties;
 
-cd 'D:\pyx338_20210203\im_data_reg\result_save';
+cd 'D:\pyx340_20210205\im_data_reg\result_save';
 CurrFolder = pwd;
-rootname='pyx338_20210203';
+rootname='pyx340_20210205';
 savefolder=rootname;%'1-200trials';%'segNP';
 % load([CurrFolder,'\',rootname, '_imaging_Virables.mat']);%load behavior data
 dirmat=strcat(CurrFolder,'\*.mat');

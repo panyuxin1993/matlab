@@ -18,7 +18,11 @@ n_animal=length(animal_unique);
 
 for i_session=1:n_session
     indrow=ind_session(i_session);
-    [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);
+%     [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);
+    [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession_NPseg(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);    
+    if isempty(TAUC_currentSession)
+        continue;
+    end
     if exist('TAUC_combine','var') && strcmp(AUCtype,'stimuli') %calculate choice probability
         if size(TAUC_currentSession.ITI,2)==2
             TAUC_combine=vertcat(TAUC_combine,TAUC_currentSession);
@@ -45,16 +49,19 @@ for i_session=1:n_session
         Tmean_combine=Tmean_currentSession;
     end
 end
-save([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat'],'TAUC_combine');
-save([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity.mat'],'Tmean_combine');
+% save([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat'],'TAUC_combine');
+% save([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity.mat'],'Tmean_combine');
+save([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC_NPseg.mat'],'TAUC_combine');
+save([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity_NPseg.mat'],'Tmean_combine');
 %}
 %% plot histogram for choice AUC 
 %
 trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
 AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
-load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat']);
+% load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat']);
+load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC_NPseg.mat']);
 % load('F:\2P\summary\trialTypecorTepochAUC.mat');
-celltype='syn';
+celltype='vglut2';
 manipulation='control';
 %T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,'syn')|contains(TAUC_combine.celltype,'+other'),:);%syn, ..+other
 T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
@@ -107,7 +114,7 @@ saveas(figAUC,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'AUC at si
 set(figAUC,'PaperPosition',[0,0,8,2]);
 saveas(figAUC,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'AUC at significance level of ',num2str(2*psig(1)),'.pdf'],'pdf');
 %}
-%compare SC AUC and M2 AUC
+%% compare SC AUC and M2 AUC
 figCmpAUC=figure;
 set(gcf,'Position',[100,100,400,200]);
 load('D:\download\M2_delay_table.mat');
@@ -143,13 +150,66 @@ xlabel('AUC');
 set(gca,'Xlim',[0,1]);
 set(gca,'FontSize',14);
 box off;
-%% plot mean activities histogram
-load([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity.mat']);
+%% plot mean activities scatter with rotated histogram
+% load([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity.mat']);
+load([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity_NPseg.mat']);
 Tmean=Tmean_combine(strcmp(Tmean_combine.celltype,celltype),:);
 psig=[0,0.01];
 preference_threshold=0;
-%plot histogram from ITI to lick of AUC
-figAUC=fHistEpochAUC(Tmean,psig,preference_threshold,'mean activities (\it\DeltaF/F\rm)',[-2,4],0.3);
+Tipsi = fExtractTableField(Tmean,'ipsi');
+Tcontra = fExtractTableField(Tmean,'contra');
+epochstr={'ITI','sound','delay','response','lick'};
+n_epoch=length(epochstr);
+figScatterRotatedHist=figure;
+set(gcf,'Position',[100,100,1000,180]);
+figTemp=figure;
+xy_lim=[0,0];
+data_diff=cell(1,n_epoch);
+for i=1:n_epoch
+    figure(figScatterRotatedHist);
+    subplot(1,n_epoch,i);
+    ind_tablecol=find(cellfun(@(x) strcmp(x,epochstr{i}), Tipsi.Properties.VariableNames));
+    scatter(Tipsi{:,ind_tablecol},Tcontra{:,ind_tablecol},5,'k','filled');
+    data_diff{i}=Tipsi{:,ind_tablecol}-Tcontra{:,ind_tablecol};
+    xlabel('Mean activities ipsi choice');
+    ylabel('Mean activities contra choice');
+    x_lim_temp=get(gca,'Xlim');
+    y_lim_temp=get(gca,'Ylim');
+    xy_lim(1)=min(min(min(xy_lim),min(x_lim_temp)),min(y_lim_temp));
+    xy_lim(2)=max(max(max(xy_lim),max(x_lim_temp)),max(y_lim_temp));
+    title(epochstr{i});
+    hold on;    
+end
+for i=1:n_epoch
+    subplot(1,n_epoch,i);
+    plot(xy_lim,[0,0],'k--');
+    plot([0,0],xy_lim,'k--');
+    plot(xy_lim,xy_lim,'k-');
+    figure(figTemp);
+    h=histogram(data_diff{i},'Normalization','probability','NumBins',20);
+    [patch_array_x,patch_array_y]=hist2patch(h.BinEdges,h.Values*(xy_lim(2)-xy_lim(1)));
+    [rotate_x,rotate_y] = cellfun(@(x,y) fRotateCurve(x,y,-45,0,0),patch_array_x,patch_array_y,'UniformOutput',false);
+    final_x=cellfun(@(x) x+(xy_lim(2)-xy_lim(1))*0.8+xy_lim(1),rotate_x,'UniformOutput',false);
+    final_y=cellfun(@(x) x+(xy_lim(2)-xy_lim(1))*0.8+xy_lim(1),rotate_y,'UniformOutput',false);
+    line_x=mean(data_diff{i})*ones(1,2);
+    line_y=[0,max(h.Values)*(xy_lim(2)-xy_lim(1))];
+    [line_x_rotate,line_y_rotate]=fRotateCurve(line_x,line_y,-45,0,0);
+    line_x_final=line_x_rotate+(xy_lim(2)-xy_lim(1))*0.8+xy_lim(1);
+    line_y_final=line_y_rotate+(xy_lim(2)-xy_lim(1))*0.8+xy_lim(1);
+    figure(figScatterRotatedHist);
+    subplot(1,n_epoch,i);
+    for i_patch=1:length(final_x)
+        patch(final_x{i_patch},final_y{i_patch},[0.5,0.5,0.5],'EdgeColor','none');
+    end
+    plot(line_x_final,line_y_final,'k-');
+end
+
+
+
+
+% %plot histogram from ITI to lick of AUC
+% figAUC=fHistEpochAUC(Tmean,psig,preference_threshold,'mean activities (\it\DeltaF/F\rm)',[-2,4],0.3);
+
 %% plot bar
 %
 n_cell= size(T_AUC,1);
@@ -222,6 +282,7 @@ for i_celltype=1:length(celltype)
         fPlotMovingAUC(TAUC_combine,T.animal{indrow},T.date{indrow},trialTypeStr);
     end
 end
+
 %% choice probability
 %{
 %choose cells with significant delay/sound choice AUC
@@ -475,6 +536,39 @@ else
     end
 end
 
+end
+
+function [Tout] = fExtractTableField(Tin,fieldName)
+size_in=size(table2cell(Tin));
+Cout=cell(size_in);
+
+%extract the field name of some variables in a table
+n_var=length(Tin.Properties.VariableNames);
+for i_var=1:n_var
+    if isstruct(Tin{1,i_var})
+        temp=Tin{:,i_var};
+        switch fieldName
+            case 'ipsi'
+                Cout(:,i_var)=arrayfun(@(x) x.ipsi, temp,'UniformOutput',false);
+            case 'contra'
+                Cout(:,i_var)=arrayfun(@(x) x.contra, temp,'UniformOutput',false);
+            case 'mean'
+                Cout(:,i_var)=arrayfun(@(x) x.mean, temp,'UniformOutput',false);
+        end
+    else
+        Cout(:,i_var)=table2cell(Tin(:,i_var));
+    end
+end
+Tout=cell2table(Cout,'VariableNames',Tin.Properties.VariableNames);
+end
+
+function [patch_array_x,patch_array_y]=hist2patch(binEdges,values)
+patch_array_x=cell(1,length(values));
+patch_array_y=cell(1,length(values));
+for i_cell=1:length(values)
+    patch_array_x{i_cell}=[binEdges(i_cell),binEdges(i_cell+1),binEdges(i_cell+1),binEdges(i_cell)];
+    patch_array_y{i_cell}=[0,0,values(i_cell),values(i_cell)];
+end
 end
 
 function [flag1,flag2]=fSigFlag(SAUC,pSAUC,CAUC,pCAUC,p_range)

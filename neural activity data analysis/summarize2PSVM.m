@@ -1,15 +1,16 @@
 close all;
 [num,txt,raw] =xlsread('D:\xulab\project\imaging_data_summary.xlsx');%criteria to choose sessions come from this file
-savepath='H:\2P\summary';
+savepath='H:\2P\summary\summary_DLCfiltered';%'H:\2P\summary';
 clear TSVM_combine;
 trialTypeStr='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
-SVMtype='sensory';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+SVMtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+AUCCorrectedMethod='balencedCorErrTrialNum';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
 nRepeat=100;
 pTraining=0.9;
 %% calculate SVM accuracy
-%{
-T=cell2table(raw(2:end,1:11));
-T.Properties.VariableNames=strrep(raw(1,1:11),' ','_');%table variable name can't have ' ',so replace them
+%
+T=cell2table(raw(2:end,1:14));
+T.Properties.VariableNames=strrep(raw(1,1:14),' ','_');%table variable name can't have ' ',so replace them
 ind_session=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control');
 ind_session=find(ind_session);
 n_session=length(ind_session);
@@ -19,7 +20,7 @@ n_animal=length(animal_unique);
 score=cell(n_session,1);
 for i_session=1:n_session
     indrow=ind_session(i_session);
-    TSVM_currentSession= fGetEpochSVMscoreASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,SVMtype,nRepeat, pTraining);
+    TSVM_currentSession= fGetEpochSVMscoreASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,SVMtype,nRepeat, pTraining,AUCCorrectedMethod);
     if exist('TSVM_combine','var') 
         TSVM_combine=vertcat(TSVM_combine,TSVM_currentSession);
     else
@@ -29,7 +30,7 @@ end
 save([savepath,filesep,'trialType',trialTypeStr,'-',SVMtype,'pTraining',num2str(pTraining),'-TepochSVM.mat'],'TSVM_combine');
 %}
 %% plot SVM accuracy cases
-celltype='syn';
+celltype='vglut2';
 SVMtype='sensory';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
 load([savepath,filesep,'trialType',trialTypeStr,'-',SVMtype,'pTraining',num2str(pTraining),'-TepochSVM.mat']);
 SVMsensory=TSVM_combine(strcmp(TSVM_combine.celltype,celltype),:);
@@ -52,7 +53,8 @@ for i=1:size(SVMchoice,1)
     fPlotMean_SE(1:size(SVMchoice(i,5:9),2),cell2mat(table2array(SVMchoice(i,5:9))),colorScore{1});
     fPlotMean_SE(1:size(SVMsensory(i,5:9),2),cell2mat(table2array(SVMsensory(i,5:9))),colorScore{2}); 
     plot([1,5],[0.5,0.5],'k--');
-    set(gca,'Ylim',[0.4,1],'Xlim',[0.9,5.1],'XTick',1:5,'XTickLabel',{'ITI','sound','delay','response','lick'});
+    title([SVMchoice.animal{i},'-',SVMchoice.date{i}]);
+    set(gca,'Ylim',[0.3,1],'Xlim',[0.9,5.1],'XTick',1:5,'XTickLabel',{'ITI','sound','delay','response','lick'});
     set(gca,'FontSize',12);
     h=gca;
     h.XTickLabelRotation=45;
