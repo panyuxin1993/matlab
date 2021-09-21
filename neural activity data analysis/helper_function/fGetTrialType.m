@@ -47,7 +47,11 @@ elseif f>=3
         divideOpto=0;
     end
 else
-    if nargin>=5 && strcmp(varargin{1},'divideOpto')
+    side=varargin{1};%={'left','right'}
+    if nargin>5 
+        combineCorErr=varargin{2};%={'combineCorErr','divideCorErr'}
+    end    
+    if nargin>=6 && strcmp(varargin{3},'divideOpto')
         divideOpto=1;
     else
         divideOpto=0;

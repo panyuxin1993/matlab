@@ -14,7 +14,7 @@ dirmat=strcat(filepath,filesep,'*.mat');
 dirs=dir(dirmat);
 dircell=struct2cell(dirs);
 filenames=dircell(1,:);
-file_imaging=cellfun(@(x) contains(x,'Ca'), filenames);
+file_imaging=cellfun(@(x) contains(x,'CaTrialsSIM_'), filenames);
 load(filenames{file_imaging});%load imaging data
 load('dff.mat');%load dff
 file_beh=cellfun(@(x) contains(x,'Virables'), filenames);
@@ -41,7 +41,7 @@ elseif strcmp(trialTypeStr,'cor and err')%used to test whether it is sensory or 
     combineCorErr='combineCorErr';%{'combineCorErr','divideCorErr'}
     fileNameT=[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',SVMtype,'-',CorrectedMethod,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-EpochSVM.mat'];
     switch CorrectedMethod
-        case 'balencedCorErrTrialNum'
+        case 'balencedCorErrTrialNum'%probably problematic, since the trial are resampled and may let training and testing dataset be same
             corErrTrialNumber='balence';
         case 'SensoryChoiceOrthogonalSubtraction'
             corErrTrialNumber='raw';
@@ -60,6 +60,7 @@ if exist(fileNameT,'file')
 else
     disp(['analyzing',fileNameT]);
     nROI=1;%each session was viewed as one ROI
+    varNROI=size(SavedCaTrials.f_raw{1},1);
     [delayMovingSVM,pdelayMovingSVM]=deal([]);
     [varanimal{1:nROI}]=deal(animal);
     varanimal=reshape(varanimal,[],1);
@@ -86,11 +87,11 @@ else
         [ITI, sound,delay, response,lick,pITI, psound, pdelay, presponse, plick] = deal(cell(ones(1,1)));
         switch corErrTrialNumber
             case 'balence'
-                [trialType_raw,~,~] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix','left','divideCorErr');
+                [trialType,~,~] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix','left','divideCorErr');
                 trialTypeIndCell=cell(2,2);%{ipsi cor, contra cor;ipsi err, contra err};
                 for i=1:2
                     for j=1:2
-                        trialTypeIndCell{i,j}=find(logical(reshape(trialType_raw(i,j,:),[],1)));
+                        trialTypeIndCell{i,j}=find(logical(reshape(trialType(i,j,:),[],1)));
                     end
                 end
                 temp=cellfun(@length,trialTypeIndCell);
@@ -99,57 +100,80 @@ else
                 trialTypeIndCellBalenced=cellfun(@(x) reshape(datasample(s,x,trialNumEachType,'Replace',true),[],1), trialTypeIndCell,'UniformOutput',false);
                 trialTypeIndFinal=cell2mat(trialTypeIndCellBalenced);%1st col-cor; 2nd col-err
                 ind_trial=reshape(trialTypeIndFinal,[],1);
-                label_AUC=[ones(trialNumEachType*2,1);ones(trialNumEachType*2,1)*2];
+                label_SVM=[ones(trialNumEachType*2,1);ones(trialNumEachType*2,1)*2];
             case 'raw'
                 [trialType,~,~] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
                 label_choice = fTrialType2Label(trialType,2);
                 if contains(trialTypeStr,'cor') % 'cor'| 'cor and err'
                     ind_trial=logical(reshape(sum(trialType(1,:,:),2),[],1));%only correct trials
                 end
-                label_AUC=label_choice(ind_trial);
+                label_SVM=label_choice(ind_trial);
                 %used for orthogonal subtraction
                 [trialType_orthogonal,~,~] = fGetTrialType( Data_extract,[],7-trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
                 label_choice_orthogonal = fTrialType2Label(trialType_orthogonal,2);
-                label_AUC_orthogonal=label_choice_orthogonal(ind_trial);
+                label_SVM_orthogonal=label_choice_orthogonal(ind_trial);
         end
 
         sigbyEpoch=[];
         sigMoving=[];
+        sigMovingGo=[];
         for roiNo = 1:size(SavedCaTrials.f_raw{1},1)
             %data for epoch activity
             [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,dff(roiNo,:),frT,str_nFrames);
+            if strcmp(CorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                T_SigbyEpoch=fOrthogonalSubtraction(T_SigbyEpoch,ind_trial,label_SVM,label_SVM_orthogonal);
+            else
+                T_SigbyEpoch=T_SigbyEpoch(ind_trial,:);
+            end
             sigbyEpoch=cat(3,sigbyEpoch,table2array(T_SigbyEpoch));
             %data for moving activity
             [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( dff(roiNo,:), behEventFrameIndex,  frameNum );
-            sigMoving=cat(3,sigMoving,dff_aligned);
+            if strcmp(CorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                dff_aligned_ortho_corrected=fOrthogonalSubtraction(dff_aligned,ind_trial,label_SVM,label_SVM_orthogonal);
+            else
+                dff_aligned_ortho_corrected=dff_aligned(ind_trial,:);
+            end
+            sigMoving=cat(3,sigMoving,dff_aligned_ortho_corrected);
+            %data for moving activity around go cue
+            behEventAlign='go cue';
+            [ dff_aligned_go, ~, ~ ] = fAlignSigBehEvent( dff(roiNo,:), behEventFrameIndex,lickingFrameIndex,behEventAlign,frameNum );
+            if strcmp(CorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                dff_aligned_ortho_corrected=fOrthogonalSubtraction(dff_aligned_go,ind_trial,label_SVM,label_SVM_orthogonal);
+            else
+                dff_aligned_ortho_corrected=dff_aligned_go(ind_trial,:);
+            end
+            sigMovingGo=cat(3,sigMovingGo,dff_aligned_ortho_corrected);
         end
         sigbyEpoch=permute(sigbyEpoch,[1,3,2]);
         sigMoving=permute(sigMoving,[1,3,2]);
+        sigMovingGo=permute(sigMovingGo,[1,3,2]);
         
         score_shuffle=cell(1,1);
-        [score,score_shuffle{1}] = fSVM(sigbyEpoch(ind_trial,:,:),label_choice(ind_trial), nRepeat, pTraining,1,1); 
+        [score,score_shuffle{1}] = fSVM(sigbyEpoch,label_SVM, nRepeat, pTraining,1,1); 
         [meanout,pout] = fBootstrpMeanP(score,1000,0.5);
         [ITI{1}, sound{1},delay{1}, response{1},lick{1}] = deal(score(:,1),score(:,2),score(:,3),score(:,4),score(:,5));
         [pITI{1}, psound{1},pdelay{1}, presponse{1},plick{1}] = deal(pout(:,1),pout(:,2),pout(:,3),pout(:,4),pout(:,5));
         %calculate moving SVM
         binsize=3;
-        binstep=1;
-        label = label_choice;
-        for nResult=1:size(trialType,1)-2
-            indTrial=trialType(nResult,:,:);
-            indTrial=sum(squeeze(indTrial),1);
-            indTrial=logical(squeeze(indTrial));
+        binstep=3;
+        for nResult=1%:size(trialType,1)-2
             if nResult==1
                 if strcmp(trialTypeStr,'cor and err')
-                    [delayMovingSVM.do,delayMovingSVM.shuffle_do]=fSVM(sigMoving(indTrial,:,:),label_choice(indTrial), nRepeat, pTraining,binsize,binstep); 
+                    [delayMovingSVM.do,delayMovingSVM.shuffle_do]=fSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep); 
                     [~,pdelayMovingSVM.do]=fBootstrpMeanP(delayMovingSVM.do,1000,0.5);
+                    [goMovingSVM.do,goMovingSVM.shuffle_do]=fSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep); 
+                    [~,pgoMovingSVM.do]=fBootstrpMeanP(goMovingSVM.do,1000,0.5);
                 else
-                    [delayMovingSVM.cor,delayMovingSVM.shuffle_cor]=fSVM(sigMoving(indTrial,:,:),label_choice(indTrial), nRepeat, pTraining,binsize,binstep); 
+                    [delayMovingSVM.cor,delayMovingSVM.shuffle_cor]=fSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep); 
                     [~,pdelayMovingSVM.cor]=fBootstrpMeanP(delayMovingSVM.cor,1000,0.5);
+                    [goMovingSVM.cor,goMovingSVM.shuffle_cor]=fSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep);
+                    [~,pgoMovingSVM.cor]=fBootstrpMeanP(goMovingSVM.cor,1000,0.5);
                 end
-            elseif nResult==2
-                [delayMovingSVM.err,delayMovingSVM.shuffle_err]=fSVM(sigMoving(indTrial,:,:),label_choice(indTrial), nRepeat, pTraining,binsize,binstep); 
-                [~,pdelayMovingSVM.err]=fBootstrpMeanP(delayMovingSVM.err,1000,0.5);
+%             elseif nResult==2
+%                 [delayMovingSVM.err,delayMovingSVM.shuffle_err]=fSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep); 
+%                 [~,pdelayMovingSVM.err]=fBootstrpMeanP(delayMovingSVM.err,1000,0.5);
+%                 [goMovingSVM.err,goMovingSVM.shuffle_err]=fSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep);
+%                 [~,pgoMovingSVM.err]=fBootstrpMeanP(goMovingSVM.err,1000,0.5);
             end
         end
         
@@ -181,10 +205,12 @@ else
 %         end
     end
     
-    TSVM=table(varanimal,vardate,varfield,varcelltype,ITI, sound,delay, response, ...
-        lick, pITI, psound, pdelay, presponse, plick,delayMovingSVM,pdelayMovingSVM,score_shuffle,'VariableNames',...
-        {'animal','date','field','celltype','ITI','sound','delay','response',...
-        'lick','pITI','psound','pdelay','presponse','plick','delayMovingSVM','pdelayMovingSVM','shuffleEpochSVMscore'});
+    TSVM=table(varanimal,vardate,varfield,varcelltype,varNROI,ITI, sound,delay, response, ...
+        lick, pITI, psound, pdelay, presponse, plick,delayMovingSVM,pdelayMovingSVM,...
+        goMovingSVM,pgoMovingSVM,score_shuffle,'VariableNames',...
+        {'animal','date','field','celltype','nROI','ITI','sound','delay','response',...
+        'lick','pITI','psound','pdelay','presponse','plick','delayMovingSVM','pdelayMovingSVM',...
+        'goMovingSVM','pgoMovingSVM','shuffleEpochSVMscore'});
 end
 save(fileNameT,'TSVM');
 end
@@ -197,21 +223,21 @@ pout(pout<0.5)=pout(pout<0.5)*2;
 pout(pout>=0.5)=(1-pout(pout>=0.5))*2;
 end
 
-function [Tout]=fOrthogonalSubtraction(Tin,ind_trial,label_AUC,label_AUC_orthogonal)
+function [Tout]=fOrthogonalSubtraction(Tin,ind_trial,label_SVM,label_SVM_orthogonal)
 if istable(Tin)
     Tout=table2array(Tin(ind_trial,:));
 else
     Tout=Tin(ind_trial,:);
 end
-n_condition=length(unique(label_AUC));
-n_condition_orth=length(unique(label_AUC_orthogonal));
+n_condition=length(unique(label_SVM));
+n_condition_orth=length(unique(label_SVM_orthogonal));
 for i=1:n_condition_orth
     mean_orth=zeros(n_condition,size(Tout,2));
     for j=1:n_condition
-        indTrial=logical((label_AUC==j).*(label_AUC_orthogonal==i));
+        indTrial=logical((label_SVM==j).*(label_SVM_orthogonal==i));
         mean_orth(j,:)=nanmean(Tout(indTrial,:));   
     end
-    indTrial_orth=(label_AUC_orthogonal==i);
+    indTrial_orth=(label_SVM_orthogonal==i);
     Tout(indTrial_orth,:)=Tout(indTrial_orth,:)-nanmean(mean_orth);
 end
 if istable(Tin)

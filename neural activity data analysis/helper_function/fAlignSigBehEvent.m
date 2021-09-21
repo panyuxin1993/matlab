@@ -60,7 +60,7 @@ elseif strcmp(alignTo,'stim onset')|| strcmp(alignTo,'delay onset') %and other c
         if isnan(behEvent_aligned.stimOnset(i))
             baseline(i)=nan;
         else
-            baseline(i)=nanmean(dff_aligned(i,1:behEvent_aligned.stimOnset(i)),2);%for each trial(each row),pre-aligned point baseline
+            baseline(i)=nanmean(dff_aligned(i,1:frameNum(1)+behEvent_aligned.stimOnset(i)),2);%for each trial(each row),pre-aligned point baseline
         end
     end
     baseline=reshape(baseline,[],1);

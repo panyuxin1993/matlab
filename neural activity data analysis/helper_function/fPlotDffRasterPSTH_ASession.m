@@ -1,4 +1,4 @@
-function [A] = fPlotDffRasterPSTH_ASession(dff,ind_tr_1,Data_extract,SavedCaTrials,frameNumTime,behEventAlign,masklick,i_selectivity,behEventSort,trial2include,trial2exclude,savename_fig,savename_figdff,title_fig,trialTypeStr)
+function [A] = fPlotDffRasterPSTH_ASession(dff,ind_tr_1,Data_extract,SavedCaTrials,frameNumTime,behEventAlign,masklick,i_selectivity,behEventSort,trial2include,trial2exclude,savename_fig,title_fig,trialTypeStr)
 %FPLOTDFFPSTHASESSION plot dff PSTH of one session, the figure is color
 %plot and PSTH with licking raster and lick rate
 %   Detailed explanation goes here
@@ -14,15 +14,15 @@ ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed fo
 if isnan(trial2include)
     indTrial2include=fExcludeTrials(trial2exclude,ind_1stFrame,'logical');
     trial2include=[1,length(ind_1stFrame)];
+elseif strcmp(trial2include,'all')
+    trial2include=[1,length(ind_1stFrame)];
+    indTrial2include=fIncludeTrials(trial2include,ind_1stFrame,'logical');
 else
     indTrial2include=fIncludeTrials(trial2include,ind_1stFrame,'logical');
 end
 frameNum=double(round(frameNumTime*1000/frT));
 [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( Data_extract, ind_1stFrame, SavedCaTrials.FrameTime ,ind_tr_1);%get behavior event time
 
-
-%replot f_raw picture, labeled with used trial range
-fLabelDffIncludedTrialRange(dff,savename_figdff,ind_1stFrame,trial2include)
 %   align to which event(string can be in {'stimOnset', 'go cue','first lick','first left lick','first right lick', 'answer','reward'},
 if strcmp(behEventAlign,'delay onset') && strcmp(masklick,'yes')%by default, if align to stim onset, then see delay activity and mask all after go cue as nan
     [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( dff, behEventFrameIndex,  frameNum );
@@ -51,8 +51,9 @@ end
 for nStim=1:size(trialType,2) %for each stimulus
     for  nResult=1:size(trialType,1) %4 column(correct/error/miss/violation),companied with 4 lick raster
         selectedTrialInd=trialType(nResult,nStim,:);
-        selectedTrialInd=logical(squeeze(selectedTrialInd))';
-        selectedTrialInd=logical(selectedTrialInd.*indTrial2include');
+        selectedTrialInd=reshape(logical(squeeze(selectedTrialInd)),[],1);
+        indTrial2include=reshape(indTrial2include,[],1);
+        selectedTrialInd=logical(selectedTrialInd.*indTrial2include);
         sot=behEvent_aligned.stimOnset(selectedTrialInd);% stim onset, white
         flt=behEvent_aligned.lickFirst(selectedTrialInd);% first lick, black
         flt_l=behEvent_aligned.lickFirst_left(selectedTrialInd);%left lick, magenta dots
@@ -286,21 +287,5 @@ if flagclearyrange==1
 end
 end
 
-%%
-function []=fLabelDffIncludedTrialRange(dff,filepath,ind_1stFrame,trial2include)
-% if exist(filepath,'file')
-%     return;
-% else
-    figDff=figure;
-    plot(dff,'k-');hold on;
-    yrange=get(gca,'Ylim');
-    for i=1:size(trial2include,1)
-        tempx=[ind_1stFrame(trial2include(i,1)),ind_1stFrame(trial2include(i,2))];
-        xpatch=[tempx,fliplr(tempx)];
-        ypatch=[yrange(1),yrange(1),yrange(2),yrange(2)];
-        patch(xpatch,ypatch,'b','FaceAlpha',0.5);
-    end
-    saveas(figDff,filepath,'jpg');
-% end
-end
+
 

@@ -19,16 +19,23 @@ if length(vY)~=2
 end
 ind1=find(vY(1)==Y);
 ind2=find(vY(2)==Y);
+
+
 nTrial=min(length(ind1),length(ind2));%using minimal number of trials for one category, thus balance the trial number
 nframe=floor((size(Tin,3)-binsize)/binstep)+1;
 [score, score_shuffle]=deal(zeros(nRepeat,nframe));
-parfor it=1:nframe
+for it=1:nframe
+%     %check input
+%     clf;
+%     histogram(Tin(ind1,:,it));hold on;
+%     histogram(Tin(ind2,:,it));
+    
     ind1it=max(1,(it-1)*binstep-floor(binsize/2)+1);
     ind2it=min(size(Tin,3),(it-1)*binstep+floor(binsize/2)+1);
     binActivity=Tin(:,:,ind1it:ind2it);
     binMeanActivity=nanmean(binActivity,3);%n-by-1 vector
     Tit=squeeze(binMeanActivity);
-    for iRepeat=1:nRepeat
+    parfor iRepeat=1:nRepeat
         indused1=randperm(length(ind1),nTrial);
         indused2=randperm(length(ind2),nTrial);
         indtrain1=indused1(1:floor(pTraining*length(indused1)));

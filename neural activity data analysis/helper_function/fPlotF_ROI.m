@@ -1,4 +1,4 @@
-function [ figOut ] = fPlotF_ROI( path, fdata,datatype,ind_ROI, ind_trial )
+function [ figOut ] = fPlotF_ROI( path, fdata,datatype,ind_ROI, ind_trial ,varargin)
 %FPLOTF_ROI Plot F raw or dF/F for one ROI, distinguish trial
 %type (stimuli,choice, etc.). Colorplot
 %Input-
@@ -7,29 +7,41 @@ function [ figOut ] = fPlotF_ROI( path, fdata,datatype,ind_ROI, ind_trial )
 %   ind_ROI= a vector indicating the roi number to present
 %   ind_trial= a vector indicating the trial index to present, only support
 %   continues trials, e.g. 1:10, otherwise can't garantee bug free
+%   varargin- varargin{1} indicates whether to show significant, and
+%   varargin{1} indicates the method to show that significance
 dirmat=strcat(path,'\*.mat');
 dirs=dir(dirmat);
 dircell=struct2cell(dirs);
 filenames=dircell(1,:);
-if ~exist('Data_extract','var')
-    file_beh=cellfun(@(x) contains(x,'_Virables'), filenames);
-    if sum(file_beh)>0
-        load([path,'\',filenames{1,file_beh}]);%load behavior data
-    else
-        %if no file then not plot behavior event
-    end
-end
+
 if strcmp(datatype,'2P')
     file_behmat=cellfun(@(x) contains(x,'imaging.mat'),filenames);
     load([path,filesep,filenames{1,file_behmat}]);%load .mat file that transform form .beh
+    file_beh=fDataExtract(1,path,'*imaging.mat');  
+    load([path,filesep,file_beh]);
     if  ~exist('SavedCaTrials','var')
-        file_imaging=cellfun(@(x) contains(x,'Ca'), filenames);
+        file_imaging=cellfun(@(x) contains(x,'CaTrialsSIM'), filenames);
         load([path,filesep,filenames{1,file_imaging}]);%load imaging data
     end
     %plot f_raw and label properly
     frT = SavedCaTrials.FrameTime;
     if isempty(ind_trial)
         ind_trial=1:length(SavedCaTrials.f_raw);%if not enter range, just plot whole session
+    end
+    trialLengthTime=0;
+    for i=1:length(ind_trial)
+        trialLengthFrame_temp=size(SavedCaTrials.f_raw{ind_trial(i)},2);
+        trialLengthTime=trialLengthTime+trialLengthFrame_temp*frT/1000;
+    end
+    ind_tr_1=1;
+    ntr=length(SavedCaTrials.f_raw);
+    nFrameEachTrial=cellfun(@(x) size(x,2),SavedCaTrials.f_raw);
+    ind_1stFrame=zeros(1,length(nFrameEachTrial));
+    ind_1stFrame(1)=1;
+    ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
+    indFrame_trial_start=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
+    if isempty(ind_trial)
+        ind_trial=1:length(indFrame_trial_start);%if not enter range, just plot whole session
     end
     if strcmp(fdata,'raw')
         ylabelstr='f raw';
@@ -46,26 +58,35 @@ if strcmp(datatype,'2P')
         else
             f_data=fnx_getDff( path,path);
         end
-        trialLengthTime=0;
-        for i=1:length(ind_trial)
-            trialLengthFrame_temp=size(SavedCaTrials.f_raw{ind_trial(i)},2);
-            trialLengthTime=trialLengthTime+trialLengthFrame_temp*frT/1000;
-        end
-        ind_tr_1=1;
-        ntr=length(SavedCaTrials.f_raw);
-        nFrameEachTrial=cellfun(@(x) size(x,2),SavedCaTrials.f_raw);
-        ind_1stFrame=zeros(1,length(nFrameEachTrial));
-        ind_1stFrame(1)=1;
-        ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
-        indFrame_trial_start=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
-        if isempty(ind_trial)
-            ind_trial=1:length(indFrame_trial_start);%if not enter range, just plot whole session
-        end
-%         trialLengthTime=indFrame_trial_start(min(max(ind_trial)+1,length(indFrame_trial_start)))-indFrame_trial_start(max(min(ind_trial),1));
-        if max(ind_trial)>length(indFrame_trial_start)
+        if max(ind_trial)>=length(indFrame_trial_start)
             f_data=f_data(:,indFrame_trial_start(min(ind_trial)):end);
         else
-            f_data=f_data(:,indFrame_trial_start(min(ind_trial)):(indFrame_trial_start(max(ind_trial)+1)));%baseline correction, fit 470 and 410, dff
+            f_data=f_data(:,indFrame_trial_start(min(ind_trial)):(indFrame_trial_start(max(ind_trial)+1)));
+        end
+    elseif strcmp(fdata,'spkr')
+        ylabelstr='spikes/s';
+        if exist([path,filesep,'deconvolution.mat'],'file')
+            temp=load([path,filesep,'deconvolution.mat']);
+            f_data=temp.spiking_rate;
+        else
+            trial2include='all';
+            trial2exclude=nan;
+            path_Str=strsplit(path,filesep);
+            for i=1:length(path_Str)
+                if strcmp(path_Str{i},'2P')
+                    session_str=path_Str{i+1};
+                    break;
+                end
+            end
+            objsession=Session2P(session_str,path,trial2include,trial2exclude);
+            flag_plot='not plot_result';
+            [spiking_rate, denoised_trace, zscored_spkr] = objsession.mGetDeconvolvedFR(flag_plot);
+            f_data=spiking_rate;
+        end
+        if max(ind_trial)>=length(indFrame_trial_start)
+            f_data=f_data(:,indFrame_trial_start(min(ind_trial)):end);
+        else
+            f_data=f_data(:,indFrame_trial_start(min(ind_trial)):(indFrame_trial_start(max(ind_trial)+1)));
         end
     end
 elseif strcmp(datatype,'FP')
@@ -74,6 +95,8 @@ elseif strcmp(datatype,'FP')
     end
     file_behmat=cellfun(@(x) contains(x,'FP.mat'),filenames);
     load([path,filesep,filenames{1,file_behmat}]);%load .mat file that transform form .beh
+    file_beh=fDataExtract(1,path,'*FP.mat');
+    load(file_beh);
     file_FP=cellfun(@(x) contains(x,'dff_temp'), filenames);
     load([path,filesep,filenames{1,file_FP}]);%load imaging data
 
@@ -95,6 +118,7 @@ elseif strcmp(datatype,'FP')
         f_data=dff{1}(:,indFrame_trial_start(min(ind_trial)):(indFrame_trial_start(max(ind_trial)+1)));%baseline correction, fit 470 and 410, dff
     end
 end
+
 if max(ind_ROI)>size(f_data,1) || min(ind_ROI)<1
     warning('index of ROI out of range');
 end
@@ -111,9 +135,11 @@ if length(ind_ROI)==1
     end
 else%plot multiple neural traces, with no y tick labels, just pile up one by one
     range=[];
+    piled_f=zeros(length(ind_ROI),size(f_data,2));
     for i=1:length(ind_ROI)
         current_f=f_data(ind_ROI(i),:);
         current_f=current_f-min(current_f)+sum(range);
+        piled_f(i,:)=current_f;
         plot(current_f,'k-');
         hold on;
         xlim=get(gca,'Xlim');
@@ -155,6 +181,34 @@ title(titlestr);
 set(gca,'FontName','Arial','FontSize',14);
 box off;
 
+%plot significance region
+if ~isempty(varargin)
+    sigThreshSD=2;
+    sigShowingStyle='patch';
+    if mod(length(varargin),2)==0
+        for i=1:2:length(varargin)
+            switch varargin{i}
+                case 'sigThreshSTD'
+                    sigThreshSD=varargin{i+1};
+                case 'sigShowingStyle'
+                    sigShowingStyle=varargin{i+1};
+            end
+        end
+    else
+        warning('odd varargin input argument');
+    end
+    data_mean=mean(piled_f,2);
+    data_std=std(piled_f,0,2);
+    for i_patch=1:length(data_mean)
+        if strcmp(sigShowingStyle,'patch')
+            x_patch=[1,length(piled_f),length(piled_f),1];
+            sig_low_bound=data_mean(i_patch)-data_std(i_patch)*sigThreshSD;
+            sig_up_bound=data_mean(i_patch)+data_std(i_patch)*sigThreshSD;
+            y_patch=[sig_low_bound,sig_low_bound,sig_up_bound,sig_up_bound];
+            patch(x_patch,y_patch,'k','FaceAlpha',.2);
+        end
+    end
+end
 %plot behavior event
 i_selectivity=4;%*********variable**************
 selectivitystr={'stimuli','sensory difficulty','sensory','choice'};%sensory means grouping difficulties;
@@ -172,29 +226,31 @@ if exist('Data_extract','var')
     trialType=trialType(1,:)+2*trialType(2,:);%change to 1/2 values
     indFrame_trial_start=cellfun(@fTrialStartStr2double, SessionResults);
     relativeTrialStart=indFrame_trial_start(ind_trial)-indFrame_trial_start(ind_trial(1));%relative to the ind_trial(1) time
-    relativeTrialStart=[relativeTrialStart, indFrame_trial_start(max(ind_trial)+1)-indFrame_trial_start(ind_trial(1))];
+    relativeTrialStart=[relativeTrialStart, indFrame_trial_start(min(max(ind_trial)+1,length(indFrame_trial_start)))-indFrame_trial_start(ind_trial(1))];
     for j=1:length(ind_trial)
         %plot bar indicating the trial number
         color_trial={[0,0,0],[0,0,1],[1,0,0]};%other, ipsi, contra
         plot([relativeTrialStart(j),relativeTrialStart(j+1)-2]*1000/frT,[ylim(2),ylim(2)],'color',color_trial{trialType(ind_trial(j))+1},'LineWidth',2);
-%         %plot stim 
-%         xpatch=relativeTrialStart(j)*1000/frT+[Data_extract.Stim_onset_time(1,ind_trial(j))/frT,Data_extract.Stim_offset_time(1,ind_trial(j))/frT,Data_extract.Stim_offset_time(1,ind_trial(j))/frT,Data_extract.Stim_onset_time(1,ind_trial(j))/frT];
-%         ypatch=[ylim(1),ylim(1),ylim(2),ylim(2)];
-%         p=patch(xpatch,ypatch,[0.5,0.5,0.5]);
-%         p.FaceAlpha=0.3;
-%         hold on;
+        %plot stim 
+        xpatch=relativeTrialStart(j)*1000/frT+[Data_extract.Stim_onset_time(1,ind_trial(j))/frT,Data_extract.Stim_offset_time(1,ind_trial(j))/frT,Data_extract.Stim_offset_time(1,ind_trial(j))/frT,Data_extract.Stim_onset_time(1,ind_trial(j))/frT];
+        ypatch=[ylim(1),ylim(1),ylim(2),ylim(2)];
+        p=patch(xpatch,ypatch,[0.5,0.5,0.5]);
+        p.FaceAlpha=0.3;
+        hold on;
+        %plot stim, method2
+        % plot([Data_extract.Stim_onset_time(1,ind_trial(j))/frT,Data_extract.Stim_onset_time(1,ind_trial(j))/frT],[ylim(1) ylim(2)],'k');%stim onset time
+        % hold on;
+        % plot([Data_extract.Stim_offset_time(1,ind_trial(j))/frT,Data_extract.Stim_offset_time(1,ind_trial(j))/frT],[ylim(1) ylim(2)],'k');%stim offset time
+        % hold on;
+        
         if isfield(Data_extract,'Opto_trial_index') && Data_extract.Opto_trial_index(1,ind_trial(j))==1% for opto trials, plot opto-stimuli duration
             xopto=relativeTrialStart(j)*1000/frT+[Data_extract.Opto_Onset_Time(1,ind_trial(j))/frT,Data_extract.Opto_Off_Time(1,ind_trial(j))/frT,Data_extract.Opto_Off_Time(1,ind_trial(j))/frT,Data_extract.Opto_Onset_Time(1,ind_trial(j))/frT];
             p_opto=patch(xopto,ypatch,[0.5,0.5,1]);
             p_opto.FaceAlpha=0.3;
             hold on;
         end
-        % plot([Data_extract.Stim_onset_time(1,ind_trial(j))/frT,Data_extract.Stim_onset_time(1,ind_trial(j))/frT],[ylim(1) ylim(2)],'k');%stim onset time
-        % hold on;
-        % plot([Data_extract.Stim_offset_time(1,ind_trial(j))/frT,Data_extract.Stim_offset_time(1,ind_trial(j))/frT],[ylim(1) ylim(2)],'k');%stim offset time
-        % hold on;
-%         plot(relativeTrialStart(j)*1000/frT+[Data_extract.Go_time(1,ind_trial(j))/frT,Data_extract.Go_time(1,ind_trial(j))/frT],[ylim(1) ylim(2)],'Color',[0.5,0.5,0.5]);%go cue time
-%         hold on;
+        plot(relativeTrialStart(j)*1000/frT+[Data_extract.Go_time(1,ind_trial(j))/frT,Data_extract.Go_time(1,ind_trial(j))/frT],[ylim(1) ylim(2)],'Color',[0.5,0.5,0.5]);%go cue time
+        hold on;
 %         for i=1:length(Data_extract.Left_lick_time{1,ind_trial(j)})
 %             plot(relativeTrialStart(j)*1000/frT+[Data_extract.Left_lick_time{1,ind_trial(j)}(i)/frT,Data_extract.Left_lick_time{1,ind_trial(j)}(i)/frT],[ylim(1) ylim(2)],'b');%left lick time
 %             hold on;

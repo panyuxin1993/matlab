@@ -1,4 +1,4 @@
-function [TAUC, Tmean] = fGetEpochAUCtableASession(filepath,animal,date,field,celltype,trialTypeStr,AUCtype,AUCCorrectedMethod)
+function [TAUC, Tmean] = fGetEpochAUCtableASession(filepath,animal,date,field,celltype,ROItype,trialTypeStr,AUCtype,AUCCorrectedMethod)
 %FGETEPOCHAUCTABLEASESSION calculate epoch AUC from mulitiple sessions,
 %with variables- ITI,sound,delay,response,lick, etc. only for control
 %session, not opto session
@@ -16,9 +16,14 @@ dirmat=strcat(filepath,filesep,'*.mat');
 dirs=dir(dirmat);
 dircell=struct2cell(dirs);
 filenames=dircell(1,:);
-file_imaging=cellfun(@(x) contains(x,'Ca'), filenames);
+file_imaging=cellfun(@(x) contains(x,'CaTrialsSIM'), filenames);
 load(filenames{file_imaging});%load imaging data
-load('dff.mat');%load dff
+CurrFolder=pwd;
+if exist('dff.mat','file')
+    load([CurrFolder,'\','dff.mat']);%load dff
+else
+    dff=fnx_getDff(CurrFolder,[animal,'_',strrep(date,'/','')],'save figure');
+end
 file_beh=cellfun(@(x) contains(x,'Virables'), filenames);
 load(filenames{file_beh});
 
@@ -29,7 +34,7 @@ i_selectivity=cellfun(@(x) strcmp(x,AUCtype),selectivitystr);%*********variable*
 i_selectivity=find(i_selectivity);
 str_nFrames='500ms';%'500ms';%'1s'
 %naming the temp file by method of AUC calculation correction
-if strcmp(trialTypeStr,'cor')
+if strcmp(trialTypeStr,'cor') || strcmp(trialTypeStr,'err')
     combineCorErr='divideCorErr';%and only use correct trial
     corErrTrialNumber='raw';
     fileNameT=[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',AUCtype,'-trialNum',corErrTrialNumber,'-timeBin',str_nFrames,'-EpochAUC.mat'];
@@ -42,7 +47,7 @@ elseif strcmp(trialTypeStr,'cor and err')%used to test whether it is sensory or 
         case 'SensoryChoiceOrthogonalSubtraction'
             corErrTrialNumber='raw';
             if strcmp(AUCtype,'choice')|| strcmp(AUCtype,'sensory')
-                fileNameT=[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',AUCtype,'-AUCCorrectedMethod',varargin{1},'-timeBin',str_nFrames,'-EpochAUC.mat'];
+                fileNameT=[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',AUCtype,'-AUCCorrectedMethod',AUCCorrectedMethod,'-timeBin',str_nFrames,'-EpochAUC.mat'];
             else
                 warning('error input combination of fGetEpochAUCtableASession function, SensoryChoiceOrthogonalSubtraction method');
             end
@@ -68,6 +73,10 @@ else
     varfield=reshape(varfield,[],1);
     [varcelltype{1:nROI}]=deal(celltype);
     varcelltype=reshape(varcelltype,[],1);
+    [varROItype{1:nROI}]=deal(ROItype);
+    varROItype=reshape(varROItype,[],1);
+    varROI=(1:size(SavedCaTrials.f_raw{1},1));
+    varROI=reshape(varROI,[],1);
     ind_tr_1=1;
     ntr=length(SavedCaTrials.f_raw);
     frT = SavedCaTrials.FrameTime;
@@ -85,11 +94,11 @@ else
         [ITI, sound,delay, response, lick, pITI, psound, pdelay, presponse, plick]= deal(nan(nROI,1));
         switch corErrTrialNumber
             case 'balence'
-                [trialType_raw,~,~] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix','left','divideCorErr');
+                [trialType,~,~] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix','left','divideCorErr');
                 trialTypeIndCell=cell(2,2);%{ipsi cor, contra cor;ipsi err, contra err};
                 for i=1:2
                     for j=1:2
-                        trialTypeIndCell{i,j}=find(logical(reshape(trialType_raw(i,j,:),[],1)));
+                        trialTypeIndCell{i,j}=find(logical(reshape(trialType(i,j,:),[],1)));
                     end
                 end
                 temp=cellfun(@length,trialTypeIndCell);
@@ -104,6 +113,9 @@ else
                 label_choice = fTrialType2Label(trialType,2);
                 if contains(trialTypeStr,'cor') % 'cor'| 'cor and err'
                     ind_trial=logical(reshape(sum(trialType(1,:,:),2),[],1));%only correct trials
+                end
+                if strcmp(trialTypeStr,'err')
+                    ind_trial=logical(reshape(sum(trialType(2,:,:),2),[],1));%only error trials
                 end
                 label_AUC=label_choice(ind_trial);
                 %used for orthogonal subtraction
@@ -128,8 +140,10 @@ else
             [lick(roiNo),plick(roiNo)]=fAUC(label_AUC,T_SigbyEpoch.lick,poslabel,nshuffle);
             %calculate moving AUC
             [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( dff(roiNo,:), behEventFrameIndex,  frameNum );
-            if ~isempty(varargin) && strcmp(varargin{1},'SensoryChoiceOrthogonalSubtraction')
+            if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
                 dff_aligned_ortho_corrected=fOrthogonalSubtraction(dff_aligned,ind_trial,label_AUC,label_AUC_orthogonal);
+            else
+                dff_aligned=dff_aligned(ind_trial,:);
             end
             binsize=1;
             binstep=1;
@@ -142,13 +156,17 @@ else
                     indTrial=logical(squeeze(indTrial));
                 end
                 if nResult==1
-                    if strcmp(trialTypeStr,'cor and err')
-                        [delayMovingAUC{roiNo}.do,pdelayMovingAUC{roiNo}.do] = fMovingAUC(label_AUC,dff_aligned_ortho_corrected,2,nshuffle,binsize,binstep);
-                    else
-                        [delayMovingAUC{roiNo}.cor,pdelayMovingAUC{roiNo}.cor] = fMovingAUC(label_choice,dff_aligned,2,nshuffle,binsize,binstep);
+                    if strcmp(trialTypeStr,'cor and err') 
+                        if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                            [delayMovingAUC{roiNo}.do,pdelayMovingAUC{roiNo}.do] = fMovingAUC(label_AUC,dff_aligned_ortho_corrected,2,nshuffle,binsize,binstep);
+                        else
+                            [delayMovingAUC{roiNo}.do,pdelayMovingAUC{roiNo}.do] = fMovingAUC(label_AUC,dff_aligned,2,nshuffle,binsize,binstep);
+                        end
+                    elseif strcmp(trialTypeStr,'cor') 
+                        [delayMovingAUC{roiNo}.cor,pdelayMovingAUC{roiNo}.cor] = fMovingAUC(label_AUC,dff_aligned,2,nshuffle,binsize,binstep);
                     end
-                elseif nResult==2
-                    [delayMovingAUC{roiNo}.err,pdelayMovingAUC{roiNo}.err] = fMovingAUC(label_choice,dff_aligned,2,nshuffle,binsize,binstep);
+                elseif nResult==2 && strcmp(trialTypeStr,'err') 
+                    [delayMovingAUC{roiNo}.err,pdelayMovingAUC{roiNo}.err] = fMovingAUC(label_AUC,dff_aligned,2,nshuffle,binsize,binstep);
                 end
             end
         end
@@ -185,11 +203,12 @@ else
     
     varROI=(1:size(SavedCaTrials.f_raw{1},1));
     varROI=reshape(varROI,[],1);
-    TAUC=table(varanimal,vardate,varfield,varcelltype,varROI,ITI, sound,delay, response, ...
+    TAUC=table(varanimal,vardate,varfield,varcelltype,varROItype,varROI,ITI, sound,delay, response, ...
         lick, pITI, psound, pdelay, presponse, plick,delayMovingAUC,pdelayMovingAUC,'VariableNames',...
-        {'animal','date','field','celltype','nROI','ITI','sound','delay','response',...
+        {'animal','date','field','celltype','ROItype','nROI','ITI','sound','delay','response',...
         'lick','pITI','psound','pdelay','presponse','plick','delayMovingAUC','pdelayMovingAUC'});
 end
+
 %calculate mean activities for each time epoch and whether they
 %different from ITI as baseline
 if ~exist('Tmean','var')
@@ -214,6 +233,7 @@ if ~exist('Tmean','var')
     frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
     frameNum=double(round(frameNumTime*1000/frT));
     [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( Data_extract, ind_1stFrame, SavedCaTrials.FrameTime );%get behavior event time    
+    [sound_pselectivity,delay_pselectivity,response_pselectivity,lick_pselectivity]=deal(ones(size(SavedCaTrials.f_raw{1},1),1));
     for roiNo = 1:size(SavedCaTrials.f_raw{1},1) %SavedCaTrials.nROIs may be not true
         [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,dff(roiNo,:),frT,str_nFrames);
         T_SigbyEpoch_mean=T_SigbyEpoch(ind_trial,:);
@@ -234,6 +254,10 @@ if ~exist('Tmean','var')
         [delay_m(roiNo).contra,pdelay_m(roiNo).contra]=fMeanPdiff(T_SigbyEpoch_contra.ITI,T_SigbyEpoch_contra.delay);
         [response_m(roiNo).contra,presponse_m(roiNo).contra]=fMeanPdiff(T_SigbyEpoch_contra.ITI,T_SigbyEpoch_contra.response);
         [lick_m(roiNo).contra,plick_m(roiNo).contra]=fMeanPdiff(T_SigbyEpoch_contra.ITI,T_SigbyEpoch_contra.lick);
+        sound_pselectivity(roiNo)=ranksum(T_SigbyEpoch_contra.sound,T_SigbyEpoch_ipsi.sound);
+        delay_pselectivity(roiNo)=ranksum(T_SigbyEpoch_contra.delay,T_SigbyEpoch_ipsi.delay);
+        response_pselectivity(roiNo)=ranksum(T_SigbyEpoch_contra.response,T_SigbyEpoch_ipsi.response);
+        lick_pselectivity(roiNo)=ranksum(T_SigbyEpoch_contra.lick,T_SigbyEpoch_ipsi.lick);
     end
     [varanimal{1:nROI}]=deal(animal);
     varanimal=reshape(varanimal,[],1);
@@ -243,15 +267,29 @@ if ~exist('Tmean','var')
     varfield=reshape(varfield,[],1);
     [varcelltype{1:nROI}]=deal(celltype);
     varcelltype=reshape(varcelltype,[],1);
+    [varROItype{1:nROI}]=deal(ROItype);
+    varROItype=reshape(varROItype,[],1);
     varROI=(1:size(SavedCaTrials.f_raw{1},1));
     varROI=reshape(varROI,[],1);
-    Tmean=table(varanimal,vardate,varfield,varcelltype,varROI,...
+    
+    Tmean=table(varanimal,vardate,varfield,varcelltype,varROItype,varROI,...
         ITI_m', sound_m',delay_m', response_m', lick_m', ...
-        pITI_m', psound_m', pdelay_m', presponse_m', plick_m','VariableNames',...
-        {'animal','date','field','celltype','nROI',...
+        pITI_m', psound_m', pdelay_m', presponse_m', plick_m',...
+        sound_pselectivity,delay_pselectivity,response_pselectivity,...
+        lick_pselectivity,'VariableNames',...
+        {'animal','date','field','celltype','ROItype','nROI',...
         'ITI','sound','delay','response','lick',...
-        'pITI','psound','pdelay','presponse','plick'});
+        'pITI','psound','pdelay','presponse','plick',...
+        'sound_pselectivity','delay_pselectivity','response_pselectivity',...
+        'lick_pselectivity'});
 end
+%check if TAUC have this var, update the table
+% flag_ROI_type=cellfun(@(x) strcmp(x,'ROItype'), TAUC.Properties.VariableNames);
+% if sum(flag_ROI_type)==0 
+%     TAUC=addvars(TAUC,varROItype,'After','celltype','NewVariableNames','ROItype');
+% end
+% TAUC.Properties.VariableNames{'varROItype'} = 'ROItype'; 
+    
 save(fileNameT,'TAUC','Tmean');
 end
 
