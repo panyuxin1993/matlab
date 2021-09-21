@@ -8,12 +8,20 @@ function [ outputcurve ] = fPlotMean_SE( ts,neuralActivity,color,varargin )
 %   individual cases.
 
 [ neuralActivityMean, neuralActivitySE ] = fMean_SE( neuralActivity );
+if length(ts)~=size(neuralActivity,2)
+    warning(['ts and neuralActivity have inconsistent size along time axis:',num2str(length(ts)),' vs. ', num2str(size(neuralActivity,2))]);
+    if length(ts)<size(neuralActivity,2)
+        neuralActivity=neuralActivity(:,1:length(ts));
+        neuralActivitySE=neuralActivitySE(:,1:length(ts));
+        neuralActivityMean=neuralActivityMean(:,1:length(ts));
+    end
+end
 if ~isempty(varargin)
     method=varargin{1};
     if contains(method,'cases')
         %plot individual traces
         color_case=((1+color)/2+1)/2;
-        plot(ts(1:size(neuralActivity,2)),neuralActivity,'Color',color_case,'linewidth',1);
+        plot(ts(1:size(neuralActivity,2)),neuralActivity','Color',color_case,'linewidth',1);
         hold on;
         if contains(method,'only cases')
             return

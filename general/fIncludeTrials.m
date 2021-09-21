@@ -5,7 +5,9 @@ function [outvector] = fIncludeTrials(indTrial2include,data,varargin)
 %indTrial2exclude-2d matrix of start and end of excluded trials as blocks
 %data- raw data to be processed
 %varargin{1}- 'raw','logical'(output is a true-false vector)
-if ischar(indTrial2include)
+if strcmp(indTrial2include,'all')
+    indTrial2include=[1,size(data)];
+elseif ischar(indTrial2include)
     indTrial2include=str2num(indTrial2include);
 end
 if isempty(varargin) || (~isempty(varargin) && strcmp(varargin{1},'raw'))

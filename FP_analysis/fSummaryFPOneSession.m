@@ -13,7 +13,15 @@ temp=strsplit(rootpath,'\');
 session_name=temp(end);
 cd(rootpath);
 SavingFolder=rootpath;
-behaviorFile=dir([rootpath,'\*Virables.mat']);
+behaviorFile=dir([rootpath,'\*.mat']);
+dircell=struct2cell(behaviorFile);
+filenames=dircell(1,:);
+file_beh=cellfun(@(x) contains(x,'Virables'), filenames);
+if sum(file_beh)==0 %if still no Data_extract variable
+    behdata_filename =fDataExtract(1,rootpath,'*FP.mat');
+else
+    behdata_filename = filenames{file_beh};
+end
 FrameInfo = dir([rootpath,'\*.log']);
 fileID = fopen([rootpath,'\',FrameInfo.name]);
 C=textscan(fileID,'%d %d','HeaderLines',16);
@@ -34,8 +42,8 @@ else
 end
 
 %% load Beh mat data and extract behavior events
-load(behaviorFile.name);%load behavior data
-[trialType,behrule] = fGetTrialType( Data_extract);%decide trial type, 1d cor/err/miss/vio, each 2d one stimulus, 3d trials
+load(behdata_filename);%load behavior data
+[trialType,behrule] = fGetTrialType( Data_extract,[],1,'matrix','left');%decide trial type, 1d cor/err/miss/vio, each 2d one stimulus, 3d trials
 trialType(3:4,:,:)=[];%do not plot vio and miss
 FrameRate=40;
 FrameTime=1000/FrameRate;

@@ -1,6 +1,7 @@
 %直接读beh文件，进行单个seesion 或者 paired session绘图
 clear;
-path='H:\xulab\behavior\pyx349';
+% path='E:\xulab\behavior\pyx385';
+path='E:\2P\CD088_20190111\im_data_reg\result_save';
 temp=strsplit(path,'\');
 figname=temp{end};
 % [animal_name,dataChoice]=fFindChoice(strcat(path,'\probe'),2);

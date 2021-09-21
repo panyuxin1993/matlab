@@ -62,6 +62,6 @@ function  [ trial_start_frame_final,trial_start_time_final,y_OLED_final ] = fRef
         y_OLED_final(i)=nan;
     end
 
-%     close(figTI);
+    close(figTI);
 end
 

@@ -1,5 +1,5 @@
 %combine table of sensory and choice AUC together and save combined table
-%
+%{
 %for FP data
 clear;
 filepath={'H:\FP\summary\SC vglut2-mixed-Soma-grouped bysensorycombineCorErr-shuffle1000-lick time1sSensoryChoiceOrthogonalSubtraction-n14-sites6-EpochAUC.mat',
@@ -27,7 +27,7 @@ end
 
 save(['H:\FP\summary\AUCsensoryVSchoiceTable_5epoch.mat'],'TAUCsession','TAUCsite');
 %}
-%
+%{
 %for AUC during different epoch
 load('H:\FP\summary\AUCsensoryVSchoiceTable_5epoch.mat');
 figAUCearly=figure;
@@ -71,8 +71,8 @@ saveas(figAUCearly,'H:\FP\summary\AUCsensoryVSchoice_rawFigure.pdf','pdf');
 %usage
 %{
 clear;
-filepath={'H:\2P\summary\trialTypecor and err-choiceTepochAUC.mat',
-    'H:\2P\summary\trialTypecor and err-sensoryTepochAUC.mat'
+filepath={'E:\2P\summary\trialTypecor and err-choiceTepochAUC.mat',
+    'E:\2P\summary\trialTypecor and err-sensoryTepochAUC.mat'
     };
 AUCtypestr={'choice','sensory'};
 for i=1:length(filepath)
@@ -87,8 +87,8 @@ for i=1:length(filepath)
     end
 end
 TAUCsession.celltype=categorical(TAUCsession.celltype);
-save(['H:\2P\summary\AUCsensoryVSchoiceTable.mat'],'TAUCsession');
-load('H:\2P\summary\AUCsensoryVSchoiceTable.mat');
+save(['E:\2P\summary\AUCsensoryVSchoiceTable.mat'],'TAUCsession');
+load('E:\2P\summary\AUCsensoryVSchoiceTable.mat');
 %plot early AUC comparison
 figAUCearly=figure;
 set(gcf,'position',[100,100,1200,200]);
@@ -97,15 +97,53 @@ epochstr={'ITI','sound','delay','response','lick'};
 set(gcf,'PaperPosition',[0,0,2*length(epochstr),2]);
 for i=1:length(epochstr)
     subplot(1,length(epochstr),i);
-    fCmpSensoryChoiceAUC(TAUCsession,epochstr{i},pSig,'syn');
+    fCmpSensoryChoiceAUC(TAUCsession,epochstr{i},pSig,'vgat');
     title(epochstr{i});
 end
 set(gcf,'paperPosition',[0,0,11,2]);
-saveas(figAUCearly,'H:\2P\summary\SC AUCsensoryVSchoice_rawFigure.pdf','pdf');
+saveas(figAUCearly,'E:\2P\summary\SC AUCsensoryVSchoice_rawFigure.pdf','pdf');
 %}
-
 %% load 2P data
-%M2 2P data, need to check the assist function(especially for the pSig
+%need to check the assist function(especially for the pSig usage
+%compare the difference between cor and err AUC
+%
+clear;
+filepath={'E:\2P\summary\trialTypecor-choiceTepochAUC.mat',
+    'E:\2P\summary\trialTypeerr-choiceTepochAUC.mat'
+    };
+trialtypestr={'correct','error'};
+for i=1:length(filepath)
+    load(filepath{i});
+    TAUCsessionTemp=TAUC_combine;
+    TAUCsessionTemp=fExtend(TAUCsessionTemp,{trialtypestr{i}},{'trial_type'});
+    %combine AUC table
+    if exist('TAUCsession','var')
+        TAUCsession=vertcat(TAUCsession,TAUCsessionTemp);
+    else
+        TAUCsession=TAUCsessionTemp;
+    end
+end
+TAUCsession.celltype=categorical(TAUCsession.celltype);
+save(['E:\2P\summary\AUCcorVSerrTable.mat'],'TAUCsession');
+load('E:\2P\summary\AUCcorVSerrTable.mat');
+celltypestr='vgat';
+%plot early AUC comparison
+figAUCearly=figure;
+set(gcf,'position',[100,100,1200,200]);
+pSig=0.05;
+epochstr={'ITI','sound','delay','response','lick'};
+set(gcf,'PaperPosition',[0,0,2*length(epochstr),2]);
+for i=1:length(epochstr)
+    subplot(1,length(epochstr),i);
+    fCmpCorErrAUC(TAUCsession,epochstr{i},pSig,celltypestr);
+    title(epochstr{i});
+end
+set(gcf,'paperPosition',[0,0,11,2]);
+celltypestr_save=strrep(celltypestr,' ','_');
+saveas(figAUCearly,['E:\2P\summary\',celltypestr,'_AUC_CorVSErr_rawFigure.pdf'],'pdf');
+%}
+%% load 2P data
+%M2 2P data, need to check the assist function(especially for the pSig 
 %usage
 %{
 clear;
@@ -142,8 +180,13 @@ saveas(figAUCearly,'H:\2P\summary\M2 AUCsensoryVSchoice_rawFigure.pdf','pdf');
 %}
 %% assist function
 function [Tout]=fCmpSensoryChoiceAUC(Tin,epochstr,pSig,celltypestr)
+% sensory vs. choice
 Tsensory=Tin(logical((Tin.celltype==celltypestr).*(Tin.AUCtype=='sensory')),:);
 Tchoice=Tin(logical((Tin.celltype==celltypestr).*(Tin.AUCtype=='choice')),:);
+
+% %correct vs. error
+% Tsensory=Tin(logical((Tin.celltype==celltypestr).*(Tin.trial_type=='correct')),:);
+% Tchoice=Tin(logical((Tin.celltype==celltypestr).*(Tin.trial_type=='error')),:);
 switch epochstr
     case 'early'   
         pAUCsensory=Tsensory.pAUCearly;
@@ -249,6 +292,117 @@ text(0.9,0.85,pstr,'Unit','Normalized');
 % h=legend([curve2,curve3,curve1],'stronger sensory AUC','stronger choice AUC','not significant AUC');
 % set(h,'box','off');
 end
+
+function [Tout]=fCmpCorErrAUC(Tin,epochstr,pSig,celltypestr)
+%correct vs. error
+Tcor=Tin(logical((Tin.celltype==celltypestr).*(Tin.trial_type=='correct')),:);
+Terr=Tin(logical((Tin.celltype==celltypestr).*(Tin.trial_type=='error')),:);
+switch epochstr
+    case 'early'   
+        pAUCcor=Tcor.pAUCearly;
+        AUCcor=Tcor.AUCearly;
+        pAUCerr=Terr.pAUCearly;
+        AUCerr=Terr.AUCearly;
+    case 'late'
+        pAUCcor=Tcor.pAUClate;
+        AUCcor=Tcor.AUClate;
+        pAUCerr=Terr.pAUClate;
+        AUCerr=Terr.AUClate;
+    case 'ITI'
+        pAUCcor=Tcor.pITI;
+        AUCcor=Tcor.ITI;
+        pAUCerr=Terr.pITI;
+        AUCerr=Terr.ITI;
+    case 'delay'
+        pAUCcor=Tcor.pdelay;
+        AUCcor=Tcor.delay;
+        pAUCerr=Terr.pdelay;
+        AUCerr=Terr.delay;    
+    case 'sound'
+        pAUCcor=Tcor.psound;
+        AUCcor=Tcor.sound;
+        pAUCerr=Terr.psound;
+        AUCerr=Terr.sound;   
+    case 'response'
+        pAUCcor=Tcor.presponse;
+        AUCcor=Tcor.response;
+        pAUCerr=Terr.presponse;
+        AUCerr=Terr.response;      
+    case 'lick'
+        pAUCcor=Tcor.plick;
+        AUCcor=Tcor.lick;
+        pAUCerr=Terr.plick;
+        AUCerr=Terr.lick; 
+end
+indSigCor=logical((pAUCcor<pSig/2)+(pAUCcor>1-pSig/2));
+indSigErr=logical((pAUCerr<pSig/2)+(pAUCerr>1-pSig/2));
+% indSigCor=logical(pAUCcor<pSig);
+% indSigErr=logical(pAUCerr<pSig);
+indNS=logical(1-logical(indSigCor+indSigErr));
+indCor=logical((abs(AUCcor-0.5)>abs(AUCerr-0.5)).*(indSigCor));
+indErr=logical((abs(AUCcor-0.5)<abs(AUCerr-0.5)).*(indSigErr));
+colorDot={'FF34E6','2EAF4A','000000'};
+colorDot=fHex2RGB(colorDot);
+colorShade={'E7E7E7'};
+colorShade=fHex2RGB(colorShade);
+xpatch=[0,0.5,1];hold on;
+ypatch1=[0,0.5,0];
+ypatch2=[1,0.5,1];
+patch(xpatch,ypatch1,colorShade{1},'EdgeColor','none','FaceAlpha',0.5);
+patch(xpatch,ypatch2,colorShade{1},'EdgeColor','none','FaceAlpha',0.5);
+plot([0,1],[0.5,0.5],'k-');
+plot([0.5,0.5],[1,0],'k-');
+curve1=scatter(AUCcor(indNS),AUCerr(indNS),15,colorDot{3});hold on;
+curve2=scatter(AUCcor(indCor),AUCerr(indCor),15,colorDot{1});
+curve3=scatter(AUCcor(indErr),AUCerr(indErr),15,colorDot{2});
+set(gca,'Xlim',[0,1],'Ylim',[0,1]);
+
+ylabel('error AUC');
+xlabel('correct AUC');
+nCorAUC=sum(indCor);
+nErrAUC=sum(indErr);
+nNS=sum(indNS);
+if length(AUCcor)>(nNS+nCorAUC+nErrAUC)
+    warning('check larger AUC but not significant');
+end
+set(gca,'FontSize',12);
+text(0.9,0.45,{['correct',num2str(nCorAUC)];['error',num2str(nErrAUC)];['n.s.',num2str(length(AUCcor)-nErrAUC-nCorAUC)]},'Unit','Normalized');
+%calculate p-value of distribution of seneory v.s. choice selectivity
+% %v1 compare all data points
+% unsignedAUCcor=abs(AUCcor-0.5)+0.5;
+% unsignedAUCerr=abs(AUCerr-0.5)+0.5;
+% if vartest2(unsignedAUCcor,unsignedAUCerr)
+%     p=ranksum(unsignedAUCcor,unsignedAUCerr);
+%     pstr={'unequal variance,' ,['ranksum test p=',num2str(p)]};
+% else
+%     [h,p]=ttest(unsignedAUCcor,unsignedAUCerr);
+%     pstr={'equal variance, ',['p=',num2str(p)]};
+% end
+% text(0.9,0.85,pstr,'Unit','Normalized');
+%v1.1 compare all data points using ranksum test
+%
+unsignedAUCcor=abs(AUCcor-0.5)+0.5;
+unsignedAUCerr=abs(AUCerr-0.5)+0.5;
+p=signrank(unsignedAUCcor,unsignedAUCerr);
+pstr=['Wilcoxon signed rank test p=',num2str(p)];
+text(0.9,0.85,pstr,'Unit','Normalized');
+%}
+
+% %v2 compare only data points with significant choice/senory selectivity
+% unsignedAUCcor=abs(AUCcor(~indNS)-0.5)+0.5;
+% unsignedAUCerr=abs(AUCerr(~indNS)-0.5)+0.5;
+% if vartest2(unsignedAUCcor,unsignedAUCerr)
+%     p=ranksum(unsignedAUCcor,unsignedAUCerr);
+%     pstr=['unequal variance, p=',num2str(p)];
+% else
+%     [h,p]=ttest(unsignedAUCcor,unsignedAUCerr);
+%     pstr=['equal variance, p=',num2str(p)];
+% end
+% text(0.1,0.4,pstr,'Unit','Normalized');
+% h=legend([curve2,curve3,curve1],'stronger sensory AUC','stronger choice AUC','not significant AUC');
+% set(h,'box','off');
+end
+
 %extend table with variables that replicate a value as categorical
 function [Tout]=fExtend(Tin,varcell,namecell)
 %varcell and namecell should have same size

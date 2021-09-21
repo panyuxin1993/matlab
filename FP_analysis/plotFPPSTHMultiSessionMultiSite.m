@@ -6,7 +6,7 @@ clear;
 dbstop if error;
 close all;
 savepath='H:\FP\summary';
-[num,txt,raw] =xlsread('D:\xulab\project\fiber photometry data summary.xlsx');%criteria to choose sessions come from this file
+[num,txt,raw] =xlsread('D:\xulab\project\fiber_photometry_data_summary.xlsx');%criteria to choose sessions come from this file
 T=cell2table(raw(2:end,1:13));
 T.Properties.VariableNames=strrep(raw(1,1:13),' ','_');%table variable name can't have ' ',so replace them
 T.delay_min=zeros(size(T,1),1);%convert delay variable to numeric
@@ -555,7 +555,7 @@ if i_selectivity>=2%only when 2 group exist
         threshold=(frameNumTime(1)-0.5)*1000/frT/binstep;%rule out t_sep before stimuli onset
         t_sep_AUC{ncelltype}=cell(size(p_sig_AUC));
         t_sep_ttest{ncelltype}=cell(size(p_sig_ttest));
-        varShowCases='yes';%'no'
+        varShowCases='no';%'no'
         
         if strcmp(varShowCases,'yes')
             figAUCcases=figure;
@@ -760,6 +760,13 @@ if i_selectivity>=2%only when 2 group exist
     
     %plot scatterhist
     fScatterHistCmpEarlyLateCellType(TAUCepochSessionCombine,celltype,color_celltype,mkr);
+    
+    %plot scatterhist by site
+    fScatterHistCmpEarlyLateCellType(TAUCepochSiteCombine,celltype,color_celltype,mkr);
+    
+    %plot scatter sessions, labeled by site
+    celltype={'vglut2','vgat'};
+    fScatterHistCmpEarlyLateLabelSite(TAUCepochSessionCombine,celltype,color_celltype,mkr);
 %     %consistency of selectivity from during late stim to late delay
 % 
 %     figCI=figure;
@@ -1060,12 +1067,23 @@ for icelltype=2:-1:1
     set(gca,'Xlim',[0.3,0.7],'Ylim',[0,1],'FontSize',14,'FontName','Arial');
     set(h1,'position',[0.35,0.35,0.6,0.6]);
     %plot example
-    for i=1:size(TAUC,1)
-        if contains(TAUC.DatapointName{i},'pyx237_20191201_right') || contains(TAUC.DatapointName{i},'pyx241_20191130_left')
+    if sum(cellfun(@(x) strcmp(x,'DatapointName'), TAUC.Properties.VariableNames))>0
+        for i=1:size(TAUC,1)
+            if contains(TAUC.DatapointName{i},'pyx237_20191201_right') || contains(TAUC.DatapointName{i},'pyx241_20191130_left')
                 indExample=i;
+            end
+            
         end
+        scatter(h1,TAUC.AUCearly(indExample),TAUC.AUClate(indExample),30,color{icelltype},mkr{icelltype},'filled');
+    elseif sum(cellfun(@(x) strcmp(x,'SiteName'), TAUC.Properties.VariableNames))>0
+        for i=1:size(TAUC,1)
+            if contains(TAUC.SiteName{i},'pyx237-right') || contains(TAUC.SiteName{i},'pyx241-left')
+                indExample=i;
+            end
+            
+        end
+        scatter(h1,TAUC.AUCearly(indExample),TAUC.AUClate(indExample),30,color{icelltype},mkr{icelltype},'filled');
     end
-    scatter(h1,TAUC.AUCearly(indExample),TAUC.AUClate(indExample),30,color{icelltype},mkr{icelltype},'filled');
     h2=subplot(3,3,[8,9]);
     boxplot(TAUC.AUCearly,TAUC.celltype,'orientation','horizontal','color',color{icelltype},'Notch','on');
 %     hold on;
@@ -1091,8 +1109,62 @@ set(h3,'position',[0.05,0.35,0.2,0.6]);
 hl=legend(curve_scatter(:), 'vglut2','vgat' ,'AutoUpdate','off');
 set(hl,'Box','Off');
 % text(0,1,['pearson correlation correct=',num2str(corr(TAUC.AUCearly,TAUC.AUClate))]);
+end
 
+%label dots with different color of different site
+%use scatterhist to show data
+function [Tout]=fScatterHistCmpEarlyLateLabelSite(Tin,celltype,color,mkr)
+Tin.SiteName=regexprep(Tin.DatapointName,'_\w*_','_');
 
+figScatterHist=figure;
+set(gcf,'Position',[100,100,400,400]);
+h1=subplot(3,3,[2,3,5,6]);
+hold on;
+plot([0,1],[0.5,0.5],'k--');
+plot([0.5,0.5],[0,1],'k--');
+patch([0,0.5,0.5,0],[0.5,0.5,1,1],color{2},'FaceAlpha',0.3,'EdgeColor','none');
+patch([0.5,0.5,1,1],[0,0.5,0.5,0],color{2},'FaceAlpha',0.3,'EdgeColor','none');
+curve_scatter=cell(1,2);
+for icelltype=1:length(celltype)
+    TAUC=Tin(logical((Tin.celltype==celltype{icelltype}).*(Tin.Answer == 'correct')),:);
+    curve_scatter{icelltype}=gscatter(TAUC.AUCearly,TAUC.AUClate,TAUC.SiteName);hold on;
+    set(curve_scatter{icelltype},'Marker',mkr{icelltype},'MarkerSize',6);
+    set(gca,'Xlim',[0.3,0.7],'Ylim',[0,1],'FontSize',14,'FontName','Arial');
+    set(gca,'position',[0.35,0.35,0.6,0.6]);
+    %plot example
+    for i=1:size(TAUC,1)
+        if contains(TAUC.DatapointName{i},'pyx237_20191201_right') || contains(TAUC.DatapointName{i},'pyx241_20191130_left')
+                indExample=i;
+        end
+    end
+    scatter(TAUC.AUCearly(indExample),TAUC.AUClate(indExample),30,color{icelltype},mkr{icelltype},'filled');
+end
+for icelltype=1:length(celltype)
+    h2=subplot(3,3,[8,9]);
+    boxplot(TAUC.AUCearly,TAUC.celltype,'orientation','horizontal','color',color{icelltype},'Notch','on');
+%     hold on;
+    set(h2,'Xlim',[0.3,0.7],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
+    set(h2,'position',[0.35,0.05,0.6,0.2]);
+    h3=subplot(3,3,[1,4]);
+    boxplot(TAUC.AUClate,TAUC.celltype,'orientation','vertical','color',color{icelltype},'Notch','on');
+%     hold on;
+    set(h3,'Ylim',[0,1],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
+    set(h3,'position',[0.05,0.35,0.2,0.6]);
+end
+%replot boxplot together
+TAUC=Tin(logical(Tin.Answer == 'correct'),:);
+boxplot(h2,TAUC.AUCearly,TAUC.celltype,'orientation','horizontal','Notch','on','colors',[color{1};color{2}]);
+set(h2,'Xlim',[0.3,0.7],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
+set(h2,'position',[0.35,0.05,0.6,0.2]);
+
+boxplot(h3,TAUC.AUClate,TAUC.celltype,'orientation','vertical','Notch','on','colors',[color{1};color{2}]);
+set(h3,'Ylim',[0,1],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
+set(h3,'position',[0.05,0.35,0.2,0.6]);
+
+% hl=legend(curve_scatter(:),'vglut2' , 'vgat' , 'ALM terminal','AutoUpdate','off');
+hl=legend([curve_scatter{1}(1),curve_scatter{2}(1)],{ 'vglut2','vgat' },'AutoUpdate','off');
+set(hl,'Box','Off');
+% text(0,1,['pearson correlation correct=',num2str(corr(TAUC.AUCearly,TAUC.AUClate))]);
 end
 
 %cmp AUC early vs late for different cell type, histogram of shifted

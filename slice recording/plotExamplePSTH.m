@@ -1,4 +1,4 @@
-cellFolder='D:\xulab\project\slice recording\XUNL\summary\EPSP example';
+cellFolder='E:\xulab\project\slice recording\XUNL\summary\EPSP example';
 cd(cellFolder);
 AbfFiles = dir(strcat(cellFolder,'\*.abf'));
 for n_abf=1:length(AbfFiles)

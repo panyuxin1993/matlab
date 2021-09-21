@@ -1,7 +1,7 @@
-dirE='D:\xulab\behavior\CNO experiment\infusion\bilateral\';
-dirC='D:\xulab\behavior\CNO experiment\CNO ctrl\infusion\bilateral\';
-dirCip='D:\xulab\behavior\CNO experiment\CNO ctrl\ip\';
-dirEip='D:\xulab\behavior\CNO experiment\ip\';
+dirE='E:\xulab\behavior\CNO experiment\infusion\bilateral\';
+dirC='E:\xulab\behavior\CNO experiment\CNO ctrl\infusion\bilateral\';
+dirCip='E:\xulab\behavior\CNO experiment\CNO ctrl\ip\';
+dirEip='E:\xulab\behavior\CNO experiment\ip\';
 group={'saline', 'CNO'};
 color={'k','r'}; 
 type=  {'single case','population'};

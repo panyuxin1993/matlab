@@ -37,7 +37,7 @@ if isempty(i_session)% the specified session not exist
 end
 load([path,filesep,animal,filesep,filenames{i_session}]);
 dataChoice=zeros(length(SessionResults),4);%第1-3列分别表示当前刺激，Action_choice，Delay_duration，reaction time
-if isfield(SessionResults{1},'Trial_isRetractTrial')
+if isfield(SessionResults{1},'Trial_isRetractTrial') && isfield(SessionResults{end},'Trial_isRetractTrial') %may change settings
     ind_retract=cellfun(@(x) x.Trial_isRetractTrial==1,SessionResults);%logical, 0-1 vector
     ind_retract=ind_retract';
 else

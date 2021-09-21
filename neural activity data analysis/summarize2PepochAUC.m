@@ -1,16 +1,19 @@
 close all;
-[num,txt,raw] =xlsread('D:\xulab\project\imaging_data_summary.xlsx');%criteria to choose sessions come from this file
-savepath='H:\2P\summary';
+[num,txt,raw] =xlsread('C:\Users\PYX\Documents\DataSummary\imaging_data_summary.xlsx');%criteria to choose sessions come from this file
+savepath='E:\2P\summary';
 clear TAUC_combine Tmean_combine;
-trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+trialTypeStr='err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
 AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
-AUCCorrectedMethod='balencedCorErrTrialNum';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
+AUCCorrectedMethod='None';%'SensoryChoiceOrthogonalSubtraction';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
 manipulation='control';
 %% calculate AUC
-%{
-T=cell2table(raw(2:end,1:14));
-T.Properties.VariableNames=strrep(raw(1,1:14),' ','_');%table variable name can't have ' ',so replace them
-ind_session=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control');
+%
+T=cell2table(raw(2:end,1:15));
+T.Properties.VariableNames=strrep(raw(1,1:15),' ','_');%table variable name can't have ' ',so replace them
+ind_session1=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control').*(~contains(T.behavior_performance,'probe'));%not probe session
+ind_session2=logical(strcmp(T.cell_type,'vgat').*contains(T.ROI_type,'soma'));
+% ind_session2=logical(~strcmp(T.cell_type,'M2'));
+ind_session= ind_session1 & ind_session2;
 ind_session=find(ind_session);
 n_session=length(ind_session);
 animal_unique=unique(T.animal(ind_session));
@@ -18,8 +21,8 @@ n_animal=length(animal_unique);
 
 for i_session=1:n_session
     indrow=ind_session(i_session);
-%     [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);
-    [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession_NPseg(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);    
+    [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},T.ROI_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);
+%     [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession_NPseg(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);    
     if isempty(TAUC_currentSession)
         continue;
     end
@@ -49,22 +52,25 @@ for i_session=1:n_session
         Tmean_combine=Tmean_currentSession;
     end
 end
-% save([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat'],'TAUC_combine');
-% save([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity.mat'],'Tmean_combine');
-save([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC_NPseg.mat'],'TAUC_combine');
-save([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity_NPseg.mat'],'Tmean_combine');
+save([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat'],'TAUC_combine');
+save([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity.mat'],'Tmean_combine');
+% save([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC_NPseg.mat'],'TAUC_combine');
+% save([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity_NPseg.mat'],'Tmean_combine');
 %}
 %% plot histogram for choice AUC 
 %
-trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+jtrialTypeStr='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
 AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
-% load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat']);
-load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC_NPseg.mat']);
+load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat']);
+% load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC_NPseg.mat']);
 % load('F:\2P\summary\trialTypecorTepochAUC.mat');
-celltype='vglut2';
+celltype='vgat';
 manipulation='control';
 %T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,'syn')|contains(TAUC_combine.celltype,'+other'),:);%syn, ..+other
-T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
+%T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
+ind_trial_chosen=strcmp(TAUC_combine.animal,'pyx358') & strcmp(TAUC_combine.date,'2021/6/10');
+T_AUC=TAUC_combine(ind_trial_chosen,:);
+
 
 % psig=[0.025,0.975];
 psig=[0,0.025;0.975,1];
@@ -74,17 +80,17 @@ figAUC=fHistEpochAUC(T_AUC,psig,preference_threshold,'AUC');
 
 %indcate example as vertical line
 %no such neuron
-% Tsorted=sortrows(T_AUC,{'sound','delay'},{'descend','ascend'});
-% indCaseRow=14;%shift from ipsi to contra
+% Tsorted=sortrows(T_AUC,{'delay','lick'},{'descend','descend'});%vlgut2
+% indCaseRow=5;%shift from ipsi to contra
 % for i=1:5
 %     subplot(1,5,i);
 %     plot( table2array(Tsorted(indCaseRow,5+i))*ones(2,1),ylim,'k-');hold on;
 %     box off;
 % end
 % text(0,1,[Tsorted.animal{indCaseRow},Tsorted.date{indCaseRow},'-',num2str(Tsorted.nROI(indCaseRow))],'Unit','Normalized');
-
-% Tsorted=sortrows(T_AUC,{'delay','lick'},{'ascend','descend'});
-% indCaseRow=5;%shift from ipsi to contra
+% 
+% Tsorted=sortrows(T_AUC,{'delay','lick'},{'ascend','descend'});%vglut2
+% indCaseRow=14;%shift from ipsi to contra
 % for i=1:5
 %     subplot(1,5,i);
 %     plot( table2array(Tsorted(indCaseRow,5+i))*ones(2,1),ylim,'b-');hold on;
@@ -92,7 +98,7 @@ figAUC=fHistEpochAUC(T_AUC,psig,preference_threshold,'AUC');
 % end
 % text(0,0.9,[Tsorted.animal{indCaseRow},Tsorted.date{indCaseRow},'-',num2str(Tsorted.nROI(indCaseRow))],'Unit','Normalized','color','b');
 
-% Tsorted=sortrows(T_AUC,{'lick','delay'},{'ascend','ascend'});
+% Tsorted=sortrows(T_AUC,{'delay','lick'},{'ascend','ascend'});%vgat
 % indCaseRow=10;%shift from ipsi to contra
 % for i=1:5
 %     subplot(1,5,i);
@@ -101,6 +107,15 @@ figAUC=fHistEpochAUC(T_AUC,psig,preference_threshold,'AUC');
 % end
 % text(0,0.9,[Tsorted.animal{indCaseRow},Tsorted.date{indCaseRow},'-',num2str(Tsorted.nROI(indCaseRow))],'Unit','Normalized','color','b');
 % 
+% Tsorted=sortrows(T_AUC,{'lick','delay'},{'descend','descend'});%vgat
+% indCaseRow=10;%shift from ipsi to contra
+% for i=1:5
+%     subplot(1,5,i);
+%     plot( table2array(Tsorted(indCaseRow,5+i))*ones(2,1),ylim,'b-');hold on;
+%     box off;
+% end
+% text(0,0.9,[Tsorted.animal{indCaseRow},Tsorted.date{indCaseRow},'-',num2str(Tsorted.nROI(indCaseRow))],'Unit','Normalized','color','b');
+
 % Tsorted=sortrows(T_AUC,{'delay','response'},{'descend','descend'});
 % indCaseRow=1;%shift from contra to contra
 % for i=1:5
@@ -115,6 +130,7 @@ set(figAUC,'PaperPosition',[0,0,8,2]);
 saveas(figAUC,[savepath,filesep,celltype,'-',trialTypeStr,'-',AUCtype,'AUC at significance level of ',num2str(2*psig(1)),'.pdf'],'pdf');
 %}
 %% compare SC AUC and M2 AUC
+%{
 figCmpAUC=figure;
 set(gcf,'Position',[100,100,400,200]);
 load('D:\download\M2_delay_table.mat');
@@ -150,10 +166,11 @@ xlabel('AUC');
 set(gca,'Xlim',[0,1]);
 set(gca,'FontSize',14);
 box off;
+%}
 %% plot mean activities scatter with rotated histogram
-% load([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity.mat']);
-load([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity_NPseg.mat']);
-Tmean=Tmean_combine(strcmp(Tmean_combine.celltype,celltype),:);
+load([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity.mat']);
+% load([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity_NPseg.mat']);
+Tmean=Tmean_combine(ind_trial_chosen,:);
 psig=[0,0.01];
 preference_threshold=0;
 Tipsi = fExtractTableField(Tmean,'ipsi');
@@ -164,30 +181,37 @@ figScatterRotatedHist=figure;
 set(gcf,'Position',[100,100,1000,180]);
 figTemp=figure;
 xy_lim=[0,0];
+xy_lim_setted={[-1,1],[-0.5,0.5],[-0.5,0.5],[-1,2],[-2,4]};
 data_diff=cell(1,n_epoch);
 for i=1:n_epoch
     figure(figScatterRotatedHist);
     subplot(1,n_epoch,i);
     ind_tablecol=find(cellfun(@(x) strcmp(x,epochstr{i}), Tipsi.Properties.VariableNames));
-    scatter(Tipsi{:,ind_tablecol},Tcontra{:,ind_tablecol},5,'k','filled');
+    scatter(Tipsi{:,ind_tablecol},Tcontra{:,ind_tablecol},10,'k','filled');
     data_diff{i}=Tipsi{:,ind_tablecol}-Tcontra{:,ind_tablecol};
     xlabel('Mean activities ipsi choice');
     ylabel('Mean activities contra choice');
     x_lim_temp=get(gca,'Xlim');
     y_lim_temp=get(gca,'Ylim');
-    xy_lim(1)=min(min(min(xy_lim),min(x_lim_temp)),min(y_lim_temp));
-    xy_lim(2)=max(max(max(xy_lim),max(x_lim_temp)),max(y_lim_temp));
+    if ~exist('xy_lim_setted','var')
+        xy_lim(1)=min(min(x_lim_temp),min(y_lim_temp));
+        xy_lim(2)=max(max(x_lim_temp),max(y_lim_temp));
+    else
+        xy_lim=xy_lim_setted{i};
+    end
+%     xy_lim(1)=min(min(min(xy_lim),min(x_lim_temp)),min(y_lim_temp));
+%     xy_lim(2)=max(max(max(xy_lim),max(x_lim_temp)),max(y_lim_temp));
     title(epochstr{i});
     hold on;    
-end
-for i=1:n_epoch
+% end
+% for i=1:n_epoch
     subplot(1,n_epoch,i);
     plot(xy_lim,[0,0],'k--');
     plot([0,0],xy_lim,'k--');
-    plot(xy_lim,xy_lim,'k-');
+    plot(xy_lim,xy_lim,'k--');
     figure(figTemp);
     h=histogram(data_diff{i},'Normalization','probability','NumBins',20);
-    [patch_array_x,patch_array_y]=hist2patch(h.BinEdges,h.Values*(xy_lim(2)-xy_lim(1)));
+    [patch_array_x,patch_array_y]=hist2patch(h.BinEdges,h.Values*(xy_lim(2)-xy_lim(1))*1);
     [rotate_x,rotate_y] = cellfun(@(x,y) fRotateCurve(x,y,-45,0,0),patch_array_x,patch_array_y,'UniformOutput',false);
     final_x=cellfun(@(x) x+(xy_lim(2)-xy_lim(1))*0.8+xy_lim(1),rotate_x,'UniformOutput',false);
     final_y=cellfun(@(x) x+(xy_lim(2)-xy_lim(1))*0.8+xy_lim(1),rotate_y,'UniformOutput',false);
@@ -202,9 +226,9 @@ for i=1:n_epoch
         patch(final_x{i_patch},final_y{i_patch},[0.5,0.5,0.5],'EdgeColor','none');
     end
     plot(line_x_final,line_y_final,'k-');
+    set(gca,'Xlim',xy_lim,'Ylim',xy_lim);
+    axis equal;%so the x and y have same unit length
 end
-
-
 
 
 % %plot histogram from ITI to lick of AUC
@@ -235,15 +259,15 @@ bar(pAUCSigSC','stacked');
 box off;
 %set(gca,'XTick',1:4,'XTickLabel',{'sound','delay','response','lick'});
 set(gca,'XTick',1:4,'XTickLabel',{'S','D','R','L'});
-title('SC neurons');
+title(['SC ',celltype,' neurons']);
 xlim([0,5]);
 set(gca,'FontSize',12);
 SC_choice_AUC_005=table(n_cell*pAUCSigSC(1,:)',n_cell*pAUCSigSC(2,:)',n_cell*ones(4,1),'VariableNames',{'contra_sig','ipsi_sig','total_n'},'RowNames',{'sound';'delay';'response';'lick'});
-save('H:\2P\summary\SC_choice_AUC_005.mat','SC_choice_AUC_005');
+save('E:\2P\summary\SC_choice_AUC_005.mat','SC_choice_AUC_005');
 
 subplot(1,2,1);%for SC projecting M2 neurons
 if strcmp(AUCtype,'choice')
-    load('H:\2P\summary\M2_choice_AUC_005.mat');
+    load('E:\2P\summary\M2_choice_AUC_005.mat');
     pAUCSigM2=zeros(3,4);
     pAUCSigM2(1,:)=M2_choice_AUC_005.contra_sig./M2_choice_AUC_005.total_n;
     pAUCSigM2(2,:)=M2_choice_AUC_005.ipsi_sig./M2_choice_AUC_005.total_n;
@@ -281,6 +305,7 @@ for i_celltype=1:length(celltype)
         subplot(nrow,ncol,i_session);
         fPlotMovingAUC(TAUC_combine,T.animal{indrow},T.date{indrow},trialTypeStr);
     end
+    suptitle([trialTypeStr,'-',AUCtype]);
 end
 
 %% choice probability

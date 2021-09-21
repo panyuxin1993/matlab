@@ -3,8 +3,8 @@ clear
 Path_Input=[];
 Path_Output=[];
 
-Path_Input{1}='H:\FP\pyx297_20200923\pyx297_20200923_1';
-Path_Output{1}='H:\FP\pyx297_20200923\pyx297_20200923_mat';
+Path_Input{1}='E:\20210917_MAC\20210917QAQ_1';
+Path_Output{1}='E:\20210917_MAC\20210917QAQ_1';
 
 
 %%

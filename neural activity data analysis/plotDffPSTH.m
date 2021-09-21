@@ -4,7 +4,7 @@
 clear;
 close all;
 %plot data from summary xlsx file, batch analysis
-%
+%{
 [num,txt,raw] =xlsread('D:\xulab\project\imaging_data_summary.xlsx');%criteria to choose sessions come from this file
 T=cell2table(raw(2:end,1:14));
 T.Properties.VariableNames=strrep(raw(1,1:14),' ','_');%table variable name can't have ' ',so replace them
@@ -24,9 +24,9 @@ trial2exclude=[];
 %}
 
 %plot single session
-%{
-sessionNamePool={'pyx290_20200528'};
-pathPool={'H:\2P\pyx290_20200528\im_data_reg\result_save'};
+%
+sessionNamePool={'pyx349_20210416'};
+pathPool={'D:\pyx349_20210416\im_data_reg\result_save'};
 trial2includecell={nan};
 trial2exclude=[];
 %}
@@ -36,7 +36,10 @@ masklickPool={'yes','no','no'};
 % behEventAlignPool={'go cue'};
 % masklickPool={'no'};
 
+figCase=figure;
 for i_align=1:length(behEventAlignPool)
+    subplot(1,length(behEventAlignPool),i_align);
+    hold on;
     %decide some global variable
     behEventAlign=behEventAlignPool{i_align};%align to which event(string can be in {'stimOnset', 'go cue','first lick','first left lick','first right lick', 'answer','reward','start'},
     behEventSort='go cue';% string can be in{'first lick','reward','go cue'};
@@ -57,7 +60,7 @@ for i_align=1:length(behEventAlignPool)
     ind_tr_1=1;%using data from trial 1
     
     %% plot individual cells' PSTH
-    %{
+    %
     for i_session=1:length(sessionNamePool)
         sessionName=sessionNamePool{i_session};
 %         datapath=['D:\',sessionName];
@@ -97,13 +100,13 @@ for i_align=1:length(behEventAlignPool)
             savename_fig=[CurrFolder,'\',savefolder,'\',sessionName,'ROI-',num2str(roiNo),'-algin to ',behEventAlign,'-sort ',behEventSort,'colorplot.jpg'];
             fPlotDffPSTH_ASession(dff(roiNo,:),ind_tr_1,Data_extract,...
                 SavedCaTrials,frameNumTime,behEventAlign,masklick,...
-                i_selectivity,behEventSort,trial2includecell{i_session},trial2exclude,...
-                savename_fig,savename_figdff,['ROI-',num2str(roiNo)],trialTypeStr);
+                i_selectivity,trial2includecell{i_session},trial2exclude,...
+                savename_figdff,['ROI-',num2str(roiNo)]);
         end
     end
     %}
         %% plot field dff
-    %
+    %{
     figure;
     ncol=4;
     nrow=ceil(length(sessionNamePool)/4);

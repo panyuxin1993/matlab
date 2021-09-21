@@ -1,12 +1,12 @@
 %finding the target image for alignment
 %cd('//Users/cduan/Desktop/Xu_Lab/Imaging/data/CD058/20180201');
-cd('D:\pyx338_20210203');
+cd('C:\Data\pyx351_20210625');
 
-[im, ~] = load_scim_data('pyx338_20210203_deep50um_920nm_power70_3X_001.tif');  
+[im, ~] = load_scim_data('pyx351_20210624_deep50um_920nm_power60_3x_001.tif');  
 % [im, ~] = load_scim_data_pyx('pyx298_20200608_920nm_power50_3X_001.tif',[],0,2);  
 colormap gray;
-selectframe=im(:,:,250:320);   % change here for different target frame
-imagesc(mean(selectframe,3),[-50 200]);
+selectframe=im(:,:,230:270);   % change here for different target frame
+imagesc(mean(selectframe,3),[-50 350]);
 im_reg_target = mean(selectframe,3); 
 
 %%

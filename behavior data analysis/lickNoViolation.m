@@ -1,9 +1,9 @@
 %plot lick density during delay when no violation(allow violation)
 %get lick time
 clear;
-date='2021_02_03';
-animal='pyx348';
-fileFolder=strcat('H:\xulab\behavior\',animal);
+date='2021_09_16';
+animal='pyx378';
+fileFolder=strcat('E:\xulab\behavior\',animal);
 % session=strcat('\',date,'_',animal,'.mat');
 % dirmat=strcat(fileFolder,session);
 dirmat=strcat(fileFolder,'\*.mat');

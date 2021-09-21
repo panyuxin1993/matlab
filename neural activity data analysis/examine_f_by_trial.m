@@ -27,16 +27,23 @@
 % savepath='F:\2P\example';
 % saveas(figExample,[savepath,filesep,'contralteral delay selectivity example.pdf'],'pdf');
 
-%case used in 2020 annual meeting
-inROI=[3,35,56];%1:103;
-indTrial=41:50;%in 11:20
-figExample=fPlotF_ROI('H:\2P\pyx285_20200520\im_data_reg\result_save','dff','2P',inROI,indTrial);%example for 2P contralateral preference during delay
-set(figExample,'PaperPosition',[0,0,4,2.5]);
-savepath='H:\2P\example';
-saveas(figExample,[savepath,filesep,'contralteral delay selectivity example.pdf'],'pdf');
+% %case used in 2020 annual meeting
+% inROI=[3,35,56];%1:103;
+% indTrial=41:50;%in 11:20
+% figExample=fPlotF_ROI('H:\2P\pyx285_20200520\im_data_reg\result_save','dff','2P',inROI,indTrial);%example for 2P contralateral preference during delay
+% set(figExample,'PaperPosition',[0,0,4,2.5]);
+% savepath='H:\2P\example';
+% saveas(figExample,[savepath,filesep,'contralteral delay selectivity example.pdf'],'pdf');
 %     %zoom in
 % indTrial=49;%in 11:20
 % figExample=fPlotF_ROI('H:\2P\pyx285_20200520\im_data_reg\result_save','dff','2P',inROI,indTrial);%example for 2P contralateral preference during delay
 % set(figExample,'PaperPosition',[0,0,4,2.5]);
 % savepath='H:\2P\example';
 % saveas(figExample,[savepath,filesep,'contralteral delay selectivity example-zoom in.pdf'],'pdf');
+
+%% try cases
+inROI=1:5:100;%1:103;
+indTrial=[];%in 11:20
+file_path='E:\2P\CD088_20190126\im_data_reg\result_save';
+figExample=fPlotF_ROI(file_path,'spkr','2P',inROI,indTrial,'sigThreshSTD',2,'sigShowingStyle','patch');%example for 2P contralateral preference during delay
+

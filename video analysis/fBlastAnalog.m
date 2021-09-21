@@ -132,6 +132,6 @@ legend([curveraw,curverefined],'raw','refined');
 xlabel('start trial');
 ylabel('covered trial range');
 indexesRefInData=matchStart;
-% close(figBlast);
+close(figBlast);
 end
 

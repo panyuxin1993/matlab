@@ -1,6 +1,8 @@
-function [ output_args ] = fCorrelationBehaviorMultiSession( bodyparts,coordinates,pSigTtest,treshold4likelihood,behEventAlign,saveNameID,yrange,titlestr,nonOverlappingBin )
+function [ output_args ] = fCorrelationBehaviorMultiSession(filepath, bodyparts,coordinates,pSigTtest,treshold4likelihood,behEventAlign,saveNameID,yrange,titlestr,nonOverlappingBin )
 %FCORRELATIONBEHAVIORMULTISESSION plot coordinates shift or likelihood for
-%multiple session multiple body parts
+%multiple session multiple body parts, all video files are stored in one
+%folder
+%   filepath='F:\video tracking\M2 imaging video';%or for SC data
 %   bodyparts- n-by-m cells, indicate which body parts to be plot
 %   coordinates- n-by-m cells(same as bodyparts), indicate which
 %       coordinates/likelihood to be plot
@@ -16,7 +18,7 @@ function [ output_args ] = fCorrelationBehaviorMultiSession( bodyparts,coordinat
 %   titlestr- same size as bodyparts, flexible to set title
 
 
-filepath='F:\video tracking\M2 imaging video';
+
 savepath=[filepath,filesep,'summary figures'];
 summaryFile=[filepath,filesep,'imaging_video_data_summary.xlsx'];
 [~,~,temp]=xlsread(summaryFile,1);
@@ -95,8 +97,11 @@ for iSession=1:nSession%can be a loop
         row_datasource=cellfun(@(x) strcmp(dataSummaryT.session{iSession},x),datasource(:,1));
         DLCiteration=datasource{row_datasource,col_datasource};
         switch DLCiteration
-            case 'iteration-1'
+            case 'iteration-1'   
                 file_trace=[filepath,filesep,'iteration1',filesep,dataSummaryT.DLCFileName1{iSession},'.csv'];
+                if ~exist(file_trace,'file')%when no multiple files, just place the file at root path
+                    file_trace=[filepath,filesep,dataSummaryT.DLCFileName1{iSession},'.csv'];
+                end
                 flagSetNAN=0;
             case 'iteration-2'
                 file_trace=[filepath,filesep,'iteration2',filesep,dataSummaryT.DLCFileName2{iSession},'.csv'];
@@ -111,7 +116,7 @@ for iSession=1:nSession%can be a loop
                 file_trace=[filepath,filesep,'iteration5',filesep,dataSummaryT.DLCFileName5{iSession},'.csv'];
                 flagSetNAN=0;
             otherwise %no data, skip this loop
-                file_trace=[filepath,filesep,'iteration2',filesep,dataSummaryT.DLCFileName2{iSession},'.csv'];%for  iteration-1~3
+                file_trace=[filepath,filesep,dataSummaryT.DLCFileName1{iSession},'.csv'];%for  iteration-1~3
 %                 file_trace=[filepath,filesep,'iteration4',filesep,dataSummaryT.DLCFileName4{iSession},'.csv'];%for  iteration-4+
      
                 flagSetNAN=1;

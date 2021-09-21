@@ -8,13 +8,13 @@
 Cover_option = 1;
 % CurrFolder = pwd;
 % CurrFolder = 'F:\2P\pyx252_20200111\im_data_reg\result_save';
-CurrFolder = 'H:\FP\pyx295_20200719';% rootpath='F:\FP\pyx241_20191130';
+CurrFolder = 'D:\pyx354_20210423\im_data_reg\result_save';% rootpath='F:\FP\pyx241_20191130';
 % savePath = [CurrFolder '\Data_Virables\'];
 % if ~exist('Data_Virables')
 %     mkdir('Data_Virables');
 % end
 savePath =[CurrFolder '\'];
-files = dir(strcat(CurrFolder,'\*FP.mat'));
+files = dir(strcat(CurrFolder,'\*imaging.mat'));
 for i = 1:length(files)
     clearvars -except 'files' 'i' 'savePath' 'Cover_option' 'CurrFolder'
     fn = files(i).name;

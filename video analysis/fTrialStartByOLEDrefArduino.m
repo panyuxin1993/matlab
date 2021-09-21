@@ -26,6 +26,7 @@ else
     method=varargin{1};
 end
 
+T.Properties.VariableNames = {'X','Y'};%incase some T do not have field 
 T.ts=T.X/framerate;%time stamp, using this to plot easier to be understand
 figure_start=figure;%各种预测画在一张图上，人眼进行质量检测
 figure(figure_start);
@@ -49,6 +50,7 @@ if strcmp(method,'meandiff')
     indLedOnFlagVector=logical(sum(indLedOnFlagMat,1));
     indLedOnFlagVector=[false(1,binsize),indLedOnFlagVector,false(1,binsize-1)];
     led_on=indLedOnFlagVector;
+    close(figmd);
     %visualize
     x_on=T.X(led_on);%根据亮度剧变预测led on时间
     y_on=T.Y(led_on);
@@ -66,7 +68,7 @@ if strcmp(method,'meandiff')
     end
     legend([start_by_meandelta,start_refined_by_behIT],'start found by mean diff','start refined by trial interval of .beh');
     box off;
-%     close(figure_start);
+    close(figure_start);
     
 else
     if strcmp(method,'diff')

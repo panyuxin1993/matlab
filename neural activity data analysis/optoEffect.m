@@ -7,13 +7,13 @@ close all;
 behEventAlign='delay onset';%align to which event(string can be in {'stimOnset', 'go cue','first lick','first left lick','first right lick', 'answer','reward','start'},
 behEventSort='go cue';% string can be in{'first lick','reward','go cue'};
 masklick='no';
-frameNumTime=[0,1];%from 5s before align point to 5s after align point
+frameNumTime=[1,3];%from 5s before align point to 5s after align point
 yrange=[ -0.5 , 1 ];
 i_selectivity=4;%*********variable**************
 selectivitystr={'stimuli','difficulty','sensory','choice'};%sensory means grouping difficulties;
 
-rootname={'pyx311_20200812','pyx272_20200113'};
-celltypestr={'vgat','vglut2'};
+rootname={'pyx349_20210504'};
+celltypestr={'vgat'};%{'vgat','vglut2'};
 figCmpCtrlOpto=figure;
 set(gcf,'PaperPosition',[1,1,5,2]);
 for i=1:length(celltypestr)
@@ -41,7 +41,7 @@ for i=1:length(celltypestr)
     if exist('dff.mat','file')
         load([CurrFolder,'\','dff.mat']);%load dff
     else
-        dff=fnx_getDff(CurrFolder,rootname,'save figure');
+        dff=fnx_getDff(CurrFolder,savefolder,'save figure');
     end
     
     ind_tr_1=1;%using data from trial 1
@@ -55,6 +55,7 @@ for i=1:length(celltypestr)
     ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
     ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
     frameNum=double(round(frameNumTime*frameRate));
+    frameNumGo=double(round(1*frameRate));%delay length is 1s
     [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( Data_extract, ind_1stFrame, 1000/frameRate ,ind_tr_1);%get behavior event time
     
     
@@ -72,7 +73,7 @@ for i=1:length(celltypestr)
             for iOpto=1:size(trialType,4)
                 selectedTrialInd=trialType(1,iChoice,:,iOpto);
                 selectedTrialInd=logical(squeeze(selectedTrialInd))';
-                meanResponse{roiNo,iChoice,iOpto}=dff_aligned(selectedTrialInd,:);
+                meanResponse{roiNo,iChoice,iOpto}=dff_aligned(selectedTrialInd,frameNum(1)+1:frameNum(1)+1+frameNumGo);
             end
         end
     end

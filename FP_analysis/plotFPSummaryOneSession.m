@@ -1,7 +1,7 @@
 close all;
 dbstop if error;
-% rootpath='F:\FP\pyx241_20191130';
-rootpath='H:\FP\pyx237_20191129';
+rootpath='H:\FP\pyx297_20200918';
+% rootpath='H:\FP\pyx172_20190429';
 
 % fPSTHandEndingPointTrajectoryOneSession(rootpath);
   sessionName=fSummaryFPOneSession( rootpath );

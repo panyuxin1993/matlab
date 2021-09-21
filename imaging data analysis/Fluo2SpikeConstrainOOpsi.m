@@ -13,7 +13,7 @@ if isempty(fr)
     fr = 30;
 end
 if isempty(DecayTime)
-    DecayTime = 2;%1.8
+    DecayTime = 2;
 end
 
 if iscell(DataRaw)

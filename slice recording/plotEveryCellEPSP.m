@@ -4,7 +4,7 @@
 %then no response cells' amplitude is nan and responsive cells' amplitude
 %is |peak-baseline| no matter whether its SNR>3 
 %rootpath='D:\xulab\project\slice recording\XUNL\summary of short term plasticity\';%for plasticity
-rootpath='D:\xulab\project\slice recording\data3\EPSP summary\';%for EPSP
+rootpath='E:\xulab\project\slice recording\data3\EPSP summary\';%for EPSP
 celltype = {'vglut2+','vglut2-','vgat+','vgat-'};
 Amp_mean=cell(1,length(celltype));
 Amp_average=cell(1,length(celltype));

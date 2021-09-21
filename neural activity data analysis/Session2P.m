@@ -3,14 +3,17 @@ classdef Session2P
     %   Detailed explanation goes here
     
     properties
-        name    %session name
-        metadata%metadata, such as frame rate
-        path    %important path of files
-        filename%file names of important files
-        dff     %dff file
-        Data_extract
+        name        %session name
+        metadata    %metadata, such as frame rate
+        path        %important path of files
+        filename    %file names of important files
+        dff         %dff file
+        zscored_dff %z-scored dff
+        spkr        %spiking rate file based on deconvolution from dff
+        zscored_spkr %z-scored spiking rate file based on deconvolution from dff
+        Data_extract %behavior data file
         SavedCaTrials
-        DLC     %struct read from a .xls file, including dcnum, dctxt
+        DLC         %struct read from a .xls file, including dcnum, dctxt
     end
     
     methods
@@ -22,6 +25,9 @@ classdef Session2P
             temp=strsplit(sessionname,'_');
             obj.metadata.animal=temp{1};
             obj.metadata.date=temp{2};
+            if length(temp)>2
+                obj.metadata.field=temp{3};
+            end
             obj.metadata.trial2include=trial2include;
             obj.metadata.trial2exclude=trial2exclude;
             if ~isempty(varargin)
@@ -34,9 +40,15 @@ classdef Session2P
             dirs=dir(dirmat);
             dircell=struct2cell(dirs);
             filenames=dircell(1,:);
-            file_imaging=cellfun(@(x) contains(x,'Ca'), filenames);
+            file_imaging=cellfun(@(x) contains(x,'CaTrialsSIM_'), filenames);
             file_beh=cellfun(@(x) contains(x,'Virables'), filenames);
-            obj.filename.behdata = filenames{file_beh};
+            if sum(file_beh)==0 %if still no Data_extract variable
+                obj.filename.behdata=fDataExtract(1,obj.path.root,'*imaging.mat');%my SC data names
+%                 obj.filename.behdata =fDataExtract(1,obj.path.root,'*2AFC.mat'); %CD M2 data names
+            else
+                obj.filename.behdata = filenames{file_beh};
+            end
+            
             obj.path.behdata=strcat(rootpath,filesep,obj.filename.behdata);
             load(obj.path.behdata);
             obj.Data_extract=Data_extract;
@@ -56,6 +68,7 @@ classdef Session2P
             obj.filename.dff = 'dff.mat';
             if exist(strcat(obj.path.root,filesep,obj.filename.dff),'file')
                 load(strcat(obj.path.root,filesep,obj.filename.dff));
+                disp(['already have dff data and load ',obj.name]);
             else
                 temp=strsplit(obj.path.root,filesep);
                 savefolder=temp{end-2};
@@ -63,6 +76,24 @@ classdef Session2P
             end
             obj.dff=dff;
             obj.filename.dff_field = 'dff_NPseg.mat';
+            obj.filename.zscored_dff = 'zscored_dff.mat';
+            if exist(strcat(obj.path.root,filesep,obj.filename.zscored_dff),'file')
+                load(strcat(obj.path.root,filesep,obj.filename.zscored_dff));
+            else
+                zscored_dff=obj.mGetZscoredDff();    
+            end
+            obj.zscored_dff=zscored_dff;
+            %deconvolved firing rate
+            obj.filename.spkr='deconvolution.mat';
+            if exist(strcat(obj.path.root,filesep,obj.filename.spkr),'file')
+                load(strcat(obj.path.root,filesep,obj.filename.spkr));
+                disp(['already have decovolution data and load ',obj.name]);
+            else
+                flag_plot='plot_result';
+                [spiking_rate, denoised_trace, zscored_spkr] = obj.mGetDeconvolvedFR(flag_plot);
+            end
+            obj.spkr=spiking_rate;
+            obj.zscored_spkr=zscored_spkr;
             %video related information
             if exist([rootpath,filesep,'video'],'dir')
                 dirmat=strcat(rootpath,filesep,'video',filesep,'*.avi');
@@ -115,7 +146,7 @@ classdef Session2P
             end
         end
         
-        function dff = mGetDff(obj,savefolder,varargin)
+        function [dff,obj] = mGetDff(obj,savefolder,varargin)
             savestr='dff';
             figHow='save';
             if ~isempty(varargin)
@@ -147,6 +178,7 @@ classdef Session2P
                 if ~isfield(obj.SavedCaTrials,'SegNPdataAll')
                     warning([savefolder,'no field named SegNPdataAll, so skip it and set dff empty']);
                     dff=[];
+                    obj.dff=[];
                     return;
                 end
                 for i = ind_tr_1:ntr
@@ -203,9 +235,30 @@ classdef Session2P
                     close all;
                 end
             end
+            obj.dff=dff;
             save([obj.path.root,filesep,savestr],'dff');
         end
         
+        function zscored_dff=mGetZscoredDff(obj)
+            %smooth the dff and calculated a z-scored dff
+            nROI=size(obj.dff,1);
+            zscored_dff=zeros(size(obj.dff));
+            for roiNo = 1:nROI
+                smoothed_sr=smooth(obj.dff(roiNo,:),1);%smooth the data
+                sr_mean=nanmean(smoothed_sr);%mean for each roi
+                sr_std=nanstd(smoothed_sr);%std for each roi
+                zscored_dff(roiNo,:)=(smoothed_sr-sr_mean)/sr_std;
+            end
+            save([obj.path.root, filesep,'zscored_dff.mat'],  'zscored_dff');
+            
+        end
+        
+        function [spiking_rate, denoised_trace, zscored_spkr] = ...
+                mGetDeconvolvedFR(obj,flag_plot)
+            Paras={[],[],1000/obj.metadata.frT,[]};
+
+            [spiking_rate, denoised_trace, zscored_spkr,ROIFitCoefs] = fxy_GetDeconvolvedFR(obj.dff,Paras,obj.name,obj.path.root,flag_plot);
+        end
         function bodyco = mGetDLCcoordinate(obj,bodyparts,coordinates,...
                 treshold4likelihood, varargin)
             %get coordinate of body parts, method analogy to dff
@@ -242,20 +295,156 @@ classdef Session2P
         end
         
         function curve_meanTrace = mPlotDffPSTH(obj,frameNumTime,...
-                behEventAlign,masklick,i_selectivity,trial2include,...
-                trial2exclude,savename_figdff,title_fig)
+                behEventAlign,masklick,i_selectivity,...
+                savename_figdff,title_fig)
             %mPlotDffPSTH plot PSTH of dff this session
             %   using other existed function
             obj.metadata.behEventAlign=behEventAlign;
             obj.metadata.masklick=masklick;
             obj.metadata.i_selectivity=i_selectivity;
-            obj.metadata.frameNumTime=frameNumTime;
-            obj.metadata.trial2include=trial2include;
-            obj.metadata.trial2exclude=trial2exclude;
             curve_meanTrace = fPlotDffPSTH_ASession(obj.dff,obj.metadata.ind_tr_1,...
                 obj.Data_extract,obj.SavedCaTrials,frameNumTime,behEventAlign,...
-                masklick,i_selectivity,trial2include,trial2exclude,...
+                masklick,i_selectivity,obj.metadata.trial2include,obj.metadata.trial2exclude,...
                 savename_figdff,title_fig);
+        end
+        
+        function fig_rasterPSTH=mPlotActivityRasterPSTH(obj,activity_type,ind_ROI,...
+                behEventAlignPool,masklickPool,i_selectivity,behEventSortPool)
+            %   using other existed function
+            obj.metadata.behEventAlign=behEventAlignPool;
+            obj.metadata.masklick=masklickPool;
+            obj.metadata.i_selectivity=i_selectivity;
+            if isempty(ind_ROI) || min(ind_ROI)>obj.metadata.nROI || max(ind_ROI)<1
+                iStart=1;
+                iEnd=obj.metadata.nROI;
+            else
+                iStart=max(1,min(ind_ROI));
+                iEnd=min(obj.metadata.nROI,max(ind_ROI));
+            end
+            for i_align=1:length(behEventAlignPool)
+                subplot(1,length(behEventAlignPool),i_align);
+                hold on;
+                %decide some global variable
+                behEventAlign=behEventAlignPool{i_align};%align to which event(string can be in {'stimOnset', 'go cue','first lick','first left lick','first right lick', 'answer','reward','start'},
+                behEventSort=behEventSortPool{i_align};% string can be in{'first lick','reward','go cue'};
+                masklick=masklickPool{i_align};
+                
+                selectivitystr={'stimuli','sensory difficulty','sensory','choice'};%sensory means grouping difficulties;
+                trialTypeVar=[1,2,4,3];%corresponding to variable 'selectivitystr',decide what trial type means
+                trialTypeStr=selectivitystr{i_selectivity};
+                %plotting settings
+                if strcmp(behEventAlign,'stim onset')
+                    frameNumTime=[0.5,2];%from 5s before align point to 5s after align point
+                elseif strcmp(behEventAlign,'delay onset')
+                    frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
+                else
+                    frameNumTime=[2,3.5];%from 5s before align point to 5s after align point
+                end
+                mkdir([obj.path.root,filesep,obj.name]);
+                if strcmp(activity_type,'dff')
+                    savename_fig_activity=[obj.path.root,filesep,obj.name,filesep,obj.name,'-cat_f_inclusion'];
+                    [figDff] = fLabelROIsDffIncludedTrialRange(obj.dff,savename_fig_activity,obj.SavedCaTrials,obj.metadata.trial2include);
+                    for iROI=iStart:iEnd
+                        savename_fig=[obj.path.root,filesep,obj.name,filesep,obj.name,'ROI-',num2str(iROI),'-alignTo',behEventAlign,'-sort',behEventSort,'-dff-rasterPSTH'];
+                        disp(savename_fig);
+                        title_fig=[obj.name,'ROI-',num2str(iROI)];
+                        title_fig=strrep(title_fig,'_','\_');%下标变为转义字符的下划线
+                        fig_rasterPSTH = fPlotDffRasterPSTH_ASession(obj.dff(iROI,:),obj.metadata.ind_tr_1,...
+                            obj.Data_extract,obj.SavedCaTrials,frameNumTime,behEventAlign,...
+                            masklick,i_selectivity,behEventSort,obj.metadata.trial2include,obj.metadata.trial2exclude,...
+                            savename_fig,title_fig,trialTypeStr);
+                    end
+                elseif strcmp(activity_type,'spkr')
+                    savename_fig_activity=[obj.path.root,filesep,obj.name,filesep,obj.name,'-spkr_inclusion'];
+                    [figDff] = fLabelROIsDffIncludedTrialRange(obj.spkr,savename_fig_activity,obj.SavedCaTrials,obj.metadata.trial2include);
+                    for iROI=iStart:iEnd
+                        savename_fig=[obj.path.root,filesep,obj.name,filesep,obj.name,'ROI-',num2str(iROI),'-alignTo',behEventAlign,'-sort',behEventSort,'-spkr-rasterPSTH'];
+                        disp(savename_fig);
+                        title_fig=[obj.name,'ROI-',num2str(iROI)];
+                        title_fig=strrep(title_fig,'_','\_');%下标变为转义字符的下划线
+                        fig_rasterPSTH = fPlotRasterPSTH_ASession(obj.spkr(iROI,:),'spkr',obj.metadata.ind_tr_1,...
+                            obj.Data_extract,obj.SavedCaTrials,frameNumTime,behEventAlign,...
+                            masklick,i_selectivity,behEventSort,obj.metadata.trial2include,obj.metadata.trial2exclude,...
+                            savename_fig,title_fig,trialTypeStr);
+                    end
+                elseif  strcmp(activity_type,'zscored_spkr')
+                    savename_fig_activity=[obj.path.root,filesep,obj.name,filesep,obj.name,'-zscored_spkr_inclusion'];
+                    [figDff] = fLabelROIsDffIncludedTrialRange(obj.dff,savename_fig_activity,obj.SavedCaTrials,obj.metadata.trial2include);
+                    for iROI=iStart:iEnd
+                        savename_fig=[obj.path.root,filesep,obj.name,filesep,obj.name,'ROI-',num2str(iROI),'-alignTo',behEventAlign,'-sort',behEventSort,'-zscored_spkr-rasterPSTH'];
+                        disp(savename_fig);
+                        title_fig=[obj.name,'ROI-',num2str(iROI)];
+                        title_fig=strrep(title_fig,'_','\_');%下标变为转义字符的下划线
+                        fig_rasterPSTH = fPlotRasterPSTH_ASession(obj.zscored_spkr(iROI,:),'zscored_spkr',obj.metadata.ind_tr_1,...
+                            obj.Data_extract,obj.SavedCaTrials,frameNumTime,behEventAlign,...
+                            masklick,i_selectivity,behEventSort,obj.metadata.trial2include,obj.metadata.trial2exclude,...
+                            savename_fig,title_fig,trialTypeStr);
+                    end
+                end
+                    
+            end
+        end
+        
+        function [fig_A,fig_B]=mInspectActivity(obj,iROI,activity_form,behEventAlign,masklick,behEventSort,chosen_result,chosen_stim,n_trial_show)
+            selectivitystr={'stimuli','sensory difficulty','choice','sensory'};%sensory means grouping difficulties;
+            trialTypeVar=[1,2,4,3];%corresponding to variable 'selectivitystr',decide what trial type means
+            i_selectivity=3;
+            trialTypeStr=selectivitystr{i_selectivity};
+            %plotting settings
+            if strcmp(behEventAlign,'stim onset') && strcmp(masklick,'yes')
+                frameNumTime=[0.5,2];%from 5s before align point to 5s after align point
+            elseif strcmp(behEventAlign,'delay onset') && strcmp(masklick,'yes')
+                frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
+            else
+                frameNumTime=[2,3.5];%from 5s before align point to 5s after align point
+            end
+            if strcmp(activity_form,'dff')
+                title_fig=[obj.name,'ROI-',num2str(iROI),'-dff'];
+                [fig_A,fig_B] = fActivityInspect(obj.dff(iROI,:),'dff',obj.metadata.ind_tr_1,...
+                    obj.Data_extract,obj.SavedCaTrials,frameNumTime,behEventAlign,...
+                    masklick,i_selectivity,behEventSort,obj.metadata.trial2include,obj.metadata.trial2exclude,...
+                    title_fig,trialTypeStr,chosen_result,chosen_stim,n_trial_show);
+            elseif strcmp(activity_form,'spkr')
+                title_fig=[obj.name,'ROI-',num2str(iROI),'-spkr'];
+                [fig_A,fig_B] = fActivityInspect(obj.spkr(iROI,:),'spkr',obj.metadata.ind_tr_1,...
+                    obj.Data_extract,obj.SavedCaTrials,frameNumTime,behEventAlign,...
+                    masklick,i_selectivity,behEventSort,obj.metadata.trial2include,obj.metadata.trial2exclude,...
+                    title_fig,trialTypeStr,chosen_result,chosen_stim,n_trial_show);
+            end
+        end
+        
+        function meanActivityByTrialType=mMeanPSTHbyROI(obj,activity_type,ind_ROI,behEventAlign,masklick,i_selectivity)
+            if strcmp(activity_type,'dff')
+                activities_data=obj.zscored_dff;
+            elseif strcmp(activity_type,'spkr')
+                activities_data=obj.zscored_spkr;
+            end
+            %plotting settings
+            if strcmp(behEventAlign,'stim onset')
+                frameNumTime=[0.5,2];%from 5s before align point to 5s after align point
+            elseif strcmp(behEventAlign,'delay onset')
+                frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
+            else
+                frameNumTime=[2,3.5];%from 5s before align point to 5s after align point
+            end
+            if isempty(ind_ROI) || min(ind_ROI)>obj.metadata.nROI || max(ind_ROI)<1
+                iStart=1;
+                iEnd=obj.metadata.nROI;
+            else
+                iStart=max(1,min(ind_ROI));
+                iEnd=min(obj.metadata.nROI,max(ind_ROI));
+            end
+            for iROI=iStart:iEnd
+                meanActivityByTrialType_ROI = fMeanPSTHbyROI(activities_data(iROI,:),...
+                    obj.metadata.ind_tr_1,obj.Data_extract,obj.SavedCaTrials,...
+                    frameNumTime,behEventAlign,masklick,i_selectivity,...
+                    obj.metadata.trial2include,obj.metadata.trial2exclude);
+                if exist('meanActivityByTrialType','var')
+                    meanActivityByTrialType=cellfun(@(x,y) vertcat(x,y),meanActivityByTrialType,meanActivityByTrialType_ROI,'UniformOutput',false);
+                else
+                    meanActivityByTrialType=meanActivityByTrialType_ROI;
+                end
+            end
         end
         
         function [ind_NSDelayMovement,DelayMovement_criteria]=mGetIndNSDdelayMovement(obj,baseline,varargin)
@@ -294,12 +483,12 @@ classdef Session2P
             end
             [trialType,~,~] = fGetTrialType( obj.Data_extract,[],3,'matrix','left',combineCorErr); %default, trial type by choice
             ind_trial=logical(reshape(sum(trialType(1:end-2,:,:),2),[],1));%only correct/error trials
-            [behEventFrameIndex_dlc,~] = fGetBehEventTime( obj.Data_extract,...
-                obj.metadata.frameTrialStartVideo, obj.metadata.video_frameRate );%get behavior event time
             if isempty(obj.DLC.dcnum) || isempty(baseline)%no video and DLC related data
                 DelayMovement_criteria='All_trial_include';
                 ind_NSDelayMovement=true(obj.metadata.ntr,1);
             else
+                [behEventFrameIndex_dlc,~] = fGetBehEventTime( obj.Data_extract,...
+                obj.metadata.frameTrialStartVideo, obj.metadata.video_frameRate );%get behavior event time
                 bodyco = obj.mGetDLCcoordinate(bodyparts,coordinates,treshold4likelihood);
                 [T_DLCbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex_dlc,...
                     bodyco,1000/obj.metadata.video_frameRate,str_nFrames);%DLC

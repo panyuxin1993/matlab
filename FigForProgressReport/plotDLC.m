@@ -11,14 +11,176 @@ dbstop if error;
 
 close all;
 clear;
-bodyparts={'Tongue'};%{Tongue,LeftHandFingerTip,LeftHandFingerRoot,LeftLickPort,Nose,LeftWhiskerTip,LeftWhiskerRoot, etc.}
-coordinates={'x'};
-behEventAlign={'delay onset'};%align to which event(string can be in {'stim onset', 'go cue','first lick','first left lick','first right lick', 'answer','reward','start'},
-filenameID='try align to delay-non overlapping bin-iteration-1+2';
-titlestr={'Tongue (x)'};
-yrange={[-15,30]};
-nonOverlappingBin=2;
+%% plot SC FP video
+[num,txt,raw] =xlsread('D:\xulab\project\fiber_photometry_data_summary.xlsx');%criteria to choose sessions come from this file
+savepath='H:\FP';
+summaryFile=[savepath,filesep,'imaging_video_data_summary.xlsx'];
+trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+AUCCorrectedMethod='balencedCorErrTrialNum';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
+manipulation='control';
+celltype_Str='SC vgat';
+T=cell2table(raw(2:end,1:14));
+T.Properties.VariableNames=strrep(raw(1,1:14),' ','_');%table variable name can't have ' ',so replace them
+ind_session=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control').*strcmp(T.behavior_video,'DLC tracked').*strcmp(T.experiment,celltype_Str);
+ind_session=find(ind_session);
+n_session=length(ind_session);
+animal_unique=unique(T.animal(ind_session));
+n_animal=length(animal_unique);
+[var_path,var_animal,var_session,var_video,var_DLC,var_OLED,var_iter]=deal(cell(n_session,1));
+for i_session=1:n_session
+    indrow=ind_session(i_session);
+    var_path{i_session}=T.file_path{indrow};
+    cd(T.file_path{indrow});
+    CurrFolder=pwd;
+    dirmat=strcat(T.file_path{indrow},filesep,'*.mat');
+    dirs=dir(dirmat);
+    dircell=struct2cell(dirs);
+    filenames=dircell(1,:);
+    file_beh_ind=cellfun(@(x) contains(x,'_Virables.mat'), filenames);
+    file_beh_str=filenames{file_beh_ind};
+    file_beh=strsplit(file_beh_str,'_Virables');
+    var_animal{i_session}=T.animal{i_session};
+    var_session{i_session}=file_beh{1};
+    diravi=strcat(T.file_path{indrow},filesep,'video',filesep,'*.avi');
+    dirs=dir(diravi);
+    dircell=struct2cell(dirs);
+    filenames=dircell(1,:);
+    file_avi_ind=cellfun(@(x) ~contains(x,'crop'), filenames);
+    var_video{i_session}=strrep(filenames{file_avi_ind},'.avi','');
+    dircsv=strcat(T.file_path{indrow},filesep,'video',filesep,'*.csv');
+    dirs=dir(dircsv);
+    dircell=struct2cell(dirs);
+    filenames=dircell(1,:);
+    file_oled_ind=cellfun(@(x) contains(x,'OLED'), filenames);
+    file_DLC_ind=cellfun(@(x) contains(x,'DLC'), filenames);
+    var_DLC{i_session}=strrep(filenames{file_DLC_ind},'.csv','');
+    var_OLED{i_session}=strrep(filenames{file_oled_ind},'.csv','');
+    var_iter{i_session}='iteration-1';
+end
+Tout1=table(var_path,var_animal,var_session,var_video,var_DLC,var_OLED);
+Tout1.Properties.VariableNames={'rootpath','animal','session','videoName','DLCFileName1','OLEDFileName'};
+Tout2=table(var_session,var_iter,var_iter,var_iter,var_iter,var_iter,var_iter);
+Tout2.Properties.VariableNames={'session','Tongue','LeftHand','RightHand','Nose','LeftLickPort','RightLickPort'};
+writetable(Tout1,summaryFile,'Sheet',1);
+writetable(Tout2,summaryFile,'Sheet',2);
 
+filenameID=['check delay movement of SC FP results-',celltype_Str];
+%% plot SC imaging video
+%summarized the data in an excel file
+%{
+[num,txt,raw] =xlsread('D:\xulab\project\imaging_data_summary.xlsx');%criteria to choose sessions come from this file
+savepath='H:\2P';
+summaryFile=[savepath,filesep,'imaging_video_data_summary.xlsx'];
+trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+AUCCorrectedMethod='balencedCorErrTrialNum';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
+manipulation='control';
+celltype_Str='vgat';
+T=cell2table(raw(2:end,1:17));
+T.Properties.VariableNames=strrep(raw(1,1:17),' ','_');%table variable name can't have ' ',so replace them
+ind_session=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control').*strcmp(T.behavior_video,'DLC tracked').*strcmp(T.cell_type,celltype_Str).*(~strcmp(T.animal,'pyx290'));
+ind_session=find(ind_session);
+n_session=length(ind_session);
+animal_unique=unique(T.animal(ind_session));
+n_animal=length(animal_unique);
+[var_path,var_animal,var_session,var_video,var_DLC,var_OLED,var_iter]=deal(cell(n_session,1));
+for i_session=1:n_session
+    indrow=ind_session(i_session);
+    var_path{i_session}=T.file_path{indrow};
+    cd(T.file_path{indrow});
+    CurrFolder=pwd;
+    dirmat=strcat(T.file_path{indrow},filesep,'*.mat');
+    dirs=dir(dirmat);
+    dircell=struct2cell(dirs);
+    filenames=dircell(1,:);
+    file_beh_ind=cellfun(@(x) contains(x,'_Virables.mat'), filenames);
+    file_beh_str=filenames{file_beh_ind};
+    file_beh=strsplit(file_beh_str,'_Virables');
+    var_animal{i_session}=T.animal{i_session};
+    var_session{i_session}=file_beh{1};
+    diravi=strcat(T.file_path{indrow},filesep,'video',filesep,'*.avi');
+    dirs=dir(diravi);
+    dircell=struct2cell(dirs);
+    filenames=dircell(1,:);
+    file_avi_ind=cellfun(@(x) ~contains(x,'crop'), filenames);
+    var_video{i_session}=strrep(filenames{file_avi_ind},'.avi','');
+    dircsv=strcat(T.file_path{indrow},filesep,'video',filesep,'*.csv');
+    dirs=dir(dircsv);
+    dircell=struct2cell(dirs);
+    filenames=dircell(1,:);
+    file_oled_ind=cellfun(@(x) contains(x,'OLED'), filenames);
+    file_DLC_ind=cellfun(@(x) contains(x,'DLC'), filenames);
+    var_DLC{i_session}=strrep(filenames{file_DLC_ind},'.csv','');
+    var_OLED{i_session}=strrep(filenames{file_oled_ind},'.csv','');
+    var_iter{i_session}='iteration-1';
+end
+Tout1=table(var_path,var_animal,var_session,var_video,var_DLC,var_OLED);
+Tout1.Properties.VariableNames={'rootpath','animal','session','videoName','DLCFileName1','OLEDFileName'};
+Tout2=table(var_session,var_iter,var_iter,var_iter,var_iter,var_iter,var_iter);
+Tout2.Properties.VariableNames={'session','Tongue','LeftHand','RightHand','Nose','LeftLickPort','RightLickPort'};
+writetable(Tout1,summaryFile,'Sheet',1);
+writetable(Tout2,summaryFile,'Sheet',2);
+
+filenameID=['check delay movement of SC imaging results-',celltype_Str];
+%}
+%% for data strored distributedly
+%
+bodyparts={'Tongue','Tongue','LeftHand','LeftHand';
+    'Tongue','Tongue','RightHand','RightHand';
+    'LeftLickPort','LeftLickPort','Nose','Nose'};%{Tongue,LeftHandFingerTip,LeftHandFingerRoot,LeftLickPort,Nose,LeftWhiskerTip,LeftWhiskerRoot, etc.}
+coordinates={'x','x','x','x';
+    'y','y','x','x';    
+    'x','x','x','x'};
+behEventAlign={'delay onset','first lick','delay onset','first lick';
+    'delay onset','first lick','delay onset','first lick';
+    'delay onset','first lick','delay onset','first lick'};%align to which event(string can be in {'stim onset', 'go cue','first lick','first left lick','first right lick', 'answer','reward','start'},
+titlestr={'Tongue (x)','Tongue (x)','Left forepaw (x)','Left forepaw (x)';
+    'Tongue (y)','Tongue (y)','Right forepaw (x)','Right forepaw (x)';
+    'Left lick port (x)','Left lick port (x)','Nose (x)','Nose (x)'};
+yrange={[-40,40],[-40,40],[-100,100],[-100,100];
+    [-40,40],[-40,40],[-40,40],[-40,40];
+    [-10,10],[-10,10],[-10,10],[-10,10]};
+nonOverlappingBin=1;
+
+pSigTtest=0.01;
+treshold4likelihood=0.1;
+fCorrelationBehaviorDistributedSession( savepath,bodyparts',coordinates',pSigTtest,treshold4likelihood,behEventAlign',filenameID ,yrange',titlestr',nonOverlappingBin);
+%}
+%% plot pyx290 as example of licking during delay
+%{
+filepath='H:\video tracking\SC_imaging_video';
+bodyparts={'Tongue','Tongue','LeftHand','LeftHand';
+    'Tongue','Tongue','RightHand','RightHand';
+    'LeftLickPort','LeftLickPort','Nose','Nose'};%{Tongue,LeftHandFingerTip,LeftHandFingerRoot,LeftLickPort,Nose,LeftWhiskerTip,LeftWhiskerRoot, etc.}
+coordinates={'x','x','x','x';
+    'y','y','x','x';    
+    'x','x','x','x'};
+behEventAlign={'delay onset','first lick','delay onset','first lick';
+    'delay onset','first lick','delay onset','first lick';
+    'delay onset','first lick','delay onset','first lick'};%align to which event(string can be in {'stim onset', 'go cue','first lick','first left lick','first right lick', 'answer','reward','start'},
+filenameID='see SC imaging results pyx290 whether have movement';
+titlestr={'Tongue (x)','Tongue (x)','Left forepaw (x)','Left forepaw (x)';
+    'Tongue (y)','Tongue (y)','Right forepaw (x)','Right forepaw (x)';
+    'Left lick port (x)','Left lick port (x)','Nose (x)','Nose (x)'};
+yrange={[-40,40],[-40,40],[-100,100],[-100,100];
+    [-40,40],[-40,40],[-40,40],[-40,40];
+    [-10,10],[-10,10],[-10,10],[-10,10]};
+nonOverlappingBin=1;
+%}
+
+%% plot M2 imaging data
+%{
+% filepath='H:\video tracking\M2 imaging video';
+% bodyparts={'Tongue'};%{Tongue,LeftHandFingerTip,LeftHandFingerRoot,LeftLickPort,Nose,LeftWhiskerTip,LeftWhiskerRoot, etc.}
+% coordinates={'x'};
+% behEventAlign={'delay onset'};%align to which event(string can be in {'stim onset', 'go cue','first lick','first left lick','first right lick', 'answer','reward','start'},
+% filenameID='try align to delay-non overlapping bin-iteration-1+2';
+% titlestr={'Tongue (x)'};
+% yrange={[-15,30]};
+% nonOverlappingBin=2;
+
+% filepath='H:\video tracking\M2 imaging video';
 % bodyparts={'Tongue','Tongue','LeftLickPort';
 %     'Tongue','Tongue','LeftLickPort';
 %     'Tongue','Tongue','LeftLickPort'};%{Tongue,LeftHandFingerTip,LeftHandFingerRoot,LeftLickPort,Nose,LeftWhiskerTip,LeftWhiskerRoot, etc.}
@@ -30,8 +192,8 @@ nonOverlappingBin=2;
 %     'stim onset','first lick','first lick'};%align to which event(string can be in {'stim onset', 'go cue','first lick','first left lick','first right lick', 'answer','reward','start'},
 % filenameID='method-confirmation';
 
-
 %for iteration-1~3
+% filepath='H:\video tracking\M2 imaging video';
 % bodyparts={'Tongue','Tongue','LeftHandFingerTip','LeftHandFingerTip';
 %     'Tongue','Tongue','RightHandFingerTip','RightHandFingerTip';
 %     'LeftLickPort','LeftLickPort','Nose','Nose'};%{Tongue,LeftHandFingerTip,LeftHandFingerRoot,LeftLickPort,Nose,LeftWhiskerTip,LeftWhiskerRoot, etc.}
@@ -46,17 +208,20 @@ nonOverlappingBin=2;
 %     'delay onset','first lick','delay onset','first lick';
 %     'delay onset','first lick','delay onset','first lick'};%align to which event(string can be in {'stim onset', 'go cue','first lick','first left lick','first right lick', 'answer','reward','start'},
 % filenameID='iteration-1+2-non overlapping bin-2-low likelihood2nan-align delay';
-% titlestr={'Tongue (x)','Tongue (x)','Left hand (x)','Left hand (x)';
-%     'Tongue (y)','Tongue (y)','Right hand (x)','Right hand (x)';
+% titlestr={'Tongue (x)','Tongue (x)','Left forepaw (x)','Left forepaw (x)';
+%     'Tongue (y)','Tongue (y)','Right forepaw (x)','Right forepaw (x)';
 %     'Left lick port (x)','Left lick port (x)','Nose (x)','Nose (x)'};
 % yrange={[-40,40],[-40,40],[-200,200],[-200,200];
 %     [-40,40],[-40,40],[-200,200],[-200,200];
 %     [-20,20],[-20,20],[-20,20],[-20,20]};
 % nonOverlappingBin=2;
-
+%}
+%% main code for data strored in one folder
+%{
 pSigTtest=0.01;
 treshold4likelihood=0.1;
-fCorrelationBehaviorMultiSession( bodyparts',coordinates',pSigTtest,treshold4likelihood,behEventAlign',filenameID ,yrange',titlestr',nonOverlappingBin);
+fCorrelationBehaviorMultiSession( filepath,bodyparts',coordinates',pSigTtest,treshold4likelihood,behEventAlign',filenameID ,yrange',titlestr',nonOverlappingBin);
+%}
 %% plot likelihood histogram
 %{
 filepath='F:\video tracking\M2 imaging video';
