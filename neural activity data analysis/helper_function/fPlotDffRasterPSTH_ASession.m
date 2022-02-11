@@ -1,4 +1,4 @@
-function [A] = fPlotDffRasterPSTH_ASession(dff,ind_tr_1,Data_extract,SavedCaTrials,frameNumTime,behEventAlign,masklick,i_selectivity,behEventSort,trial2include,trial2exclude,savename_fig,title_fig,trialTypeStr)
+function [A] = fPlotDffRasterPSTH_ASession(dff,ind_tr_1,Data_extract,SavedCaTrials,frameNumTime,behEventAlign,masklick,i_selectivity,behEventSort,indTrial2include,savename_fig,title_fig,trialTypeStr)
 %FPLOTDFFPSTHASESSION plot dff PSTH of one session, the figure is color
 %plot and PSTH with licking raster and lick rate
 %   Detailed explanation goes here
@@ -11,15 +11,7 @@ ind_1stFrame=zeros(1,length(nFrameEachTrial));
 ind_1stFrame(1)=1;
 ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
 ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
-if isnan(trial2include)
-    indTrial2include=fExcludeTrials(trial2exclude,ind_1stFrame,'logical');
-    trial2include=[1,length(ind_1stFrame)];
-elseif strcmp(trial2include,'all')
-    trial2include=[1,length(ind_1stFrame)];
-    indTrial2include=fIncludeTrials(trial2include,ind_1stFrame,'logical');
-else
-    indTrial2include=fIncludeTrials(trial2include,ind_1stFrame,'logical');
-end
+
 frameNum=double(round(frameNumTime*1000/frT));
 [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( Data_extract, ind_1stFrame, SavedCaTrials.FrameTime ,ind_tr_1);%get behavior event time
 

@@ -61,7 +61,205 @@ end
 if exist(fileNameT,'file')
     load(fileNameT);
     n_ROI=size(TAUC,1);
-    disp(['Table exist, use ',animal,date,';nROI=',num2str(n_ROI)]);   
+    disp(['Table exist, use ',animal,date,';nROI=',num2str(n_ROI)]);  
+    %delete duplicated variables
+    standard_varNames={'animal','date','field','celltype','ROItype','nROI',...
+        'ipsi_performance', 'contra_performance','overall_performance',...
+        'ITI','sound','delay','response','lick','late_delay',...
+        'pITI','psound','pdelay','presponse','plick','plate_delay','delayMovingAUC','pdelayMovingAUC'};
+    T_names=TAUC.Properties.VariableNames;
+    for i=1:length(T_names)
+        temp=cellfun(@(x) strcmp(x,T_names(i)), standard_varNames);
+        if sum(temp)==0
+            TAUC(:,T_names{i})=[];
+        end
+    end
+    
+    %sometimes need to add some new variables
+    %add task performance
+    %{
+    nROI=size(SavedCaTrials.f_raw{1},1);
+    session=[animal,'_',date,'_',field];
+    trial2include='all';
+    trial2exclude=[];
+    objsession=Session2P(session,filepath,trial2include,trial2exclude);
+    Tperformance=objsession.mSummaryBehavior(3);
+    [ipsi_performance{1:nROI}]=deal(Tperformance{'ipsi','correct'});
+    ipsi_performance=reshape(ipsi_performance,[],1);
+    [contra_performance{1:nROI}]=deal(Tperformance{'contra','correct'});
+    contra_performance=reshape(contra_performance,[],1);
+    [overall_performance{1:nROI}]=deal(Tperformance{'total','correct'});
+    overall_performance=reshape(overall_performance,[],1);
+
+    TAUC=addvars(TAUC, ipsi_performance,contra_performance,overall_performance,'Before','ITI');
+    %}
+    %add middle delay auc
+    %
+    nROI=size(SavedCaTrials.f_raw{1},1);
+
+    ind_tr_1=1;
+    ntr=length(SavedCaTrials.f_raw);
+    frT = SavedCaTrials.FrameTime;
+    % align to behavior event
+    nFrameEachTrial=cellfun(@(x) size(x,2),SavedCaTrials.f_raw);
+    ind_1stFrame=zeros(1,length(nFrameEachTrial));
+    ind_1stFrame(1)=1;
+    ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
+    ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
+    frameNumTime=[1,1.5];%from 1s before delay onset to 1.5s after delay onset
+    frameNum=double(round(frameNumTime*1000/frT));
+    [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( Data_extract, ind_1stFrame, SavedCaTrials.FrameTime );%get behavior event time
+    
+    if strcmp(AUCtype,'choice')|| strcmp(AUCtype,'sensory')
+
+        switch corErrTrialNumber
+            case 'balence'
+                [trialType,~,~] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix','left','divideCorErr');
+                trialTypeIndCell=cell(2,2);%{ipsi cor, contra cor;ipsi err, contra err};
+                for i=1:2
+                    for j=1:2
+                        trialTypeIndCell{i,j}=find(logical(reshape(trialType(i,j,:),[],1)));
+                    end
+                end
+                temp=cellfun(@length,trialTypeIndCell);
+                trialNumEachType=floor(sum(temp,'all')/4);%keep total trial number stable and redistributed to each trial types
+                s = RandStream('mlfg6331_64');%for reproducibility
+                trialTypeIndCellBalenced=cellfun(@(x) reshape(datasample(s,x,trialNumEachType,'Replace',true),[],1), trialTypeIndCell,'UniformOutput',false);
+                trialTypeIndFinal=cell2mat(trialTypeIndCellBalenced);%1st col-cor; 2nd col-err
+                ind_trial=reshape(trialTypeIndFinal,[],1);
+                label_AUC=[ones(trialNumEachType*2,1);ones(trialNumEachType*2,1)*2];
+            case 'raw'
+                [trialType,~,~] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
+                label_choice = fTrialType2Label(trialType,2);
+                if contains(trialTypeStr,'cor') % 'cor'| 'cor and err'
+                    ind_trial=logical(reshape(sum(trialType(1,:,:),2),[],1));%only correct trials
+                end
+                if strcmp(trialTypeStr,'err')
+                    ind_trial=logical(reshape(sum(trialType(2,:,:),2),[],1));%only error trials
+                end
+                label_AUC=label_choice(ind_trial);
+                %used for orthogonal subtraction
+                [trialType_orthogonal,~,~] = fGetTrialType( Data_extract,[],7-trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
+                label_choice_orthogonal = fTrialType2Label(trialType_orthogonal,2);
+                label_AUC_orthogonal=label_choice_orthogonal(ind_trial);
+        end
+        for roiNo = 1:size(SavedCaTrials.f_raw{1},1) %SavedCaTrials.nROIs may be not true
+            disp([animal,date,'rioNo',num2str(roiNo)]);
+            [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,dff(roiNo,:),frT,str_nFrames);
+            if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                T_SigbyEpoch=fOrthogonalSubtraction(T_SigbyEpoch,ind_trial,label_AUC,label_AUC_orthogonal);
+            else
+                T_SigbyEpoch=T_SigbyEpoch(ind_trial,:);
+            end
+            poslabel=2;
+            nshuffle=1000;%%%%check
+
+            %calculate middle delay activities
+            [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( dff(roiNo,:), behEventFrameIndex,  frameNum );
+            dff_mid_delay=nanmean(dff_aligned(:,frameNum(1)+round(0.3*1000/frT):frameNum(1)+round(1*1000/frT)),2);
+            
+            if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                dff_aligned_ortho_corrected=fOrthogonalSubtraction(dff_aligned,ind_trial,label_AUC,label_AUC_orthogonal);
+                dff_mid_delay4auc=fOrthogonalSubtraction(dff_mid_delay,ind_trial,label_AUC,label_AUC_orthogonal);
+            else
+                dff_aligned=dff_aligned(ind_trial,:);
+                dff_mid_delay4auc=dff_mid_delay(ind_trial,:);
+            end
+            [mid_delay(roiNo),pmid_delay(roiNo)]=fAUC(label_AUC,dff_mid_delay4auc,poslabel,nshuffle);
+            
+        end
+       
+    elseif strcmp(AUCtype,'stimuli') %here, compare auc of cor/err for each stimuli
+
+    end
+
+    TAUC=addvars(TAUC, mid_delay','Before','late_delay','NewVariableNames','mid_delay');
+    TAUC=addvars(TAUC, pmid_delay','Before','plate_delay','NewVariableNames','pmid_delay');
+    %}
+    %add late delay auc
+    %{
+    nROI=size(SavedCaTrials.f_raw{1},1);
+
+    ind_tr_1=1;
+    ntr=length(SavedCaTrials.f_raw);
+    frT = SavedCaTrials.FrameTime;
+    % align to behavior event
+    nFrameEachTrial=cellfun(@(x) size(x,2),SavedCaTrials.f_raw);
+    ind_1stFrame=zeros(1,length(nFrameEachTrial));
+    ind_1stFrame(1)=1;
+    ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
+    ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
+    frameNumTime=[1,1.5];%from 1s before delay onset to 1.5s after delay onset
+    frameNum=double(round(frameNumTime*1000/frT));
+    [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( Data_extract, ind_1stFrame, SavedCaTrials.FrameTime );%get behavior event time
+    
+    if strcmp(AUCtype,'choice')|| strcmp(AUCtype,'sensory')
+
+        switch corErrTrialNumber
+            case 'balence'
+                [trialType,~,~] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix','left','divideCorErr');
+                trialTypeIndCell=cell(2,2);%{ipsi cor, contra cor;ipsi err, contra err};
+                for i=1:2
+                    for j=1:2
+                        trialTypeIndCell{i,j}=find(logical(reshape(trialType(i,j,:),[],1)));
+                    end
+                end
+                temp=cellfun(@length,trialTypeIndCell);
+                trialNumEachType=floor(sum(temp,'all')/4);%keep total trial number stable and redistributed to each trial types
+                s = RandStream('mlfg6331_64');%for reproducibility
+                trialTypeIndCellBalenced=cellfun(@(x) reshape(datasample(s,x,trialNumEachType,'Replace',true),[],1), trialTypeIndCell,'UniformOutput',false);
+                trialTypeIndFinal=cell2mat(trialTypeIndCellBalenced);%1st col-cor; 2nd col-err
+                ind_trial=reshape(trialTypeIndFinal,[],1);
+                label_AUC=[ones(trialNumEachType*2,1);ones(trialNumEachType*2,1)*2];
+            case 'raw'
+                [trialType,~,~] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
+                label_choice = fTrialType2Label(trialType,2);
+                if contains(trialTypeStr,'cor') % 'cor'| 'cor and err'
+                    ind_trial=logical(reshape(sum(trialType(1,:,:),2),[],1));%only correct trials
+                end
+                if strcmp(trialTypeStr,'err')
+                    ind_trial=logical(reshape(sum(trialType(2,:,:),2),[],1));%only error trials
+                end
+                label_AUC=label_choice(ind_trial);
+                %used for orthogonal subtraction
+                [trialType_orthogonal,~,~] = fGetTrialType( Data_extract,[],7-trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
+                label_choice_orthogonal = fTrialType2Label(trialType_orthogonal,2);
+                label_AUC_orthogonal=label_choice_orthogonal(ind_trial);
+        end
+        for roiNo = 1:size(SavedCaTrials.f_raw{1},1) %SavedCaTrials.nROIs may be not true
+            disp([animal,date,'rioNo',num2str(roiNo)]);
+            [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,dff(roiNo,:),frT,str_nFrames);
+            if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                T_SigbyEpoch=fOrthogonalSubtraction(T_SigbyEpoch,ind_trial,label_AUC,label_AUC_orthogonal);
+            else
+                T_SigbyEpoch=T_SigbyEpoch(ind_trial,:);
+            end
+            poslabel=2;
+            nshuffle=1000;%%%%check
+
+            %calculate late delay activities
+            [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( dff(roiNo,:), behEventFrameIndex,  frameNum );
+            dff_late_delay=nanmean(dff_aligned(:,frameNum(1)+round(1*1000/frT):frameNum(1)+round(1.5*1000/frT)),2);
+            
+            if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                dff_aligned_ortho_corrected=fOrthogonalSubtraction(dff_aligned,ind_trial,label_AUC,label_AUC_orthogonal);
+                dff_late_delay4auc=fOrthogonalSubtraction(dff_late_delay,ind_trial,label_AUC,label_AUC_orthogonal);
+            else
+                dff_aligned=dff_aligned(ind_trial,:);
+                dff_late_delay4auc=dff_late_delay(ind_trial,:);
+            end
+            [late_delay(roiNo),plate_delay(roiNo)]=fAUC(label_AUC,dff_late_delay4auc,poslabel,nshuffle);
+            
+        end
+       
+    elseif strcmp(AUCtype,'stimuli') %here, compare auc of cor/err for each stimuli
+
+    end
+
+    TAUC=addvars(TAUC, late_delay','Before','pITI','NewVariableNames','late_delay');
+    TAUC=addvars(TAUC, plate_delay','Before','delayMovingAUC','NewVariableNames','plate_delay');
+    %}
+
 else
     nROI=size(SavedCaTrials.f_raw{1},1);
     [delayMovingAUC,pdelayMovingAUC]=deal(cell(nROI,1));
@@ -86,7 +284,7 @@ else
     ind_1stFrame(1)=1;
     ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
     ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
-    frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
+    frameNumTime=[1,1.5];%from 1s before delay onset to 1.5s after delay onset
     frameNum=double(round(frameNumTime*1000/frT));
     [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( Data_extract, ind_1stFrame, SavedCaTrials.FrameTime );%get behavior event time
     
@@ -140,11 +338,20 @@ else
             [lick(roiNo),plick(roiNo)]=fAUC(label_AUC,T_SigbyEpoch.lick,poslabel,nshuffle);
             %calculate moving AUC
             [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( dff(roiNo,:), behEventFrameIndex,  frameNum );
+            dff_late_delay=nanmean(dff_aligned(:,frameNum(1)+round(1*1000/frT):frameNum(1)+round(1.5*1000/frT)),2);
+            dff_mid_delay=nanmean(dff_aligned(:,frameNum(1)+round(0.3*1000/frT):frameNum(1)+round(1*1000/frT)),2);
             if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
                 dff_aligned_ortho_corrected=fOrthogonalSubtraction(dff_aligned,ind_trial,label_AUC,label_AUC_orthogonal);
+                dff_mid_delay4auc=fOrthogonalSubtraction(dff_mid_delay,ind_trial,label_AUC,label_AUC_orthogonal);
+                dff_late_delay4auc=fOrthogonalSubtraction(dff_late_delay,ind_trial,label_AUC,label_AUC_orthogonal);
             else
                 dff_aligned=dff_aligned(ind_trial,:);
+                dff_mid_delay4auc=dff_mid_delay(ind_trial,:);
+                dff_late_delay4auc=dff_late_delay(ind_trial,:);
             end
+            [mid_delay(roiNo),pmid_delay(roiNo)]=fAUC(label_AUC,dff_mid_delay4auc,poslabel,nshuffle);
+            [late_delay(roiNo),plate_delay(roiNo)]=fAUC(label_AUC,dff_late_delay4auc,poslabel,nshuffle);
+            
             binsize=1;
             binstep=1;
             for nResult=1:size(trialType,1)-2
@@ -200,13 +407,29 @@ else
             end
         end
     end
-    
+    %add task performance
+    nROI=size(SavedCaTrials.f_raw{1},1);
+    session=[animal,'_',date,'_',field];
+    trial2include='all';
+    trial2exclude=[];
+    objsession=Session2P(session,filepath,trial2include,trial2exclude);
+    Tperformance=objsession.mSummaryBehavior(3);
+    [ipsi_performance{1:nROI}]=deal(Tperformance{'ipsi','correct'});
+    ipsi_performance=reshape(ipsi_performance,[],1);
+    [contra_performance{1:nROI}]=deal(Tperformance{'contra','correct'});
+    contra_performance=reshape(contra_performance,[],1);
+    [overall_performance{1:nROI}]=deal(Tperformance{'total','correct'});
+    overall_performance=reshape(overall_performance,[],1);
     varROI=(1:size(SavedCaTrials.f_raw{1},1));
     varROI=reshape(varROI,[],1);
-    TAUC=table(varanimal,vardate,varfield,varcelltype,varROItype,varROI,ITI, sound,delay, response, ...
-        lick, pITI, psound, pdelay, presponse, plick,delayMovingAUC,pdelayMovingAUC,'VariableNames',...
-        {'animal','date','field','celltype','ROItype','nROI','ITI','sound','delay','response',...
-        'lick','pITI','psound','pdelay','presponse','plick','delayMovingAUC','pdelayMovingAUC'});
+    TAUC=table(varanimal,vardate,varfield,varcelltype,varROItype,varROI,...
+        ipsi_performance, contra_performance,overall_performance,...
+        ITI, sound,delay, response, lick, mid_delay,late_delay,...
+        pITI, psound, pdelay, presponse, plick,pmid_delay,plate_delay,delayMovingAUC,pdelayMovingAUC,...
+        'VariableNames',{'animal','date','field','celltype','ROItype','nROI',...
+        'ipsi_performance', 'contra_performance','overall_performance',...
+        'ITI','sound','delay','response','lick','mid_delay','late_delay',...
+        'pITI','psound','pdelay','presponse','plick','pmid_delay','plate_delay','delayMovingAUC','pdelayMovingAUC'});
 end
 
 %calculate mean activities for each time epoch and whether they

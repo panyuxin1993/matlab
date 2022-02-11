@@ -32,6 +32,7 @@ end
 stimOnset=behData.Stim_onset_time(ind_tr_1:ind_tr_1+n_trial_output-1);
 stimOffset=behData.Stim_offset_time(ind_tr_1:ind_tr_1+n_trial_output-1);
 goTime=behData.Go_time(ind_tr_1:ind_tr_1+n_trial_output-1);
+delayOffset=behData.Time_delayOffset(ind_tr_1:ind_tr_1+n_trial_output-1);
 ansTime=double(behData.Answer_time(ind_tr_1:ind_tr_1+n_trial_output-1)); %zero when no answer, so put to nan
 rewTime=double(behData.Reward_time(ind_tr_1:ind_tr_1+n_trial_output-1)); %zero when no reward, so put to nan
 ansTime(ansTime==0)=nan;
@@ -80,6 +81,7 @@ behEventFrameIndex.lickFirst_right=double(round(lickFirst_right/frameTime))+ind_
 behEventFrameIndex.lickFirst=double(round(lickFirst/frameTime))+ind_1stFrame;
 behEventFrameIndex.lickLast=double(round(lickLast/frameTime))+ind_1stFrame;
 behEventFrameIndex.go=double(round(goTime/frameTime))+ind_1stFrame;
+behEventFrameIndex.delayOffset=double(round(delayOffset/frameTime))+ind_1stFrame;
 behEventFrameIndex.start=ind_1stFrame;
 leftLick=cellfun(@(x) double(round(x/frameTime)),behData.Left_lick_time,'UniformOutput',false);
 rightLick=cellfun(@(x) double(round(x/frameTime)),behData.Right_lick_time,'UniformOutput',false);

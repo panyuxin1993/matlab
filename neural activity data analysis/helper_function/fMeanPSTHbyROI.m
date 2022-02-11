@@ -1,4 +1,4 @@
-function [meanActivityByTrialType] = fMeanPSTHbyROI(activities_data,ind_tr_1,Data_extract,SavedCaTrials,frameNumTime,behEventAlign,masklick,i_selectivity,trial2include,trial2exclude)
+function [meanActivityByTrialType,cellActivityByTrialType] = fMeanPSTHbyROI(activities_data,ind_tr_1,Data_extract,SavedCaTrials,frameNumTime,behEventAlign,masklick,i_selectivity,trial2include,trial2exclude)
 %FMEANPSTHBYROI get a cell matrix of mean activities grouped by ROI
 %   Detailed explanation goes here
 %Input-
@@ -34,6 +34,7 @@ end
 
 [trialType,rule] = fGetTrialType( Data_extract,[],i_selectivity,'matrix','left','divideCorErr');%decide trial type, 1d cor/err/miss/vio, each 2d one stimulus, 3d trials
 meanActivityByTrialType=cell(size(trialType,2),size(trialType,1));%1d-stimuli, 2d-(correct/error/miss/violation)
+cellActivityByTrialType=cell(size(trialType,2),size(trialType,1));%1d-stimuli, 2d-(correct/error/miss/violation)
 for nStim=1:size(trialType,2) %for each stimulus
     for nResult=1:size(trialType,1) %4 column(correct/error/miss/violation),companied with 4 lick raster
         selectedTrialInd=trialType(nResult,nStim,:);
@@ -41,6 +42,8 @@ for nStim=1:size(trialType,2) %for each stimulus
         indTrial2include=reshape(indTrial2include,[],1);
         selectedTrialInd=logical(selectedTrialInd.*indTrial2include);
         neuralActivity=activities_aligned(selectedTrialInd,:);
+        cellActivityByTrialType{nStim,nResult}=cell(1,1);
+        cellActivityByTrialType{nStim,nResult}{1}=neuralActivity;
         meanActivityByTrialType{nStim,nResult}=nanmean(neuralActivity,1);
     end
 end

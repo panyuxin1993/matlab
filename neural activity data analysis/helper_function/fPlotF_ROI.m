@@ -126,6 +126,7 @@ end
 figOut=figure;
 clf;
 if length(ind_ROI)==1 
+    piled_f=f_data(ind_ROI,:);
     plot(f_data(ind_ROI,:),'k-');%plot f_raw
     hold on;
     if length(ind_trial)==1
@@ -185,6 +186,7 @@ box off;
 if ~isempty(varargin)
     sigThreshSD=2;
     sigShowingStyle='patch';
+    indBaseline=true(size(piled_f,2));
     if mod(length(varargin),2)==0
         for i=1:2:length(varargin)
             switch varargin{i}
@@ -192,16 +194,31 @@ if ~isempty(varargin)
                     sigThreshSD=varargin{i+1};
                 case 'sigShowingStyle'
                     sigShowingStyle=varargin{i+1};
+                case 'BaselineIndex'
+                    if strcmp(varargin{i+1},'ITI') && exist('Data_extract','var') 
+                        indBaseline=false(size(piled_f,2));
+                        behEventFrameIndex= fGetBehEventTime( Data_extract, indFrame_trial_start, frT ,ind_tr_1);%get behavior event time
+                        for iTrial=1:length(behEventFrameIndex.start)
+                            indBaseline(:,behEventFrameIndex.start(iTrial):behEventFrameIndex.stimOnset(iTrial))=true;
+                        end
+                    elseif strcmp(varargin{i+1},'auto')
+                        indBaseline=fIndexBaselineAroundMode(piled_f);
+                    else
+                        indBaseline=varargin{i+1};
+                    end
             end
         end
     else
         warning('odd varargin input argument');
     end
-    data_mean=mean(piled_f,2);
-    data_std=std(piled_f,0,2);
+    [data_mean,data_std]=deal(zeros(size(piled_f,1),1));   
+    for i_row=1:size(piled_f,1)
+        data_mean(i_row)=nanmean(piled_f(i_row,indBaseline(i_row,:)));
+        data_std(i_row)=nanstd(piled_f(i_row,indBaseline(i_row,:)));
+    end
     for i_patch=1:length(data_mean)
         if strcmp(sigShowingStyle,'patch')
-            x_patch=[1,length(piled_f),length(piled_f),1];
+            x_patch=[1,size(piled_f,2),size(piled_f,2),1];
             sig_low_bound=data_mean(i_patch)-data_std(i_patch)*sigThreshSD;
             sig_up_bound=data_mean(i_patch)+data_std(i_patch)*sigThreshSD;
             y_patch=[sig_low_bound,sig_low_bound,sig_up_bound,sig_up_bound];
@@ -209,6 +226,7 @@ if ~isempty(varargin)
         end
     end
 end
+
 %plot behavior event
 i_selectivity=4;%*********variable**************
 selectivitystr={'stimuli','sensory difficulty','sensory','choice'};%sensory means grouping difficulties;

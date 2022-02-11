@@ -1,4 +1,4 @@
-function [TSVM] = fGetEpochSVMscoreASession(filepath,animal,date,field,celltype,trialTypeStr,SVMtype,nRepeat, pTraining,CorrectedMethod)
+function [TSVM] = fGetEpochSVMscoreASession(filepath,animal,date,field,celltype,trialTypeStr,SVMtype,nRepeat, pTraining,CorrectedMethod,dataForm)
 %FGETEPOCHSVMSCOREASESSION calculate epoch SVM from mulitiple sessions,
 %with variables- ITI,sound,delay,response,lick, etc. only for control
 %session, not opto session
@@ -17,8 +17,15 @@ filenames=dircell(1,:);
 file_imaging=cellfun(@(x) contains(x,'CaTrialsSIM_'), filenames);
 load(filenames{file_imaging});%load imaging data
 load('dff.mat');%load dff
+load('deconvolution.mat')%load deconvolved data
 file_beh=cellfun(@(x) contains(x,'Virables'), filenames);
 load(filenames{file_beh});
+
+if strcmp(dataForm,'spkr')
+    activity_data=spiking_rate;
+elseif strcmp(dataForm,'dff')
+    activity_data = dff;
+end
 
 datestr=strrep(date,'/','-');
 if strcmp(trialTypeStr,'cor')
@@ -36,10 +43,14 @@ str_nFrames='500ms';%'500ms';%'1s'
 if strcmp(trialTypeStr,'cor')
     combineCorErr='divideCorErr';%and only use correct trial
     corErrTrialNumber='raw';
-    fileNameT=[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',SVMtype,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-EpochSVM.mat'];
+    fileNameT=[filepath,filesep,animal,'-',datestr,'_',dataForm,'-trialType',trialTypeStr,'-',SVMtype,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-EpochSVM.mat'];
+elseif strcmp(trialTypeStr,'err')
+    combineCorErr='divideCorErr';%and only use error trial
+    corErrTrialNumber='raw';
+    fileNameT=[filepath,filesep,animal,'-',datestr,'_',dataForm,'-trialType',trialTypeStr,'-',SVMtype,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-EpochSVM.mat'];
 elseif strcmp(trialTypeStr,'cor and err')%used to test whether it is sensory or choice AUC,in order to be more fair, keep trial numbers balenced for correct and error trials
     combineCorErr='combineCorErr';%{'combineCorErr','divideCorErr'}
-    fileNameT=[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',SVMtype,'-',CorrectedMethod,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-EpochSVM.mat'];
+    fileNameT=[filepath,filesep,animal,'-',datestr,'_',dataForm,'-trialType',trialTypeStr,'-',SVMtype,'-',CorrectedMethod,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-EpochSVM.mat'];
     switch CorrectedMethod
         case 'balencedCorErrTrialNum'%probably problematic, since the trial are resampled and may let training and testing dataset be same
             corErrTrialNumber='balence';
@@ -81,6 +92,7 @@ else
     ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
     frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
     frameNum=double(round(frameNumTime*1000/frT));
+    ts=-frameNumTime(1):frT/1000:frameNumTime(2);
     [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( Data_extract, ind_1stFrame, SavedCaTrials.FrameTime );%get behavior event time
     
     if strcmp(SVMtype,'choice')|| strcmp(SVMtype,'sensory')
@@ -106,6 +118,8 @@ else
                 label_choice = fTrialType2Label(trialType,2);
                 if contains(trialTypeStr,'cor') % 'cor'| 'cor and err'
                     ind_trial=logical(reshape(sum(trialType(1,:,:),2),[],1));%only correct trials
+                elseif strcmp(trialTypeStr,'err')
+                    ind_trial=logical(reshape(sum(trialType(2,:,:),2),[],1));%only correct trials
                 end
                 label_SVM=label_choice(ind_trial);
                 %used for orthogonal subtraction
@@ -119,7 +133,7 @@ else
         sigMovingGo=[];
         for roiNo = 1:size(SavedCaTrials.f_raw{1},1)
             %data for epoch activity
-            [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,dff(roiNo,:),frT,str_nFrames);
+            [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,activity_data(roiNo,:),frT,str_nFrames);
             if strcmp(CorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
                 T_SigbyEpoch=fOrthogonalSubtraction(T_SigbyEpoch,ind_trial,label_SVM,label_SVM_orthogonal);
             else
@@ -127,90 +141,69 @@ else
             end
             sigbyEpoch=cat(3,sigbyEpoch,table2array(T_SigbyEpoch));
             %data for moving activity
-            [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( dff(roiNo,:), behEventFrameIndex,  frameNum );
+            [ activity_data_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( activity_data(roiNo,:), behEventFrameIndex,  frameNum );
             if strcmp(CorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
-                dff_aligned_ortho_corrected=fOrthogonalSubtraction(dff_aligned,ind_trial,label_SVM,label_SVM_orthogonal);
+                activity_data_aligned_ortho_corrected=fOrthogonalSubtraction(activity_data_aligned,ind_trial,label_SVM,label_SVM_orthogonal);
             else
-                dff_aligned_ortho_corrected=dff_aligned(ind_trial,:);
+                activity_data_aligned_ortho_corrected=activity_data_aligned(ind_trial,:);
             end
-            sigMoving=cat(3,sigMoving,dff_aligned_ortho_corrected);
+            sigMoving=cat(3,sigMoving,activity_data_aligned_ortho_corrected);
             %data for moving activity around go cue
             behEventAlign='go cue';
-            [ dff_aligned_go, ~, ~ ] = fAlignSigBehEvent( dff(roiNo,:), behEventFrameIndex,lickingFrameIndex,behEventAlign,frameNum );
+            [ activity_data_aligned_go, ~, ~ ] = fAlignSigBehEvent( activity_data(roiNo,:), behEventFrameIndex,lickingFrameIndex,behEventAlign,frameNum );
             if strcmp(CorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
-                dff_aligned_ortho_corrected=fOrthogonalSubtraction(dff_aligned_go,ind_trial,label_SVM,label_SVM_orthogonal);
+                activity_data_aligned_ortho_corrected=fOrthogonalSubtraction(activity_data_aligned_go,ind_trial,label_SVM,label_SVM_orthogonal);
             else
-                dff_aligned_ortho_corrected=dff_aligned_go(ind_trial,:);
+                activity_data_aligned_ortho_corrected=activity_data_aligned_go(ind_trial,:);
             end
-            sigMovingGo=cat(3,sigMovingGo,dff_aligned_ortho_corrected);
+            sigMovingGo=cat(3,sigMovingGo,activity_data_aligned_ortho_corrected);
         end
         sigbyEpoch=permute(sigbyEpoch,[1,3,2]);
         sigMoving=permute(sigMoving,[1,3,2]);
         sigMovingGo=permute(sigMovingGo,[1,3,2]);
         
-        score_shuffle=cell(1,1);
-        [score,score_shuffle{1}] = fSVM(sigbyEpoch,label_SVM, nRepeat, pTraining,1,1); 
+        [score_shuffle, scoreCE, score_shuffleCE]=deal(cell(1,1));
+        [score,score_shuffle{1}, scoreCE{1}, score_shuffleCE{1},figMeanSigEpoch] = fCrossTimeSVM(sigbyEpoch,label_SVM, nRepeat, pTraining,1,1,1:5); 
+        saveas(figMeanSigEpoch,[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',SVMtype,'-',CorrectedMethod,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-EpochSVM.pdf'],'pdf');
+        saveas(figMeanSigEpoch,[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',SVMtype,'-',CorrectedMethod,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-EpochSVM.png'],'png');
+        
         [meanout,pout] = fBootstrpMeanP(score,1000,0.5);
         [ITI{1}, sound{1},delay{1}, response{1},lick{1}] = deal(score(:,1),score(:,2),score(:,3),score(:,4),score(:,5));
         [pITI{1}, psound{1},pdelay{1}, presponse{1},plick{1}] = deal(pout(:,1),pout(:,2),pout(:,3),pout(:,4),pout(:,5));
         %calculate moving SVM
         binsize=3;
-        binstep=3;
-        for nResult=1%:size(trialType,1)-2
-            if nResult==1
-                if strcmp(trialTypeStr,'cor and err')
-                    [delayMovingSVM.do,delayMovingSVM.shuffle_do]=fSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep); 
-                    [~,pdelayMovingSVM.do]=fBootstrpMeanP(delayMovingSVM.do,1000,0.5);
-                    [goMovingSVM.do,goMovingSVM.shuffle_do]=fSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep); 
-                    [~,pgoMovingSVM.do]=fBootstrpMeanP(goMovingSVM.do,1000,0.5);
-                else
-                    [delayMovingSVM.cor,delayMovingSVM.shuffle_cor]=fSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep); 
-                    [~,pdelayMovingSVM.cor]=fBootstrpMeanP(delayMovingSVM.cor,1000,0.5);
-                    [goMovingSVM.cor,goMovingSVM.shuffle_cor]=fSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep);
-                    [~,pgoMovingSVM.cor]=fBootstrpMeanP(goMovingSVM.cor,1000,0.5);
-                end
-%             elseif nResult==2
-%                 [delayMovingSVM.err,delayMovingSVM.shuffle_err]=fSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep); 
-%                 [~,pdelayMovingSVM.err]=fBootstrpMeanP(delayMovingSVM.err,1000,0.5);
-%                 [goMovingSVM.err,goMovingSVM.shuffle_err]=fSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep);
-%                 [~,pgoMovingSVM.err]=fBootstrpMeanP(goMovingSVM.err,1000,0.5);
-            end
+        binstep=3;   
+        if strcmp(trialTypeStr,'cor and err')
+            [delayMovingSVM.do,delayMovingSVM.shuffle_do,delayMovingSVM.doCT,delayMovingSVM.shuffle_doCT,figMeanSig]=fCrossTimeSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep,ts);
+            [~,pdelayMovingSVM.do]=fBootstrpMeanP(delayMovingSVM.do,1000,0.5);
+            [goMovingSVM.do,goMovingSVM.shuffle_do,goMovingSVM.doCT,goMovingSVM.shuffle_doCT,figMeanSigGo]=fCrossTimeSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep,ts);
+            [~,pgoMovingSVM.do]=fBootstrpMeanP(goMovingSVM.do,1000,0.5);
+        elseif strcmp(trialTypeStr,'cor')
+            [delayMovingSVM.cor,delayMovingSVM.shuffle_cor,delayMovingSVM.corCT,delayMovingSVM.shuffle_corCT,figMeanSig]=fCrossTimeSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep,ts);
+            [~,pdelayMovingSVM.cor]=fBootstrpMeanP(delayMovingSVM.cor,1000,0.5);
+            [goMovingSVM.cor,goMovingSVM.shuffle_cor,goMovingSVM.corCT,goMovingSVM.shuffle_corCT,figMeanSigGo]=fCrossTimeSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep,ts);
+            [~,pgoMovingSVM.cor]=fBootstrpMeanP(goMovingSVM.cor,1000,0.5);
+        elseif strcmp(trialTypeStr,'err')      
+            [delayMovingSVM.err,delayMovingSVM.shuffle_err,delayMovingSVM.errCT,delayMovingSVM.shuffle_errCT,figMeanSig]=fCrossTimeSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep,ts);
+            [~,pdelayMovingSVM.err]=fBootstrpMeanP(delayMovingSVM.err,1000,0.5);
+            [goMovingSVM.err,goMovingSVM.shuffle_err,goMovingSVM.errCT,goMovingSVM.shuffle_errCT,figMeanSigGo]=fCrossTimeSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep,ts);
+            [~,pgoMovingSVM.err]=fBootstrpMeanP(goMovingSVM.err,1000,0.5);      
         end
-        
+        saveas(figMeanSig,[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',SVMtype,'-',CorrectedMethod,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-DelaySVM.pdf'],'pdf');
+        saveas(figMeanSig,[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',SVMtype,'-',CorrectedMethod,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-DelaySVM.png'],'png');
+        saveas(figMeanSigGo,[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',SVMtype,'-',CorrectedMethod,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-GoSVM.pdf'],'pdf');
+        saveas(figMeanSigGo,[filepath,filesep,animal,'-',datestr,'trialType',trialTypeStr,'-',SVMtype,'-',CorrectedMethod,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-GoSVM.png'],'png');
+
     elseif strcmp(SVMtype,'stimuli') %here, compare auc of cor/err for each stimuli
         [ITI, sound,delay, response, lick, pITI, psound, pdelay, presponse, plick]= deal(nan(nROI,size(trialType,2)));
-%         for roiNo = 1
-%             [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,dff(roiNo,:),frT,str_nFrames);
-%             label_choice = fTrialType2Label(trialType(1:2,:,:),1);%only include cor and err trials
-%             poslabel=1;
-%             nshuffle=1000;
-%             for nStim=1:size(trialType,2)
-%                 ind_trial=logical(reshape(sum(trialType(1:2,nStim,:),1),[],1));
-%                 [ITI(roiNo,nStim),pITI(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.ITI(ind_trial),poslabel,nshuffle);
-%                 [sound(roiNo,nStim),psound(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.sound(ind_trial),poslabel,nshuffle);
-%                 [delay(roiNo,nStim),pdelay(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.delay(ind_trial),poslabel,nshuffle);
-%                 [response(roiNo,nStim),presponse(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.response(ind_trial),poslabel,nshuffle);
-%                 [lick(roiNo,nStim),plick(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.lick(ind_trial),poslabel,nshuffle);
-%             end
-%             %calculate moving AUC
-%             [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( dff(roiNo,:), behEventFrameIndex,  frameNum );
-%             binsize=1;
-%             binstep=1;
-%             label = label_choice;
-%             for nStim=1:size(trialType,2)
-%                 indTrial=sum(trialType(1:2,nStim,:),1);%only for cor and err trials(1st d)
-%                 indTrial=logical(squeeze(indTrial));
-%                 [delayMovingSVM.stim{nStim},pdelayMovingSVM.stim{nStim}] = fMovingAUC(label(indTrial),dff_aligned(indTrial,:),poslabel,nshuffle,binsize,binstep);
-%             end
-%         end
     end
     
     TSVM=table(varanimal,vardate,varfield,varcelltype,varNROI,ITI, sound,delay, response, ...
         lick, pITI, psound, pdelay, presponse, plick,delayMovingSVM,pdelayMovingSVM,...
-        goMovingSVM,pgoMovingSVM,score_shuffle,'VariableNames',...
+        goMovingSVM,pgoMovingSVM,score_shuffle,scoreCE, score_shuffleCE,'VariableNames',...
         {'animal','date','field','celltype','nROI','ITI','sound','delay','response',...
         'lick','pITI','psound','pdelay','presponse','plick','delayMovingSVM','pdelayMovingSVM',...
-        'goMovingSVM','pgoMovingSVM','shuffleEpochSVMscore'});
+        'goMovingSVM','pgoMovingSVM','shuffleEpochSVMscore','crossEpochSVMscore','crossEpochShuffleSVMscore'});
 end
 save(fileNameT,'TSVM');
 end

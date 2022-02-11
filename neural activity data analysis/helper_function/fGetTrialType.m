@@ -28,6 +28,7 @@ switch nargin
 end
 combineCorErr='divideCorErr';%default settings
 side='left';%default hemisphere, since for imaging, all neurons are in left hemisphere
+divideOpto=0;
 if f<=2 && nargin>4
     side=varargin{1};%={'left','right'}
     if nargin>5 
@@ -47,7 +48,9 @@ elseif f>=3
         divideOpto=0;
     end
 else
-    side=varargin{1};%={'left','right'}
+    if nargin>4
+        side=varargin{1};%={'left','right'}
+    end
     if nargin>5 
         combineCorErr=varargin{2};%={'combineCorErr','divideCorErr'}
     end    
