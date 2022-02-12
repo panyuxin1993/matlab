@@ -1,12 +1,14 @@
 %finding the target image for alignment
 %cd('//Users/cduan/Desktop/Xu_Lab/Imaging/data/CD058/20180201');
-cd('C:\Data\pyx351_20210625');
+% cd('C:\Data\pyx397_20211015\test');
+% [im, ~] = load_scim_data('pyx397_20211015_920nm_power20_12x_00004.tif');  
 
-[im, ~] = load_scim_data('pyx351_20210624_deep50um_920nm_power60_3x_001.tif');  
+cd('C:\Data\pyx399_20211116-2');
+[im, ~] = load_scim_data('pyx399_20211116_deep30um_920nm_power30_12x_00001.tif'); 
 % [im, ~] = load_scim_data_pyx('pyx298_20200608_920nm_power50_3X_001.tif',[],0,2);  
 colormap gray;
-selectframe=im(:,:,230:270);   % change here for different target frame
-imagesc(mean(selectframe,3),[-50 350]);
+selectframe=im(:,:,258:263);   % change here for different target frame
+imagesc(mean(selectframe,3),[-50 200]);
 im_reg_target = mean(selectframe,3); 
 
 %%
@@ -15,6 +17,7 @@ dir_imreg_src = pwd;
 dir_imreg_dest = [dir_imreg_src filesep 'im_data_reg'];
 t_total=tic;
 dft_reg_dir_2_zy(dir_imreg_src, dir_imreg_dest, [], im_reg_target)
+% dft_reg_dir_demons_pyx(dir_imreg_src, dir_imreg_dest, [], im_reg_target);
 % dft_reg_dir_2_pyx(dir_imreg_src, dir_imreg_dest, [], im_reg_target,[],1,2);
 %[im_dft, shift] = dft_reg(20160125_rf_242.28_p100%_5.9x_001dir_imreg_src, im_reg_target);
 t=toc(t_total);

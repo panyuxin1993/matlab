@@ -39,7 +39,9 @@
 %  added comments about changing bitmap resolution (for large images only)
 %  swapped order of opening PPT and copying to clipboard (thanks to David Abraham)
 %  made PPT invisible during save operations (thanks to Noah Siegel)
-function saveppt(filespec,titletext,prnopt)
+%Ver 3, modified by pyx, 2022-1
+%   user defined position of the ppt
+function saveppt(filespec,titletext,prnopt,varargin)
 % Establish valid file name:
 if nargin<1 || isempty(filespec)
   [fname, fpath] = uiputfile('*.ppt');
@@ -63,6 +65,22 @@ if nargin<3
 else
   print('-dmeta',prnopt)
 end
+if isempty(varargin)
+    slide_mode='append';
+else
+    if mod(length(varargin),2)==0
+        for i=1:2:length(varargin)
+            switch varargin{i}
+                case 'slide_mode'
+                    slide_mode=varargin{i+1};
+                case 'position'
+                    pic_pos=varargin{i+1};%in a form [left, bottom, width, height]     
+            end
+        end
+    else
+        warning('odd varargin input argument');
+    end
+end
 if ~exist(filespec,'file')
   % Create new presentation:
   op = invoke(ppt.Presentations,'Add');
@@ -74,7 +92,9 @@ end
 slide_count = get(op.Slides,'Count');
 % Add a new slide (with title object):
 slide_count = int32(double(slide_count)+1);
-new_slide = invoke(op.Slides,'Add',slide_count,11);
+if strcmp(slide_mode,'append')
+    new_slide = invoke(op.Slides,'Add',slide_count,11);
+end
 % Insert text into the title object:
 set(new_slide.Shapes.Title.TextFrame.TextRange,'Text',titletext);
 % Get height and width of slide:

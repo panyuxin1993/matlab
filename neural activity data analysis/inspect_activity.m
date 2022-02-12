@@ -1,3 +1,4 @@
+close all;
 behEventAlign='delay onset';
 masklick='no';
 behEventSort='go cue';
@@ -24,12 +25,12 @@ masklickPool={'yes','no','no'};
 i_selectivity=3;%3-choice,4-sensory
 behEventSortPool={'go cue','first lick','go cue'};
 trial2include='all';
-trial2exclude=nan;
+trial2exclude=[];
 activity_form='dff';%{'dff','spkr'};
 chosen_result={'Correct','Error'};%{'Correct','Error','Miss','Violation'};
 chosen_stim={'ipsi','contra'};%{'ipsi','contra'};
 n_trial_show=50;
-ind_ROI=1;
+ind_ROI=4;
 
 %plot
 %method 1, define the index
@@ -41,8 +42,8 @@ session=[Tchoose.session{i},'_',Tchoose.field{i}];
 
 %method 2, directly give path and session name
 %
-file_path='E:\2P\CD058_20180127\im_data_reg\result_save';
-session='CD058_20180127';
+file_path='E:\2P\CD058_20180201\im_data_reg\result_save';
+session='CD058_20180201';
 %}
 
 

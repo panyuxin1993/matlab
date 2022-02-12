@@ -18,7 +18,7 @@ for i_celltype=1:length(celltypePool)
     behEventSortPool={'go cue','first lick','go cue'};
     trial2include='all';
     trial2exclude=nan;
-    activity_typePool={'spkr'};%{'dff','spkr'};
+    activity_typePool={'dff'};%{'dff','spkr'};
     frT=0;
     for i_align=1:length(behEventAlignPool)
         behEventAlign=behEventAlignPool{i_align};
@@ -64,7 +64,7 @@ for i_celltype=1:length(celltypePool)
             end
             frameNum=frameNumTime*1000/frT;
             A=figure;
-            set(gcf, 'position', [50 50 100*size(meanActivityByTrialType_combine,2) 100*(size(meanActivityByTrialType_combine,1)+1)]);%last row, mean trace
+            set(gcf, 'position', [50 50 100*size(meanActivityByTrialType_combine,2)+200 100*(size(meanActivityByTrialType_combine,1)+1)]);%last row, mean trace
             meanActivityRange=cell2mat(meanActivityByTrialType_combine);
             meanActivityRange=reshape(meanActivityRange,[],1);
             ColLimit = prctile(meanActivityRange,98);

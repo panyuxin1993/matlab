@@ -1,8 +1,8 @@
 %plot lick density during delay when no violation(allow violation)
 %get lick time
 clear;
-date='2021_09_16';
-animal='pyx378';
+date='2022_01_25';
+animal='pyx412';
 fileFolder=strcat('E:\xulab\behavior\',animal);
 % session=strcat('\',date,'_',animal,'.mat');
 % dirmat=strcat(fileFolder,session);
@@ -19,7 +19,7 @@ divideTrialType=1;%2则一个session区分左右trialType而画成两部分,否则画在一  起
 resample='resample';%[];%'resample';%trial数量太多的话可以可考虑resample
 rasterSize=2;%每个lick点的横向长度，因为分辨率为1ms小鼠不可能舔水这么密集，此值甚至可以到上百
 align='delayOff';%align={'stim','go','delayOff'};
-npast=1;%how many sessions will be analyzed
+npast=5;%how many sessions will be analyzed
 figure;
 if nfig==1
     set(gcf, 'position', [100 100 600 600]);%控制fig尺寸
@@ -30,7 +30,7 @@ for n=ntotal-nfig+1:ntotal
     %排序
     if divideTrialType==1%一共一行fig，每个session一张fig
         subplot(2,nfig+1,n-ntotal+nfig);%这种设定能画指定数量张图，无violation的1000ms和首次加上300ms的violation
-        strtitle=fPlotLickRasterOneSession(lickTime{n},[0 1],'withVio','raw',filenames{n},animal,maxdelay,resample,rasterSize,align);
+        strtitle=fPlotLickRasterOneSession(lickTime{n},[0 1],'withVio','sort',filenames{n},animal,maxdelay,resample,rasterSize,align);
         subplot(2,nfig+1,n-ntotal+nfig*2+1);%第二行画licking rate
         fPlotLickRateOneSession(lickTime{n},strtitle,maxdelay,n,fileFolder,align);
     else

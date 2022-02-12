@@ -8,10 +8,10 @@ clear;
 %specify the path and file name, etc. 
 path='E:\xulab\behavior';
 ndelaygroup=4;
-date='2021_09_17';
-animal='pyx404';
+date='2022_01_25';
+animal='pyx417';
 fileFolder=[path, filesep,animal];     
-% fileFolder = 'E:\2P\example\temp';
+% fileFolder = 'C:\Data\pyx399_20211116';
 npast=10;%how many sessions performance will be plotted
 %% plot performance in recent trainning days
 [animal_name,dataChoice]=fFindChoice(fileFolder,npast);
@@ -26,4 +26,4 @@ figDiffDelay = fPlotDiffDelay(ndelaygroup,path,date,animal);
 set(figDiffDelay, 'position', [0 400 1200 300]);%¿ØÖÆfig³ß´ç
 %% plot opto behavior
 figBehavior = fOptoPerformance(path,date,animal);
-set(figBehavior, 'position', [1200 400 300 300]);%¿ØÖÆfig³ß´ç1
+set(figBehavior, 'position', [1200 400 300 300]);%¿ØÖÆfig³ß´ç

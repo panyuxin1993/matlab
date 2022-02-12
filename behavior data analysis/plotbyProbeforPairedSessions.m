@@ -1,11 +1,14 @@
 %直接读beh文件，进行单个seesion 或者 paired session绘图
 clear;
-% path='E:\xulab\behavior\pyx385';
-path='E:\2P\CD088_20190111\im_data_reg\result_save';
+% path='E:\xulab\behavior\test';
+% path='E:\2P\CD088_20190111\im_data_reg\result_save';
+% path='Z:\Lab_Members\LZA\LZAW2';
+path='E:\xulab\behavior\pyx415';
 temp=strsplit(path,'\');
 figname=temp{end};
 % [animal_name,dataChoice]=fFindChoice(strcat(path,'\probe'),2);
 [animal_name,dataChoice]=fFindChoice(path,1);
+% [animal_name,dataChoice]=fFindChoiceMat(path,'session');
 b=dataChoice;
 %correctProbe=fCorrectRateProbePerSession(choice);
 %获取实验组和对照组的两组数据，并画图 

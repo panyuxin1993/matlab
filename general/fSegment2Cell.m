@@ -6,7 +6,7 @@ function [ segflagcell,segrawcell] = fSegment2Cell( inflag,inraw )
 %Output-
 %   segrawcell- n-by-1 cell array, each store the data of a segment
 %   segflagcell- n-by-1 cell array, each store the flag of a segment
-
+% tic;
 nelement=length(inflag);
 if nelement~=length(inraw)
     warning('input not same length');
@@ -33,6 +33,6 @@ else
 %     inrawcell=reshape(inrawcell,[],1);
     segrawcell=cellfun(@(x) inraw(x),segflagcell,'UniformOutput',false);
 end
-        
+% toc;
 end
 

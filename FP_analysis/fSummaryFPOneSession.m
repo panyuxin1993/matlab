@@ -66,8 +66,8 @@ for nevent=1:2
         %         set(gcf, 'position', [0 0 1400 600]);
         %         figMeanTrace=figure;%plot mean trace
         %         set(gcf, 'position', [0 0 1400 300]);
-        
-        for ndff=1:1 %plot for each dff, see which is better and test whether 410 signals have similar trend
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%check ndff
+        for ndff=3%1:1 %plot for each dff, see which is better and test whether 410 signals have similar trend
             if strcmp(behEventAlign,'delay onset') && strcmp(masklick,'yes')%by default, if align to stim onset, then see delay activity and mask all after go cue as nan
                 [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( dff{1,ndff}(nfiber,:), behEventFrameIndex,  frameNum );
             else

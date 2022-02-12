@@ -2,7 +2,7 @@
 clear
 close all
 clc
-rootpath='F:\FP\pyx262_20200106';
+rootpath='E:\FP\pyx262_20200106';
 SavingFolder=rootpath;
 DatePath=[];
 DatePath{1}=rootpath;

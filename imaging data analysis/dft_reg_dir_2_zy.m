@@ -116,8 +116,8 @@ parfor i = 1:length(datafiles)
     save_name = [save_path filesep  file_basename 'dftReg_' fname(end-6:end-4) '.tif'];
     if ~exist(save_name,'file')
 %%%%% READ SOURCE IMAGE DATA. With the option of offset data to mode.
-    [im_s, header] = load_scim_data(fname, [], 1);
-    imTagStruct = get_tiff_tag_to_struct(fname);
+        [im_s, header] = load_scim_data(fname, [], 1);
+        imTagStruct = get_tiff_tag_to_struct(fname);
     
 %     K = wiener2(J,[5 5]);
 %     % SI4 data contains negative values. So offset to mode first, then remove the rest of negative values, 
@@ -145,7 +145,7 @@ parfor i = 1:length(datafiles)
 %     total_time_CPU(i)=t;
 %     disp(t);
 
-     [aa,shift] = dft_reg(im_s, im_tg);  % add shift information in here
+%          [aa,shift] = dft_reg(im_s, im_tg);  % add shift information in here
      
 %     if max(abs((shift(1,:)))>20) || max(abs((shift(2,:)))>20)       
 %         fprintf('the shift in this trial is over 20 pixes do rigister again using itself as target\n');
@@ -156,30 +156,27 @@ parfor i = 1:length(datafiles)
 %         t=toc(funct);
 %         total_time_CPU(i)=t;
 %         disp(t);
-%         
-%     else
-        
+%     else        
         function_t=tic;
         [im_dft_reg,shift] = dft_reg(im_s, im_tg);
         t=toc(function_t);
         total_time_CPU(i)=t;
-        disp(t);     
-        
+        disp(t);       
 %     end
     
-    if save_to_image == 1 
-    write_data_to_tiff(save_name, im_dft_reg, imTagStruct); 
-%     figure;
-%     plot(shift(1,:),'g');
-%     hold on;
-%     plot(shift(2,:),'m');
-%     save_dir = ('plot_shift');
-%     savefigure =['shift_x-y_in_trail_' fname(end-6:end-4)];
-%     title(savefigure,'Interpreter','none');
-%     saveas(gcf,fullfile(save_dir,savefigure),'png');
-%     close
-%     fprintf('Results saved to %s\n', save_name);
-    end
+        if save_to_image == 1 
+            write_data_to_tiff(save_name, im_dft_reg, imTagStruct); 
+%             figure;
+%             plot(shift(1,:),'g');
+%             hold on;
+%             plot(shift(2,:),'m');
+%             save_dir = ('plot_shift');
+%             savefigure =['shift_x-y_in_trail_' fname(end-6:end-4)];
+%             title(savefigure,'Interpreter','none');
+%             saveas(gcf,fullfile(save_dir,savefigure),'png');
+%             close
+%             fprintf('Results saved to %s\n', save_name);
+        end
     end
 end
 %         figure(i);

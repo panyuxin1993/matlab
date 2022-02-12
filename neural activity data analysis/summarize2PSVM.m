@@ -2,13 +2,17 @@ close all;
 [num,txt,raw] =xlsread('C:\Users\PYX\Documents\DataSummary\imaging_data_summary.xlsx');%criteria to choose sessions come from this file
 savepath='E:\2P\summary';%'H:\2P\summary\summary_DLCfiltered';%
 clear TSVM_combine;
-trialTypeStr='cor and err';%'cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
-SVMtype={'choice','sensory'};%'stimuli' means comparing cor and err for each stimuli
+% trialTypeStr={'cor'};%'cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+% SVMtype={'choice'};%'stimuli' means comparing cor and err for each stimuli
+% AUCCorrectedMethod='None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
+trialTypeStr={'cor and err'};%'cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+SVMtype={'sensory'};%'stimuli' means comparing cor and err for each stimuli
 AUCCorrectedMethod='SensoryChoiceOrthogonalSubtraction';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
 nRepeat=100;
 pTraining=0.9;
+dataForm = 'spkr';
 %% calculate SVM accuracy
-%{
+%
 T=cell2table(raw(2:end,1:15));
 T.Properties.VariableNames=strrep(raw(1,1:15),' ','_');%table variable name can't have ' ',so replace them
 ind_session=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control').*contains(T.ROI_type,'soma');
@@ -17,24 +21,26 @@ n_session=length(ind_session);
 animal_unique=unique(T.animal(ind_session));
 n_animal=length(animal_unique);
 score=cell(n_session,1);
-for i_SVMtype=1:length(SVMtype)
-    clear TSVM_combine;
-    for i_session=1:n_session%%%%%
-        indrow=ind_session(i_session);
-        TSVM_currentSession= fGetEpochSVMscoreASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,SVMtype{i_SVMtype},nRepeat, pTraining,AUCCorrectedMethod);
-        if exist('TSVM_combine','var')
-            TSVM_combine=vertcat(TSVM_combine,TSVM_currentSession);
-        else
-            TSVM_combine=TSVM_currentSession;
+for i_trialtype=1:length(trialTypeStr)
+    for i_SVMtype=1:length(SVMtype)
+        clear TSVM_combine;
+        for i_session=1:n_session
+            indrow=ind_session(i_session);
+            TSVM_currentSession= fGetEpochSVMscoreASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr{i_trialtype},SVMtype{i_SVMtype},nRepeat, pTraining,AUCCorrectedMethod,dataForm);
+            if exist('TSVM_combine','var')
+                TSVM_combine=vertcat(TSVM_combine,TSVM_currentSession);
+            else
+                TSVM_combine=TSVM_currentSession;
+            end
         end
+        save([savepath,filesep,'trialType',trialTypeStr{i_trialtype},'-',SVMtype{i_SVMtype},'pTraining',num2str(pTraining),'-TepochSVM.mat'],'TSVM_combine');
     end
-    save([savepath,filesep,'trialType',trialTypeStr,'-',SVMtype{i_SVMtype},'pTraining',num2str(pTraining),'-TepochSVM.mat'],'TSVM_combine');
 end
 %}
-%% plot SVM accuracy cases
-celltype='M2';
-
-SVMtype='sensory';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+%% plot SVM accuracy cases, first load data
+celltype='vgat-flpo';
+trialTypeStr='cor and err';
+SVMtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
 load([savepath,filesep,'trialType',trialTypeStr,'-',SVMtype,'pTraining',num2str(pTraining),'-TepochSVM.mat']);
 ind_session=logical(strcmp(TSVM_combine.celltype,celltype).*(TSVM_combine.nROI>10)...
     .*(~contains(TSVM_combine.field,'spine')).*(~contains(TSVM_combine.field,'field')).*(~contains(TSVM_combine.field,'dendrite')));
@@ -46,7 +52,8 @@ ind_session=logical(strcmp(TSVM_combine.celltype,celltype).*(TSVM_combine.nROI>1
     .*(~contains(TSVM_combine.field,'spine')).*(~contains(TSVM_combine.field,'field')).*(~contains(TSVM_combine.field,'dendrite')));
 SVMchoice=TSVM_combine(ind_session,:);
 
-%plot accuracy of each session
+%% plot accuracy of each session
+%{
 colorScore={[1,0,0],[0,0,1],[0.5,0.5,0.5]};%choice,sensory,shuffle
 pSig=0.05;
 figScoreCase=figure;
@@ -70,8 +77,9 @@ for i=1:size(SVMchoice,1)
 end
 set(gcf,'PaperPosition',[1,1,2,2]);
 saveas(figScoreCase,[savepath,filesep,celltype,'-trialType',trialTypeStr,'-',SVMtype,'pTraining',num2str(pTraining),'-TepochSVM_score',SVMchoice.animal{i},'-',strrep(SVMchoice.date{i},'/',''),'.pdf']);
-
+%}
 %% plot SVM accuracy overall
+%{
 figMean=figure;
 set(gcf,'Position',[100,100,200,200]);
 temp=table2array(SVMsensory(:,6:10));
@@ -121,9 +129,10 @@ scatter(xSig,ySig,'Marker','*','SizeData', markersize,'MarkerEdgeColor','b');
 
 % set(gcf,'PaperPosition',[1,1,2,2]);
 % saveas(figMean,[savepath,filesep,celltype,'trialType',trialTypeStr,'-',SVMtype,'pTraining',num2str(pTraining),'-TepochSVM_scoreMean.pdf'])
-
+%}
 %% plot SVM accuracy cases during delay
 %plot accuracy of each session
+%{
 frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
 xlabelstr='Time(s) from delay onset';
 y_lim=[0.4,1];
@@ -133,22 +142,73 @@ textstr=cellfun(@(x) [num2str(x),'cells'],nroistr,'UniformOutput',false);
 figScoreCase=fScoreCase(SVMchoice.delayMovingSVM,SVMsensory.delayMovingSVM,frameNumTime,xlabelstr,y_lim,titlestr,textstr);
 % plot SVM accuracy overall 
 figScoreMean=fScoreMean(SVMchoice.delayMovingSVM,SVMsensory.delayMovingSVM,frameNumTime,xlabelstr,y_lim);
-
+%}
 %% plot SVM accuracy cases around go cue
 %plot accuracy of each session
+%{
 frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
 xlabelstr='Time(s) from go cue';
 y_lim=[0.4,1];
 figScoreCase=fScoreCase(SVMchoice.goMovingSVM,SVMsensory.goMovingSVM,frameNumTime,xlabelstr,y_lim,titlestr,textstr);
 % plot SVM accuracy overall 
 figScoreMean=fScoreMean(SVMchoice.goMovingSVM,SVMsensory.goMovingSVM,frameNumTime,xlabelstr,y_lim);
+%}
+%% plot cross temporal decoding accuracy of SVM around go cue
+figMeanSig=figure;
+set(gcf,'position',[200,200,600,250]);
+pSig=0.05;
+%when calculate moving SVM
+binsize=3;
+binstep=3;
+frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
+frT=30;%SavedCaTrials.FrameTime;%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%need further tune
+ts_raw=-frameNumTime(1):frT/1000:frameNumTime(2);
+tempgoSVM=SVMchoice.goMovingSVM;
+n_session=length(tempgoSVM);
+clear score score_shuffle;
+for i_session=2%1:n_session 
+    if strcmp(trialTypeStr,'cor and err')
+        if exist('score','var')
+            score=vertcat(score,tempgoSVM(i_session).doCT);
+            score_shuffle=vertcat(score_shuffle,tempgoSVM(i_session).shuffle_doCT);
+        else
+            score=tempgoSVM(i_session).doCT;
+            score_shuffle=tempgoSVM(i_session).shuffle_doCT;
+        end
+    elseif strcmp(trialTypeStr,'cor')
+        if exist('score','var')
+            score=vertcat(score,tempgoSVM(i_session).corCT);
+            score_shuffle=vertcat(score_shuffle,tempgoSVM(i_session).shuffle_corCT);
+        else
+            score=tempgoSVM(i_session).corCT;
+            score_shuffle=tempgoSVM(i_session).shuffle_corCT;
+        end
+    end
+
+end
+nframe=size(score,3);
+ts=ts_raw(ceil(binsize/2):binsize:end);%ts also need to be binned
+ts=ts(1:nframe);
+
+ax1=subplot(1,2,1);%real data
+[ meandata, sigmat,pmat] = fPlotMeanSig2D_SVM(ax1, score,ts,pSig, 0.5,'no bar');
+xlabel('Training time');
+ylabel('Testing time');
+title('Real data');
+ax2=subplot(1,2,2);%shuffled data
+[ meandata, sigmat,pmat] = fPlotMeanSig2D_SVM(ax2, score_shuffle,ts,pSig, 0.5,'colorbar');
+xlabel('Training time');
+ylabel('Testing time');
+title('Shuffled data');
 %% helper function
+
 function markersize=fSigMarkerSize(p)
 markersize(p>0.05)=0;
 markersize(logical((p<=0.05).*(p>0.01)))=4;
 markersize(logical((p<=0.01).*(p>0.001)))=8;
 markersize(logical(p<=0.001))=12;
 end
+
 function figScoreCase=fScoreCase(scoredataC,scoredataS,frameNumTime,xlabelstr,y_lim,titlestr,textstr)
 %plot SVM accuracy cases
 colorScore={[1,0,0],[0,0,1],[0.5,0.5,0.5]};%choice,sensory,shuffle
@@ -180,6 +240,7 @@ for i=1:size(scoredataC,1)
     set(gca,'FontSize',12);
 end
 end
+
 function figScoreMean=fScoreMean(scoredataC,scoredataS,frameNumTime,xlabelstr,y_lim)
 frameNum=size(scoredataC(1).shuffle_do,2);
 ts=-frameNumTime(1):sum(frameNumTime)/frameNum:frameNumTime(2);
@@ -247,3 +308,58 @@ scatter(xSig,ySig,'Marker','*','SizeData', markersize,'MarkerEdgeColor','b');
 % ySig=fRuleOutOccasional(ySig,1);
 % plot(xSig,ySig,'b-','LineWidth',1);
 end
+
+function [ meandata, sigmat,pmat] = fPlotMeanSig2D_SVM(ax,data,ts,pSig, baseline,strbar)
+%FPLOTMEANSIG2D plot mean in color and draw contour lines ot represent
+%significant range; Currently mainly used for showing SVM decoding accuracy
+%Input-
+%   data- r-by-m-by-n matrix, m rows, n columns and r repeats, m=n
+%   pSig- p value that decide whether data was significant from baseline
+%   baseline- double, compared with data
+%Output-
+%   ax- axis to plot
+%   meandata- m-by-n matrix store the mean of each point
+%   ts- time stamps 
+%   sigmat- m-by-n matrix made of 0-1, which indicates which position is
+%   significant
+%   pmat- m-by-n matrix with each point indicates the p value of that
+%   posision
+
+meandata = nanmean(data,1);
+pmat=ones(size(data,2),size(data,3));
+% %this method seems to slow
+% for i=1:size(data,2)
+%     for j=1:size(data,3)
+%         test_mean=bootstrp(1000,@mean,data(:,i,j));
+%         temp_p=nansum(test_mean>baseline)/length(test_mean);
+%         pmat(i,j)=1-2*abs(temp_p-0.5);
+%     end
+% end
+for i=1:size(data,2)
+    for j=1:size(data,3)
+        [h,temp_p]=ttest(data(:,i,j)-baseline);
+        pmat(i,j)=temp_p;
+    end
+end
+sigmat= (pmat<pSig);
+%plot mean
+axes(ax);
+clims=[0,1];
+meandata=squeeze(meandata);
+imagesc(ts,ts,meandata,clims);
+hold on;
+if strcmp(strbar,'colorbar')
+    colormap(jet);
+    chandle=colorbar;
+    set(chandle,'Position',[0.91,0.1,0.02,0.8]);
+    chandle.Label.String= 'Decoding accuracy';
+end
+%plot significance contour
+contour(ts,ts,sigmat,1,'--','LineColor','w');
+plot([0,0],[ts(1),ts(end)],'k--');
+plot([ts(1),ts(end)],[0,0],'k--');
+set(gca,'FontSize',12);
+
+end
+
+

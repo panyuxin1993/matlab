@@ -12,8 +12,10 @@ classdef Session2P
         spkr        %spiking rate file based on deconvolution from dff
         zscored_spkr %z-scored spiking rate file based on deconvolution from dff
         Data_extract %behavior data file
+        behaviorEvent%preprocessed behavioral data
         SavedCaTrials
         DLC         %struct read from a .xls file, including dcnum, dctxt
+        behavior_performance%behavior performance stored in a table
     end
     
     methods
@@ -30,6 +32,7 @@ classdef Session2P
             end
             obj.metadata.trial2include=trial2include;
             obj.metadata.trial2exclude=trial2exclude;
+            
             if ~isempty(varargin)
                 obj.metadata.ind_tr_1=varargin{1};
             else
@@ -48,10 +51,11 @@ classdef Session2P
             else
                 obj.filename.behdata = filenames{file_beh};
             end
-            
             obj.path.behdata=strcat(rootpath,filesep,obj.filename.behdata);
             load(obj.path.behdata);
             obj.Data_extract=Data_extract;
+
+            %calcium activity data and extract related metadata
             obj.filename.Ca = filenames{file_imaging};
             obj.path.Ca=strcat(rootpath,filesep,obj.filename.Ca);
             load(obj.path.Ca);
@@ -64,6 +68,19 @@ classdef Session2P
             ind_1stFrame(1)=1;
             ind_1stFrame(2:end)=cumsum(obj.metadata.nFrameEachTrial(1:end-1))+1;
             obj.metadata.ind_1stFrame=ind_1stFrame(obj.metadata.ind_tr_1:obj.metadata.ind_tr_1+obj.metadata.ntr-1);%if number of trials unsed for analysis is not whole but part of trials
+            
+            %get index of trial used for analyses
+            obj.metadata.indTrial2include=fIncludeTrials(trial2include,ind_1stFrame,'logical');
+            obj.metadata.indTrialAfterExcluded=fExcludeTrials(trial2exclude,ind_1stFrame,'logical');
+            obj.metadata.indTrial2use=logical(obj.metadata.indTrial2include.*obj.metadata.indTrialAfterExcluded);
+            dirs_struct=dir(rootpath);
+            ind_movement_file=arrayfun(@(x) strcmp(x.name,'movement_trials.xlsx'),dirs_struct);
+            if sum(ind_movement_file)>0 %exist the file with movement
+                T_ind_movement=readtable([rootpath,filesep,'movement_trials.xlsx']);
+                obj.metadata.indTrialMovementExcluded=fExcludeTrials(T_ind_movement.Ind_trial_movement,ind_1stFrame,'logical');
+                obj.metadata.indTrial2use=logical(obj.metadata.indTrial2use.*obj.metadata.indTrialMovementExcluded);
+            end
+
             %dff
             obj.filename.dff = 'dff.mat';
             if exist(strcat(obj.path.root,filesep,obj.filename.dff),'file')
@@ -94,6 +111,11 @@ classdef Session2P
             end
             obj.spkr=spiking_rate;
             obj.zscored_spkr=zscored_spkr;
+            
+            %preprocess of behavioral data, e.g. aligned to calcium signals
+            % align to behavior event
+            [obj.behaviorEvent.behEventFrameIndex,obj.behaviorEvent.lickingFrameIndex] = fGetBehEventTime( obj.Data_extract, ind_1stFrame, obj.SavedCaTrials.FrameTime ,obj.metadata.ind_tr_1);%get behavior event time
+
             %video related information
             if exist([rootpath,filesep,'video'],'dir')
                 dirmat=strcat(rootpath,filesep,'video',filesep,'*.avi');
@@ -144,6 +166,38 @@ classdef Session2P
                 obj.DLC.dcnum=[];
                 obj.DLC.dctxt=[];
             end
+        end
+        
+        function [Tperformance,obj]=mSummaryBehavior(obj,f)
+            %summary behavior
+            %f- ref fGetTrialType, way to summary behavior
+            [ trialType ,obj.metadata.sensory_motor_rule] = fGetTrialType( obj.Data_extract,[] ,f ,'matrix');
+            switch f
+                case 1
+                    if strcmp(obj.metadata.sensory_motor_rule,'low click rate-right')
+                        trialType=flip(trialType,2);%so now, the order is ipsi to contra
+                    end
+                    stimuli=num2cell(sort(unique(obj.Data_extract.Stimulus))');
+                    rowName=cellfun(@num2str,stimuli,'UniformOutput',false);
+                case 3 
+                    rowName={'ipsi','contra'};
+                case 4
+                    rowName={'ipsi','contra'};
+            end
+            rowName{end+1}='total';
+            [var_miss,var_vio,var_cor]=deal(zeros(size(trialType,2)+1,1));
+            for i_stim=1:size(trialType,2)
+                var_miss(i_stim)=sum(trialType(3,i_stim,:))/sum(trialType(:,i_stim,:),'all');
+                var_vio(i_stim)=sum(trialType(4,i_stim,:))/(sum(trialType(:,i_stim,:),'all')-sum(trialType(3,i_stim,:)));
+                var_cor(i_stim)=sum(trialType(1,i_stim,:))/(sum(trialType(1,i_stim,:))+sum(trialType(2,i_stim,:)));
+            end
+            var_miss(end)=sum(trialType(3,:,:),'all')/size(trialType,3);
+            var_vio(end)=sum(trialType(4,:,:),'all')/(size(trialType,3)-sum(trialType(3,:,:),'all'));
+            var_cor(end)=sum(trialType(1,:,:),'all')/(sum(trialType(1,:,:),'all')+sum(trialType(2,:,:),'all'));
+            obj.behavior_performance=table(var_cor,var_vio,var_miss,...
+                'VariableNames',{'correct','violation','miss'},...
+                'RowNames',rowName);
+            Tperformance=obj.behavior_performance;
         end
         
         function [dff,obj] = mGetDff(obj,savefolder,varargin)
@@ -259,6 +313,36 @@ classdef Session2P
 
             [spiking_rate, denoised_trace, zscored_spkr,ROIFitCoefs] = fxy_GetDeconvolvedFR(obj.dff,Paras,obj.name,obj.path.root,flag_plot);
         end
+        
+        function population_stability=mGetPopulationStability(obj,activity_type,tau)
+           %using dff/spkr etc. to calcultate a population trajectory and
+           %calcualte the angles of vectors pointing to different points at the
+           %trajectory
+           %activity_type- dff/spkr etc, decide which activities to be used
+           %tau- time between 2 ypetime points, which defined the vector and
+           %used to calculate the angle
+           %population_stability- 1-by-n vector, n is the total time points
+           %of input activities.
+           switch activity_type
+               case 'dff' 
+                   activities=obj.dff;
+               case 'spkr'
+                   activities=obj.spkr;
+               case 'zscored_dff'
+                   activities=obj.zscored_dff;
+               case 'zscored_spkr'
+                   activities=obj.zscored_spkr;
+           end
+           population_stability=zeros(1,size(activities,2));
+           for t=1:size(activities,2)
+               t1=min(1,t-tau);
+               t2=max(size(activities,2),t+tau);
+               v1=activities(:,t1);
+               v2=activities(:,t2);
+               population_stability(t)=dot(v1,v2)/(norm(v1)*norm(v2));
+           end
+        end
+        
         function bodyco = mGetDLCcoordinate(obj,bodyparts,coordinates,...
                 treshold4likelihood, varargin)
             %get coordinate of body parts, method analogy to dff
@@ -351,7 +435,7 @@ classdef Session2P
                         title_fig=strrep(title_fig,'_','\_');%下标变为转义字符的下划线
                         fig_rasterPSTH = fPlotDffRasterPSTH_ASession(obj.dff(iROI,:),obj.metadata.ind_tr_1,...
                             obj.Data_extract,obj.SavedCaTrials,frameNumTime,behEventAlign,...
-                            masklick,i_selectivity,behEventSort,obj.metadata.trial2include,obj.metadata.trial2exclude,...
+                            masklick,i_selectivity,behEventSort,obj.metadata.indTrial2use,...
                             savename_fig,title_fig,trialTypeStr);
                     end
                 elseif strcmp(activity_type,'spkr')
@@ -364,7 +448,7 @@ classdef Session2P
                         title_fig=strrep(title_fig,'_','\_');%下标变为转义字符的下划线
                         fig_rasterPSTH = fPlotRasterPSTH_ASession(obj.spkr(iROI,:),'spkr',obj.metadata.ind_tr_1,...
                             obj.Data_extract,obj.SavedCaTrials,frameNumTime,behEventAlign,...
-                            masklick,i_selectivity,behEventSort,obj.metadata.trial2include,obj.metadata.trial2exclude,...
+                            masklick,i_selectivity,behEventSort,obj.metadata.indTrial2use,...
                             savename_fig,title_fig,trialTypeStr);
                     end
                 elseif  strcmp(activity_type,'zscored_spkr')
@@ -377,7 +461,7 @@ classdef Session2P
                         title_fig=strrep(title_fig,'_','\_');%下标变为转义字符的下划线
                         fig_rasterPSTH = fPlotRasterPSTH_ASession(obj.zscored_spkr(iROI,:),'zscored_spkr',obj.metadata.ind_tr_1,...
                             obj.Data_extract,obj.SavedCaTrials,frameNumTime,behEventAlign,...
-                            masklick,i_selectivity,behEventSort,obj.metadata.trial2include,obj.metadata.trial2exclude,...
+                            masklick,i_selectivity,behEventSort,obj.metadata.indTrial2use,...
                             savename_fig,title_fig,trialTypeStr);
                     end
                 end
@@ -413,7 +497,7 @@ classdef Session2P
             end
         end
         
-        function meanActivityByTrialType=mMeanPSTHbyROI(obj,activity_type,ind_ROI,behEventAlign,masklick,i_selectivity)
+        function [meanActivityByTrialType,cellActivityByTrialType]=mMeanPSTHbyROI(obj,activity_type,ind_ROI,behEventAlign,masklick,i_selectivity)
             if strcmp(activity_type,'dff')
                 activities_data=obj.zscored_dff;
             elseif strcmp(activity_type,'spkr')
@@ -435,15 +519,126 @@ classdef Session2P
                 iEnd=min(obj.metadata.nROI,max(ind_ROI));
             end
             for iROI=iStart:iEnd
-                meanActivityByTrialType_ROI = fMeanPSTHbyROI(activities_data(iROI,:),...
+                [meanActivityByTrialType_ROI,cellActivityByTrialType_ROI] = fMeanPSTHbyROI(activities_data(iROI,:),...
                     obj.metadata.ind_tr_1,obj.Data_extract,obj.SavedCaTrials,...
                     frameNumTime,behEventAlign,masklick,i_selectivity,...
                     obj.metadata.trial2include,obj.metadata.trial2exclude);
                 if exist('meanActivityByTrialType','var')
                     meanActivityByTrialType=cellfun(@(x,y) vertcat(x,y),meanActivityByTrialType,meanActivityByTrialType_ROI,'UniformOutput',false);
+                    cellActivityByTrialType=cellfun(@(x,y) vertcat(x,y),cellActivityByTrialType,cellActivityByTrialType_ROI,'UniformOutput',false);
                 else
                     meanActivityByTrialType=meanActivityByTrialType_ROI;
+                    cellActivityByTrialType=cellActivityByTrialType_ROI;
                 end
+            end
+        end
+        
+        function [indBaseline] = mIndexBaselineAroundMode(obj,signals,varargin)
+            file_name=[signals,'_IndBaselineAroundMode.mat'];
+            if exist(strcat(obj.path.root,filesep,file_name),'file')
+                load(strcat(obj.path.root,filesep,file_name));
+            else
+                if isempty(varargin)
+                    sigThreshSD=2;
+                else
+                    if mod(length(varargin),2)==0
+                        for i=1:2:length(varargin)
+                            switch varargin{i}
+                                case 'sigThreshSTD'
+                                    sigThreshSD=varargin{i+1};
+                            end
+                        end
+                    else
+                        warning('odd varargin input argument');
+                    end
+                end
+                % calculate a index of baseline around signal mode
+                if strcmp(signals,'spkr')
+                    %indBaseline = fIndexBaselineAroundMode(obj.spkr,'sigThreshSTD',sigThreshSD);% 2 times std below as baseline
+                    indBaseline = true(size(obj.spkr)); %seems that this is currently the best practise
+                elseif strcmp(signals,'dff')
+                    indBaseline = fIndexBaselineAroundMode(obj.dff,'sigThreshSTD',sigThreshSD);% 2 times std below as baseline
+                end
+                save(strcat(obj.path.root,filesep,file_name),'indBaseline');
+            end
+        end
+        
+        function [frac_event,frac_event_start]=mSignificant(obj,signals,criteria,threshold_dur,sample_method,flag_plot)
+            % signals, usually obj.spkr
+            %   signals - m-by-n matrix, m ROIs and n time points
+            %   criteria- char, eg. 2STD,
+            %   threshold_dur- number of time (unit) needed to be included
+            %   as significant, eg. 3
+            
+            indBaseline=obj.mIndexBaselineAroundMode(signals);
+            % calculate a significant matrix
+            if strcmp(signals,'spkr')     
+                [significant_matrix,start_sig_mat] = fSignificant(obj.spkr,criteria,threshold_dur,'BaselineIndex',indBaseline);%continues 3 frames above 2 times std
+            elseif strcmp(signals,'dff')
+                [significant_matrix,start_sig_mat] = fSignificant(obj.dff,criteria,threshold_dur,'BaselineIndex',indBaseline);%continues 3 frames above 2 times std
+            end
+            % compare duration/start probability of significant signals happen in different epochs
+            indITI=[];
+            indSound=[];
+            indDelay=[];
+            indLick=[];
+            behEventFrameIndex=obj.behaviorEvent.behEventFrameIndex;%for simplicity
+            if strcmp(sample_method,'random')% method 1, randomly sample time points
+                for indTrial=1:obj.metadata.ntr-1
+                    frameNum=[behEventFrameIndex.stimOnset(indTrial)-behEventFrameIndex.start(indTrial),...
+                        behEventFrameIndex.stimOffset(indTrial)-behEventFrameIndex.stimOnset(indTrial),...
+                        behEventFrameIndex.go(indTrial)-behEventFrameIndex.stimOffset(indTrial)];
+                    nFrameEachEpoch=min(frameNum);
+                    indITI_current=randperm(behEventFrameIndex.stimOnset(indTrial)-behEventFrameIndex.start(indTrial),nFrameEachEpoch)+behEventFrameIndex.start(indTrial);
+                    indITI=[indITI,indITI_current];
+                    indSound_current=randperm(behEventFrameIndex.stimOffset(indTrial)-behEventFrameIndex.stimOnset(indTrial),nFrameEachEpoch)+behEventFrameIndex.stimOnset(indTrial);
+                    indSound=[indSound,indSound_current];
+                    indDelay_current=randperm(behEventFrameIndex.go(indTrial)-behEventFrameIndex.stimOffset(indTrial),nFrameEachEpoch)+behEventFrameIndex.stimOffset(indTrial);
+                    indDelay=[indDelay,indDelay_current];
+                    indLick_current=randperm(30,nFrameEachEpoch)+behEventFrameIndex.go(indTrial);
+                    indLick=[indLick,indLick_current];
+                end
+            elseif strcmp(sample_method,'all') % method 2, sample all the points and get a mean
+                for indTrial=1:obj.metadata.ntr-1
+                    indITI_current=behEventFrameIndex.start(indTrial):behEventFrameIndex.stimOnset(indTrial);
+                    indITI=[indITI,indITI_current];
+                    indSound_current=behEventFrameIndex.stimOnset(indTrial):behEventFrameIndex.stimOffset(indTrial);
+                    indSound=[indSound,indSound_current];
+                    indDelay_current=behEventFrameIndex.stimOffset(indTrial):behEventFrameIndex.go(indTrial);
+                    indDelay=[indDelay,indDelay_current];
+                    indLick_current=behEventFrameIndex.go(indTrial):30+behEventFrameIndex.go(indTrial);
+                    indLick=[indLick,indLick_current];
+                end
+            end
+            
+            % calculate the probability of significant event or their start
+            ind_all=1:size(significant_matrix,2);
+            chosenFrame_ITI=ismember(ind_all,indITI);
+            chosenFrame_sound=ismember(ind_all,indSound);
+            chosenFrame_delay=ismember(ind_all,indDelay);
+            chosenFrame_lick=ismember(ind_all,indLick);
+            
+            frac_event=zeros(size(significant_matrix,1),4);%2d, ITI, sound, delay, lick
+            frac_event_start=zeros(size(start_sig_mat,1),4);%2d, ITI, sound, delay, lick
+            for iROI=1:size(significant_matrix,1)
+                frac_event(iROI,1)=sum(significant_matrix(iROI,chosenFrame_ITI))/sum(chosenFrame_ITI);
+                frac_event(iROI,2)=sum(significant_matrix(iROI,chosenFrame_sound))/sum(chosenFrame_sound);
+                frac_event(iROI,3)=sum(significant_matrix(iROI,chosenFrame_delay))/sum(chosenFrame_delay);
+                frac_event(iROI,4)=sum(significant_matrix(iROI,chosenFrame_lick))/sum(chosenFrame_lick);
+                frac_event_start(iROI,1)=sum(start_sig_mat(iROI,chosenFrame_ITI))/sum(chosenFrame_ITI);
+                frac_event_start(iROI,2)=sum(start_sig_mat(iROI,chosenFrame_sound))/sum(chosenFrame_sound);
+                frac_event_start(iROI,3)=sum(start_sig_mat(iROI,chosenFrame_delay))/sum(chosenFrame_delay);
+                frac_event_start(iROI,4)=sum(start_sig_mat(iROI,chosenFrame_lick))/sum(chosenFrame_lick);
+            end
+            % summarize across sessions and compare the proportion of significant activities happened
+            if strcmp(flag_plot,'show_case')
+                fig_SigProb=figure;
+                set(gcf,'Position',[100,100,600,300]);
+                ax1=subplot(1,2,1);
+                ax1=fScatterStat(ax1, frac_event,'Probability of significant activity');
+                ax2=subplot(1,2,2);
+                ax2=fScatterStat(ax2, frac_event_start,'Probability of significant activity start');
+                saveas(fig_SigProb,[obj.path.root,filesep,obj.name,filesep,'probability_significance.jpg'],'jpg');
             end
         end
         
@@ -933,6 +1128,7 @@ t=strsplit(strTrialStart,'_');
 t=str2double(t);
 timeTrialStart=t(4)*3600+t(5)*60+t(6)+t(7)/1000; %time(s) relative to trial1
 end
+
 function [out]=fBaselineCorrection(in,span)
 %span = round(20*1000/frT/2); %every 40s, get a mean and substrate to compensate for baseline change
 x = [];
@@ -945,10 +1141,33 @@ end
 x=reshape(x,[],1);
 out = in - x + nanmean(x);
 end
+
 function [meanout,pout] = fBootstrpMeanP(activity,nboot,baseline)
 bootmean=bootstrp(nboot,@nanmean,activity);
 meanout=nanmean(bootmean);
 pout=sum(bootmean<baseline)./sum(~isnan(bootmean));
 pout(pout<0.5)=pout(pout<0.5)*2;
 pout(pout>=0.5)=(1-pout(pout>=0.5))*2;
+end
+
+function ax=fScatterStat(ax, frac_event,ylabelstr)
+axes(ax)
+hold on;
+color_epoch={[0,0,0],[1,0,0],[0,1,0],[0,0,1]};
+for i=1:4
+    scatter(ones(size(frac_event,1),1)*i,frac_event(:,i),10,color_epoch{i});
+end
+set(gca,'Xlim',[0,5],'XTick',1:4,'XTickLabel',{'ITI','sound','delay','lick'});
+ylabel(ylabelstr);
+y_lim=get(gca,'Ylim');
+p2=signrank(frac_event(:,1),frac_event(:,2));
+p3=signrank(frac_event(:,1),frac_event(:,3));
+p4=signrank(frac_event(:,1),frac_event(:,4));
+text(1.5,y_lim(end)*0.85,plabelsymbol(p2));
+plot([1,2],[y_lim(end)*0.83,y_lim(end)*0.83],'k');
+text(2,y_lim(end)*0.9,plabelsymbol(p3));
+plot([1,3],[y_lim(end)*0.88,y_lim(end)*0.88],'k');
+text(2.5,y_lim(end)*0.95,plabelsymbol(p4));
+plot([1,4],[y_lim(end)*0.93,y_lim(end)*0.93],'k');
+set(gca,'FontSize',10);
 end

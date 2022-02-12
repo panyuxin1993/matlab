@@ -3,13 +3,13 @@
 
 %parameters for 2P
 %path='F:\2P';
-filepath='F:\video tracking\M2 imaging video';
+filepath='G:\2P';
 filename = [filepath, filesep,'imaging_data_summary.xlsx'];
 % % parameters for FP
 % filepath='F:\FP';
 % filename = [path, filesep,'FP_data_summary.xlsx'];
 
-files = dir(strcat(filepath,'\*2AFC.beh*'));%select files with certain motif in file name
+files = dir(strcat(filepath,'\*pyx*'));%select files with certain motif in file name
 varTypes = {'datetime','string','string'};
 T=table('Size',[length(files),3],'VariableTypes',varTypes,'VariableNames',{'date','animal','session'});
 formatOut = 'yyyy/mm/dd';

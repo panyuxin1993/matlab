@@ -6,7 +6,7 @@ tagnames = {'ImageWidth','ImageLength', 'BitsPerSample',...
     'Compression','Photometric','ImageDescription',...
     'SamplesPerPixel','RowsPerStrip','MaxSampleValue',...
     'XResolution','YResolution','PlanarConfiguration','ResolutionUnit',...
-    'YCbCrSubSampling','SampleFormat'};
+    'YCbCrSubSampling','SampleFormat','Software'};
 
 iminfo = imfinfo(imdatafile);
 
@@ -15,7 +15,7 @@ tagStruct = [];
 for k = 1:length(iminfo)
     tifdataobj.setDirectory(k);
     % Read tag info
-    for i = 1:length(tagnames),
+    for i = 1:length(tagnames)
         tagname = tagnames{i};
         try
             tagvalue = tifdataobj.getTag(tagname);

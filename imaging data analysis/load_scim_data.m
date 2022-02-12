@@ -17,52 +17,80 @@ if ~exist(filename,'file')
     error('''%s'' is not a recognized flag or filename. Aborting.',filename);
 end
 
-
 info=imfinfo(filename);
 numImages = length(info);
-headerString = info(1).ImageDescription;
+IsVer_5 = 0;
+if isfield(info,'Software')
+    headerString = info(1).Software;
+    IsVer_5 = 1;
+else
+    headerString = info(1).ImageDescription;
+end
 
 if isempty(varargin) || isempty(varargin{1})
     frame_inds = 1: numImages;
 else
     frame_inds = varargin{1}(1): varargin{1}(2);
 end
+
+offset_to_mode_flag = 0;
 if length(varargin)>1
-    % Whether offset the loaded image data to its mode
-    offset_to_mode_flag = varargin{2};
+    if ~isempty(varargin{2})
+        % Whether offset the loaded image data to its mode
+        offset_to_mode_flag = varargin{2};
+    end
+end
+% whetehr loading the imaging data
+IsDataLoad = 1;
+if nargin > 3
+    if ~isempty(varargin{3})
+        IsDataLoad = varargin{3};
+    end
+end
+try
+    if strncmp('state',headerString,5) 
+        fileVersion = 3;
+        header = parseHeader(headerString);
+    elseif IsVer_5
+        fileVersion = 5;
+        header = assignments2StructOrObj(headerString);
+    else
+        fileVersion = 4;
+        header = assignments2StructOrObj(headerString);
+    end
+    IsScanim = 1;
+catch
+    header = [];
+    IsScanim = 0;
+end
+if IsDataLoad
+    %Extracts header info required by scim_openTif()
+    if IsScanim
+        hdr = extractHeaderData(header,fileVersion);
+
+        % %VI120910A: Detect/handle header-only operation (don't read data)
+        % if nargout <=1 % && ~forceOutput 
+        %     return;
+        % end
+        im = zeros(hdr.numLines, hdr.numPixels, length(frame_inds), 'int16');
+    else
+        xx = info(1);
+        im = zeros(xx.Height, xx.Width, length(frame_inds), 'int16');
+    end
+    hTif = Tiff(filename,'r');
+    
+    for i = 1:length(frame_inds)
+        hTif.setDirectory(frame_inds(i));
+        im(:,:,i) = hTif.read();
+    end
+
+    if offset_to_mode_flag == 1
+        % offset to mode, then remove negative values
+        im = im - mode(im(:));
+        im(im<0) = 0;
+    end
 else
-    offset_to_mode_flag = 0;
-end
-       
-
-if strncmp('state',headerString,5) 
-    fileVersion = 3;
-    header = parseHeader(headerString);
-else
-    fileVersion = 4;
-    header = assignments2StructOrObj(headerString);
-end
-
-%Extracts header info required by scim_openTif()
-hdr = extractHeaderData(header,fileVersion);
-
-%VI120910A: Detect/handle header-only operation (don't read data)
-if nargout <=1 % && ~forceOutput 
-    return;
-end
-
-hTif = Tiff(filename,'r');
-
-im = zeros(hdr.numLines, hdr.numPixels, length(frame_inds), 'int16');
-for i = 1:length(frame_inds)
-    hTif.setDirectory(frame_inds(i));
-    im(:,:,i) = hTif.read();
-end
-
-if offset_to_mode_flag == 1
-    % offset to mode, then remove negative values
-    im = im - mode(im(:));
-    im(im<0) = 0;
+    im = [];
 end
 end
 %==============================================================================================================
@@ -130,6 +158,28 @@ function s = extractHeaderData(header,fileVersion)
             for i=1:length(s.acqLUT)
                 s.acqLUT{i} = localHdr.channelsLUT(i,:);
             end                
+        elseif fileVersion == 5
+            localHdr = header;
+            
+            s.savedChans = localHdr.hChannels.channelSave;
+            s.numPixels = localHdr.hRoiManager.pixelsPerLine;
+            s.numLines = localHdr.hRoiManager.linesPerFrame;
+            
+%             if isfield(localHdr.hScan2D,'logAverageFactor')
+%                 saveAverageFactor = localHdr.hScan2D.logAverageFactor;
+%             else
+%                 assert(false);
+%             end
+            saveAverageFactor = 1; % this field seems not exist in the si5 version software
+            
+            s.numFrames = localHdr.acqsPerLoop / saveAverageFactor; %localHdr.acqNumFrames / saveAverageFactor;
+%             
+            s.numSlices = 1; % localHdr.stackNumSlices; currrently not find in header
+            
+            s.acqLUT = cell(1,size(localHdr.hChannels.channelLUT,1));
+            for i=1:length(s.acqLUT)
+                s.acqLUT{i} = localHdr.hChannels.channelLUT{i};
+            end       
             
         else 
             assert(false);
@@ -163,6 +213,9 @@ for c = 1:numel(rows)
     
     % replace top-level name with 'obj'
     [~, rmn] = strtok(row,'.');
+    if isempty(rmn)
+        continue;
+    end
     row = ['s' rmn];
     
     % deal with nonscalar nested structs/objs
