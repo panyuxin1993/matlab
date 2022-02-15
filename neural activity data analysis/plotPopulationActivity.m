@@ -264,7 +264,7 @@ end
 
 %% compare PCA explained varience for different cell types
 figPCAexplained=figure();
-set(gcf,'Position',[100,100,300,150]);
+set(gcf,'Position',[100,100,500,250]);
 color_celltype={'k','b','r'};%M2,SC vglut2, SC vgat
 celltype_str={'M2','SC E','SC I'};
 for i_celltype=1:length(celltype)
@@ -274,10 +274,15 @@ for i_celltype=1:length(celltype)
     xlabel('PCs');
     ylabel('Percent varience explained');
     hold on;
+    set(gca,'Xlim',[0,5],'FontSize',10);
     subplot(1,2,2);%plot PC rank percentage, 0-100%
     curve_PCAexplained_pc0_perct100(i_celltype) = fPlotMean_SE( 1:100,PCAexplained_pc0_perct100',color_celltype{i_celltype} );
     xlabel('Percentile of PCs rank');
+    set(gca,'Xlim',[0,20],'FontSize',10);
     hold on;
 end
 subplot(1,2,2);
-legend(curve_PCAexplained_pc0_perct100,celltype_str);
+hl=legend(curve_PCAexplained_pc0_perct100,celltype_str);
+set(hl,'box','off');
+
+saveas(gcf,['E:\2P\summary\population_activities\PCA_varience_explain.pdf'],'pdf');

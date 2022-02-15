@@ -1,4 +1,4 @@
-clear meanActivityByTrialType_combine;
+clear meanActivityByTrialType_combine cellActivityByTrialType_combine meanActivityByTrialType_combine_cor cellActivityByTrialType_combine_cor;
 close all;
 [num,txt,raw] =xlsread('C:\Users\PYX\Documents\DataSummary\imaging_data_summary.xlsx');%criteria to choose sessions come from this file
 T=cell2table(raw(2:end,1:15));
@@ -14,7 +14,7 @@ trial2exclude=[];
 activity_typePool={'dff'};%{'dff','spkr'};
 
 celltypePool={'M2','syn','vglut2','vgat'};%{'syn','vglut2','vgat'};
-%
+%{
 for i_celltype=1:length(celltypePool)
     ind_session2=logical(ind_session.*logical(strcmp(T.cell_type,celltypePool{i_celltype})+strcmp(T.cell_type,[celltypePool{i_celltype},'-flpo'])));
     Tchoose=T(ind_session2,:);
@@ -23,6 +23,7 @@ for i_celltype=1:length(celltypePool)
     ind_ROI=[];
     activity_typePool={'dff'};%{'dff','spkr'};
     frT=0;
+    [cellActivityByTrialType_combine2show,meanActivityByTrialType_combine2show]=deal([]);
     for i_align=1:length(behEventAlignPool)
         behEventAlign=behEventAlignPool{i_align};
         masklick=masklickPool{i_align};
@@ -33,6 +34,7 @@ for i_celltype=1:length(celltypePool)
             if exist(savenamestr,'file')
                 load(savenamestr);
             else
+                clear meanActivityByTrialType_combine_cor cellActivityByTrialType_combine_cor;
                 for i=1:size(Tchoose,1)
                     file_path=Tchoose.file_path{i};
                     session=[Tchoose.session{i},'_',Tchoose.field{i}];
@@ -48,30 +50,88 @@ for i_celltype=1:length(celltypePool)
                         disp(['frN:',num2str(frN),',meanActivityByTrialType_combine:',num2str(size(meanActivityByTrialType_combine{1,1},2)),',meanActivityByTrialType:',num2str(size(meanActivityByTrialType{1,1},2))]);
                         meanActivityByTrialType_combine=cellfun(@(x,y) vertcat(x,y),meanActivityByTrialType_combine,meanActivityByTrialType,'UniformOutput',false);
                         cellActivityByTrialType_combine=cellfun(@(x,y) vertcat(x,y),cellActivityByTrialType_combine,cellActivityByTrialType,'UniformOutput',false);
+                        meanActivityByTrialType_combine_cor=cellfun(@(x,y) vertcat(x,y),meanActivityByTrialType_combine_cor,meanActivityByTrialType(:,1),'UniformOutput',false);
+                        cellActivityByTrialType_combine_cor=cellfun(@(x,y) vertcat(x,y),cellActivityByTrialType_combine_cor,cellActivityByTrialType(:,1),'UniformOutput',false);
                     else
                         meanActivityByTrialType_combine=meanActivityByTrialType;
                         cellActivityByTrialType_combine=cellActivityByTrialType;
+                        meanActivityByTrialType_combine_cor=meanActivityByTrialType(:,1);%choose only the correct trials
+                        cellActivityByTrialType_combine_cor=cellActivityByTrialType(:,1);
                     end
                 end
             end
             %plot raster and mean using ROIs from different sessions and
             %group them together
-            save(savenamestr,'meanActivityByTrialType_combine','frT','cellActivityByTrialType_combine');
+            save(savenamestr,'meanActivityByTrialType_combine','frT','cellActivityByTrialType_combine','meanActivityByTrialType_combine_cor','cellActivityByTrialType_combine_cor');
             [figRaster,figMean]=fPlotRasterMean(cellActivityByTrialType_combine,meanActivityByTrialType_combine,behEventAlign,frT);
             figure(figRaster);
             suptitle([celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type]);
             saveas(figRaster,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'_raster.pdf'],'pdf');
             figure(figMean);
             suptitle([celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type]);
-            saveas(figMean,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'_meanTrace.pdf'],'pdf');
+            saveas(figMean,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'_meanTrace.pdf'],'pdf');  
         end
+    end
+end
+%}
+%plot different alignment together, aiming to show consistent and
+%shifted selectivities
+behEventAlignPool2show={'delay onset','first lick'};
+for i_celltype=1:length(celltypePool)
+    ind_session2=logical(ind_session.*logical(strcmp(T.cell_type,celltypePool{i_celltype})+strcmp(T.cell_type,[celltypePool{i_celltype},'-flpo'])));
+    Tchoose=T(ind_session2,:);
+    % file_path='H:\2P\pyx349_20210418\im_data_reg\result_save';
+    % session='pyx349_20210418';
+    ind_ROI=[];
+    activity_typePool={'dff'};%{'dff','spkr'};
+    frT=0;
+    [cellActivityByTrialType_combine2show,meanActivityByTrialType_combine2show]=deal([]);
+    for i_align=1:length(behEventAlignPool2show)
+        behEventAlign=behEventAlignPool2show{i_align};
+        masklick=masklickPool{i_align};
+        for i_activity_type=1:length(activity_typePool)
+            activity_type=activity_typePool{i_activity_type};
+            clear meanActivityByTrialType_combine;
+            savenamestr=['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-meanActivityByROI-align',behEventAlign,'-masklick',masklick,'-',activity_type,'.mat'];
+            if exist(savenamestr,'file')
+                load(savenamestr);
+            else
+                clear meanActivityByTrialType_combine_cor cellActivityByTrialType_combine_cor;
+                for i=1:size(Tchoose,1)
+                    file_path=Tchoose.file_path{i};
+                    session=[Tchoose.session{i},'_',Tchoose.field{i}];
+                    savepath=[file_path,filesep,session];
+                    objsession=Session2P(session,file_path,trial2include,trial2exclude);
+                    [meanActivityByTrialType,cellActivityByTrialType]=objsession.mMeanPSTHbyROI(activity_type,[],behEventAlign,masklick,i_selectivity);
+                    %combine data together and plot population
+                    if exist('meanActivityByTrialType_combine_cor','var')
+                        frT=max(objsession.metadata.frT,frT);
+                        frN=max(size(meanActivityByTrialType_combine_cor{1,1},2),size(meanActivityByTrialType{1,1},2));
+                        meanActivityByTrialType_combine_cor= fInter(meanActivityByTrialType_combine_cor,frN);
+                        meanActivityByTrialType=fInter(meanActivityByTrialType,frN);
+                        disp(['frN:',num2str(frN),',meanActivityByTrialType_combine_cor:',num2str(size(meanActivityByTrialType_combine_cor{1,1},2)),',meanActivityByTrialType:',num2str(size(meanActivityByTrialType{1,1},2))]);
+                        meanActivityByTrialType_combine_cor=cellfun(@(x,y) vertcat(x,y),meanActivityByTrialType_combine_cor,meanActivityByTrialType(:,1),'UniformOutput',false);
+                        cellActivityByTrialType_combine_cor=cellfun(@(x,y) vertcat(x,y),cellActivityByTrialType_combine_cor,cellActivityByTrialType(:,1),'UniformOutput',false);
+                    else
+                        meanActivityByTrialType_combine_cor=meanActivityByTrialType(:,1);%choose only the correct trials
+                        cellActivityByTrialType_combine_cor=cellActivityByTrialType(:,1);
+                    end
+                end
+            end
+            save(savenamestr,'frT','meanActivityByTrialType_combine_cor','cellActivityByTrialType_combine_cor');
+        end
+        cellActivityByTrialType_combine2show=cat(2,cellActivityByTrialType_combine2show,cellActivityByTrialType_combine_cor);
+        meanActivityByTrialType_combine2show=cat(2,meanActivityByTrialType_combine2show,meanActivityByTrialType_combine_cor);
     end
     
     %plot different alignment together, aiming to show consistent and
     %shifted selectivities
-    
+    [figRaster]=fRasterMultiAlign(cellActivityByTrialType_combine2show,meanActivityByTrialType_combine2show,behEventAlignPool2show,frT);
+    figure(figRaster);
+    suptitle(celltypePool{i_celltype});
+    saveas(figRaster,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'_raster2showConsistency.pdf'],'pdf');
+              
 end
-%}
 %loop again to see the individual cases from different sessions
 %{
 %saving figures from cases into a PPT using exportToPPT
@@ -270,7 +330,7 @@ function [figRaster]=fRasterMultiAlign(cellActivityByTrialType_combine,meanActiv
 %   cellActivityByTrialType_combine- nTrialtyp-by-nAlignType cell array, 
 %   meanActivityByTrialType_combine- nTrialtyp-by-nAlignType cell array,
 %   behEventAlignPool- 1-by-nAlignType cell array
-nAlignType=length(behEventAlign);
+nAlignType=length(behEventAlignPool);
 if (size(cellActivityByTrialType_combine,2) == nAlignType) && (size(meanActivityByTrialType_combine,2) == nAlignType)
     for iAlign=1:nAlignType
         behEventAlign=behEventAlignPool{iAlign};
@@ -288,7 +348,7 @@ if (size(cellActivityByTrialType_combine,2) == nAlignType) && (size(meanActivity
         frame4prefer=floor(time4prefer*1000/frT);
         ind4prefer=false(sum(frameNum)+1,1);
         ind4prefer(frameNum(1)-frame4prefer(1):frameNum(1)+frame4prefer(2)+1)=true;
-        [~,indIpsi{iAlign},indContra{iAlign},indNS{iAlign}] = fReorganizeByPreference(cellActivityByTrialType_combine(:,iAlign),meanActivityByTrialType_combine(:,iAlign),ind4prefer);
+        [~,indIpsi{iAlign},indContra{iAlign},indNS{iAlign}] = fReorganizeByPreference(cellActivityByTrialType_combine(:,iAlign),meanActivityByTrialType_combine(:,iAlign),ind4prefer,'parameter4preference','mean');
     end
     %each pannel include one trial type using first alignment, and labeled
     %using second alignment
@@ -311,8 +371,8 @@ if (size(cellActivityByTrialType_combine,2) == nAlignType) && (size(meanActivity
             end
             peaktemp=max(tempneuralActivity,[],2);
             peakind=zeros(size(tempneuralActivity,1),1);
-            for i=1:size(tempneuralActivity,1)
-                peakind(i)=min(find(tempneuralActivity(i,:)==peaktemp(i)));
+            for k=1:size(tempneuralActivity,1)
+                peakind(k)=find(tempneuralActivity(k,:)==peaktemp(k), 1 );
             end
             [B,I]=sort(peakind);
             meanActivityReorganized(i,j,:)=cellfun(@(x) x(I,:), meanActivityReorganized(i,j,:),'UniformOutput',false);
@@ -324,21 +384,23 @@ if (size(cellActivityByTrialType_combine,2) == nAlignType) && (size(meanActivity
     meanActivityRange=cell2mat(meanActivityByTrialType_combine);
     meanActivityRange=reshape(meanActivityRange,[],1);
     ColLimit = prctile(meanActivityRange,98);
-    titlestr={'Ipsi side','Contra side'};
-    ylabelstr={'ipsi preferring','contra preferring','n.s.'};
+    titlestr={'Ipsi side','Contra side','Ipsi side','Contra side'};
+    %ylabelstr={'ipsi preferring','contra preferring','n.s.'};
+    ylabelstr={'ipsi','contra','n.s.'};
     titlestr=strcat(titlestr);
     color_trialtype={[0,0,1],[1,0,0],[0.5,0.5,0.5]};%ipsi, contra, n.s.
 
     %for plotting setting
     generalMargin=[0.1,0.1];
     fixMargin=0.05;
-    lenRatio=cellfun(@(x) size(x,1),meanActivityReorganized(:,1));
+    lenRatio=cellfun(@(x) size(x,1),meanActivityReorganized(:,:,1));
+    lenRatio=sum(lenRatio,2);
     [prctPos,prctPos2] = fGetPrctPos(flip(lenRatio),fixMargin, generalMargin);
     
     for nCelltype=1:size(meanActivityReorganized,1) %for each cell type, ie. ipsi prefering/contra prefering
         ratio2ndEpoch=cellfun(@(x) size(x,1), meanActivityReorganized(nCelltype,:,1), 'UniformOutput', true);
         for nTrialtype=1:size(meanActivityReorganized,3) %for each stimulus/choice, ie. ipsi/contra
-            neuralActivity_cell=meanActivityReorganized(nCelltype,:,nTrialtype);
+            neuralActivity_cell=reshape(meanActivityReorganized(nCelltype,:,nTrialtype),[],1);
             neuralActivity=cell2mat(neuralActivity_cell);
             figure(figRaster);
             %ax=subplot(size(meanActivityReorganized,1),size(meanActivityReorganized,2),nTrialtype+size(meanActivityReorganized,2)*(nCelltype-1));%grid position
@@ -351,11 +413,25 @@ if (size(cellActivityByTrialType_combine,2) == nAlignType) && (size(meanActivity
             subplot('Position',pos_current);
             hold on;
             imagesc(neuralActivity);
+            iAlign=ceil(nTrialtype/2);
+            behEventAlign=behEventAlignPool{iAlign};
+            if strcmp(behEventAlign,'stim onset')
+                frameNumTime=[0.5,2];%from 5s before align point to 5s after align point
+                time4prefer=[-0.8,1.5]; %time for comparing ipsi vs. contra
+            elseif strcmp(behEventAlign,'delay onset')
+                frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
+                time4prefer=[-0.3,1];
+            else
+                frameNumTime=[2,3.5];%from 5s before align point to 5s after align point
+                time4prefer=[0,1];
+            end
+            frameNum=floor(frameNumTime*1000/frT);
             plot([round(frameNum(1)),round(frameNum(1))],[0,size(neuralActivity,1)],'w--');%aligned event
             x_lim=[0,size(neuralActivity,2)];%get(gca,'Xlim');
             
             set(gca,'clim',[0 ColLimit]);
             set(gca,'ytick',size(neuralActivity,1),'yticklabel',size(neuralActivity,1),'ydir','normal');
+            
             if nCelltype==size(meanActivityReorganized,1)
                 set(gca,'xtick',[round(1000/frT*(frameNumTime(1)-floor(frameNumTime(1))))+1:round(1000/frT):size(neuralActivity,2)],'xticklabel',[-floor(frameNumTime(1)):1:frameNumTime(2)]);
                 %                 xlabel(['time(s) from ',behEventAlign],'FontName','Arial','FontSize',14);
@@ -376,9 +452,10 @@ if (size(cellActivityByTrialType_combine,2) == nAlignType) && (size(meanActivity
                 ylabel(ylabelstr{nCelltype});
             end
             xlim(x_lim);
-            if nCelltype==size(meanActivityReorganized,1) && nTrialtype==1
+            if nCelltype==size(meanActivityReorganized,1) && mod(nTrialtype,2)==1
                 xlabel(['Time (s) from ',behEventAlign]);
             end
+            set(gca,'FontSize',10);
         end
         %plot bar to indicates second epoch preference
         posBarLeft=pos_left+pos_width;
@@ -388,10 +465,12 @@ if (size(cellActivityByTrialType_combine,2) == nAlignType) && (size(meanActivity
         pos_bar=[posBarLeft,posBarBottom,posBarWidth,posBarHeight];
         subplot('Position',pos_bar);
         hold on;
-        ratio2n dEpoch=[0,ratio2ndEpoch];
+        ratio2ndEpoch=[0,ratio2ndEpoch];
         for i=1:size(meanActivityReorganized,2)
             patch([0,1,1,0],[sum(ratio2ndEpoch(1:i)),sum(ratio2ndEpoch(1:i)),sum(ratio2ndEpoch(1:i+1)),sum(ratio2ndEpoch(1:i+1))],color_trialtype{i});
         end
+        set(gca,'Ylim',[0,sum(ratio2ndEpoch)],'ytick',[],'yticklabel',[]);
+        
     end
 
 

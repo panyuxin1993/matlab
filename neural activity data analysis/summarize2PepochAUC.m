@@ -451,6 +451,7 @@ ylabel('correlation coefficient');
 saveas(fig_corr_celltype,'E:\2P\summary\AUC_cmp_epoch\corrcoef_SCEIM2_epochAUC.pdf','pdf');
 %}
 %% plot moving AUC by session
+%{
 T=cell2table(raw(2:end,1:14));
 T.Properties.VariableNames=strrep(raw(1,1:14),' ','_');%table variable name can't have ' ',so replace them
 celltype={'M2','vglut2','vgat'};
@@ -469,7 +470,7 @@ for i_celltype=1:length(celltype)
     end
     suptitle([trialTypeStr,'-',AUCtype]);
 end
-
+%}
 %% choice probability
 %{
 %choose cells with significant delay/sound choice AUC
@@ -890,7 +891,8 @@ suptitle(strrep(char(Tin.session(1)),'_','\_'));
 end
 
 function [R_sessions,P_sessions]=fScatterHistCmpBySessions(Tin,chosen_celltype,chosen_fields1,chosen_fields2,color,mkr)
-%plot scatter of early vs. late delay activities session by session
+%plot scatter of early vs. late delay activities session by session and
+%save to PPT
 %chosen_celltype- string indicating the cell type
 %chosen_fields1/2- cellarrays indicating the fields to be compared
 celltype=categorical(Tin.celltype);
@@ -1036,25 +1038,17 @@ if length(chosen_celltype)==2
     % text(0,1,['pearson correlation correct=',num2str(corr(TAUC.AUCearly,TAUC.AUClate))]);
 elseif length(chosen_celltype)==3
     boxplot(h2,data1,TAUC.celltype,'orientation','horizontal','Notch','on','GroupOrder',chosen_celltype,'colors',[color{1};color{2};color{3}]);
-    early1=data1(TAUC.celltype==chosen_celltype{1});
-    early2=data1(TAUC.celltype==chosen_celltype{2});
-    [h,p1]=ttest2(early1,early2);
-    text(h2,0.9,0.5,plabelsymbol(p1),'Unit','Normalized');
 %     set(h2,'Xlim',[0,1],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
     set(h2,'Xlim',[0,1],'FontSize',14,'FontName','Arial','box','off');
     set(h2,'position',[0.35,0.05,0.6,0.2]);
     
     boxplot(h3,data2,TAUC.celltype,'orientation','vertical','Notch','on','GroupOrder',chosen_celltype,'colors',[color{1};color{2};color{3}]);
-    late1=data2(TAUC.celltype==chosen_celltype{1});
-    late2=data2(TAUC.celltype==chosen_celltype{2});
-    [h,p2]=ttest2(late1,late2);
-    text(h3,0.5,0.9,plabelsymbol(p2),'Unit','Normalized');
 %     set(h3,'Ylim',[0,1],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
     set(h3,'Ylim',[0,1],'FontSize',14,'FontName','Arial','box','off');
     set(h3,'position',[0.05,0.35,0.2,0.6]);
     
     % hl=legend(curve_scatter(:),'vglut2' , 'vgat' , 'ALM terminal','AutoUpdate','off');
-    hl=legend(curve_scatter(:), 'vglut2','vgat' ,'AutoUpdate','off','Position',[0.1,0.1,0.1,0.1]);
+    hl=legend(curve_scatter(:), 'vglut2','vgat','M2' ,'AutoUpdate','off','Position',[0.1,0.1,0.1,0.1]);
     set(hl,'Box','Off');
     % text(0,1,['pearson correlation correct=',num2str(corr(TAUC.AUCearly,TAUC.AUClate))]);
 end
@@ -1086,7 +1080,7 @@ for icelltype=1:length(chosen_celltype)
     n_shift=sum((data1-0.5).*(data2-0.5)<0);
     p_shift=n_shift/length(data1);
     bar(icelltype,1-p_shift,'FaceColor',color{icelltype},'EdgeColor',color{icelltype});
-    text(icelltype,0.1,[num2str(n_shift),'/',num2str(length(data1))]);
+    text(icelltype,0.1,[num2str(length(data1)-n_shift),'/',num2str(length(data1))]);
     hold on;
 end
 
