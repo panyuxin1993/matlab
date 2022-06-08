@@ -32,7 +32,11 @@ end
 stimOnset=behData.Stim_onset_time(ind_tr_1:ind_tr_1+n_trial_output-1);
 stimOffset=behData.Stim_offset_time(ind_tr_1:ind_tr_1+n_trial_output-1);
 goTime=behData.Go_time(ind_tr_1:ind_tr_1+n_trial_output-1);
-delayOffset=behData.Time_delayOffset(ind_tr_1:ind_tr_1+n_trial_output-1);
+if isfield(behData,'Time_delayOffset')
+    delayOffset=behData.Time_delayOffset(ind_tr_1:ind_tr_1+n_trial_output-1);
+else
+    delayOffset=goTime;
+end
 ansTime=double(behData.Answer_time(ind_tr_1:ind_tr_1+n_trial_output-1)); %zero when no answer, so put to nan
 rewTime=double(behData.Reward_time(ind_tr_1:ind_tr_1+n_trial_output-1)); %zero when no reward, so put to nan
 ansTime(ansTime==0)=nan;

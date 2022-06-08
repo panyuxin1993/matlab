@@ -9,8 +9,13 @@ prct_delay2calculate_pResp=1;
 
 celltype_str={'M2','vglut2','vgat'};%{'M2','syn','vglut2','vgat'};
 celltype_abbr_str={'M2','SC-E','SC-I'};
-activity_form_pool={'dff','spkr'};%%%%%%%%%%%%%%%%%%%%%%'dff' 2 std, spkr may >3std
-threshold_dur_pool=[500,200];
+% activity_form_pool={'dff','spkr'};%%%%%%%%%%%%%%%%%%%%%%'dff' 2 std, spkr may >3std
+% activity_smooth_binsize_pool={200,400};%ms, 200for dff, 400 for spkr
+% threshold_dur_pool=[500,200];
+activity_form_pool={'dff'};%%%%%%%%%%%%%%%%%%%%%%'dff' 2 std, spkr may >3std
+activity_smooth_binsize_pool={200};%ms, 200for dff, 400 for spkr
+threshold_dur_pool=[500];
+
 trialTypeStr='cor';
 
 saving_path='E:\2P\summary\population_significance';
@@ -30,14 +35,15 @@ for i_celltype=1:length(celltype_str)
         clear significantTrialNum4cell_all tbSigTrial4Cell;
         threshold_dur=threshold_dur_pool(i_activity_form);%continously 500ms significant activities to be judged as a significant event
         activity_form=activity_form_pool{i_activity_form};
+        activity_smooth_binsize=activity_smooth_binsize_pool{i_activity_form};
         ind_session=logical(strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control')...
             .*logical(strcmp(T.cell_type,celltype_str{i_celltype})+strcmp(T.cell_type,[celltype_str{i_celltype},'-flpo']))...
             .*contains(T.ROI_type,'soma').*(~contains(T.field,'soma')));%SC ROIs, not probe session
         Tchoose=T(ind_session,:);
-        save_name_mat=[saving_path,filesep,'TsigTrialNum4cell_all_',celltype_str{i_celltype},'_',activity_form,'_prctDelay2CalPResp-',num2str(prct_delay2calculate_pResp),'.mat'];
+        save_name_mat=[saving_path,filesep,'TsigTrialNum4cell_all_',celltype_str{i_celltype},'_',activity_form,'_binSize-',activity_smooth_binsize,'_prctDelay2CalPResp-',num2str(prct_delay2calculate_pResp),'.mat'];
 
         %---------get table for each session---------
-        %{
+        %
         fig_n_event=figure;
         set(fig_n_event,'Position',[200,200,500,200]);
         fig_event_time=figure;
@@ -53,7 +59,7 @@ for i_celltype=1:length(celltype_str)
             [tbSigTrial4Cell,figDMAsig,figSigCellNum,savingNameStr] = fGetDMAsigTableAsession(Tchoose.file_path{indrow},...
                 Tchoose.session{indrow},Tchoose.animal{indrow},Tchoose.date{indrow},...
                 Tchoose.field{indrow},celltype_str{i_celltype},...
-                trialTypeStr,activity_form,prct_delay2calculate_pResp,threshold_dur,...
+                trialTypeStr,activity_form,activity_smooth_binsize,prct_delay2calculate_pResp,threshold_dur,...
                 fig_n_event,ax_input);
             if ~isempty(figDMAsig)%if no figure, this is nan
                 saveas(figDMAsig,[saving_path,filesep,Tchoose.session{indrow},'threshold_dur-',num2str(threshold_dur),'.pdf'],'pdf');
@@ -166,6 +172,7 @@ end
 set(fig_selectivitySigEventCounts,'PaperPosition',[1,1,4,1.5]);
 saveas(fig_selectivitySigEventCounts,[saving_path,filesep,'selectivity_sig_event_threshold_dur-',num2str(threshold_dur),'.pdf'],'pdf');
 %}
+%%
 %-----plot significant reponse probability of neurons------
 fig_pRes=figure;
 set(fig_pRes,'Position',[200,200,500,200]);
@@ -184,12 +191,13 @@ for i_subplot=1:2
     end
 
     if i_subplot==1
-        ylabel('Proportion of trials');
+%         ylabel('Proportion of trials');
+        ylabel('Proportion of cells');
     end                               
-    if i_subplot==2
+%     if i_subplot==2
         hl=legend(celltype_abbr_str);
         set(hl,'Box','off');
-    end
+%     end
     title(title_str_hist{i_subplot});
     set(gca,'FontSize',12);
     box off;

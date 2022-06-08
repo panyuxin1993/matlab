@@ -33,7 +33,7 @@ elseif strcmp(str_nFrames,'1s')
             continue;
         else
             ITI(i)=nanmean(dff(max(behEventFrameIndex.stimOnset(i)-nFrames1k,1):behEventFrameIndex.stimOnset(i)-1));
-            baseline=nanmean(dff(max(behEventFrameIndex.stimOnset(i)-nFrames500,1):behEventFrameIndex.stimOnset(i)-1));
+            baseline=ITI(i);
             ITI(i)=ITI(i)-baseline;
             sound(i)=nanmean(dff(behEventFrameIndex.stimOnset(i):behEventFrameIndex.stimOffset(i)))-baseline;
             delay(i)=nanmean(dff(max(behEventFrameIndex.go(i)-nFrames500+1,behEventFrameIndex.stimOffset(i)+1):behEventFrameIndex.go(i)-1))-baseline;

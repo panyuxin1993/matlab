@@ -1,9 +1,10 @@
-function [ figOut ] = fPlotF_ROI( path, fdata,datatype,ind_ROI, ind_trial ,varargin)
+function [ figOut ] = fPlotF_ROI( path, fdata,datatype,smoothBin,ind_ROI, ind_trial ,varargin)
 %FPLOTF_ROI Plot F raw or dF/F for one ROI, distinguish trial
 %type (stimuli,choice, etc.). Colorplot
 %Input-
 %   fdata='raw'(default)|'dff', indicate which data to show
 %   datatype= '2P'(default)|'FP', indicate which data structure
+%   smoothBin= 1(default), indicate time bin for smooth in ms
 %   ind_ROI= a vector indicating the roi number to present
 %   ind_trial= a vector indicating the trial index to present, only support
 %   continues trials, e.g. 1:10, otherwise can't garantee bug free
@@ -63,6 +64,7 @@ if strcmp(datatype,'2P')
         else
             f_data=f_data(:,indFrame_trial_start(min(ind_trial)):(indFrame_trial_start(max(ind_trial)+1)));
         end
+        f_data=fSmoothFR(f_data,frT,smoothBin);
     elseif strcmp(fdata,'spkr')
         ylabelstr='spikes/s';
         if exist([path,filesep,'deconvolution.mat'],'file')
@@ -88,6 +90,7 @@ if strcmp(datatype,'2P')
         else
             f_data=f_data(:,indFrame_trial_start(min(ind_trial)):(indFrame_trial_start(max(ind_trial)+1)));
         end
+        f_data=fSmoothFR(f_data,frT,smoothBin);
     end
 elseif strcmp(datatype,'FP')
     if strcmp(fdata,'dff')
@@ -117,6 +120,7 @@ elseif strcmp(datatype,'FP')
     else
         f_data=dff{1}(:,indFrame_trial_start(min(ind_trial)):(indFrame_trial_start(max(ind_trial)+1)));%baseline correction, fit 470 and 410, dff
     end
+    f_data=fSmoothFR(f_data,frT,smoothBin);
 end
 
 if max(ind_ROI)>size(f_data,1) || min(ind_ROI)<1
@@ -289,6 +293,18 @@ end
 function [out]=fRound(in)
     n_digit=floor(log10(in));
     out=round(in/10^n_digit)*10^n_digit;
+end
+
+%smooth data
+function fr_smoothed=fSmoothFR(activities,frT,binsize)
+%smooth the firing rate/dff data, binsize (in ms)
+span=ceil((binsize/frT-1)/2);
+fr_smoothed=zeros(size(activities));
+for t=1:size(activities,2)
+    t1=max(1,t-span);
+    t2=min(size(activities,2),t+span);
+    fr_smoothed(:,t)=nanmean(activities(:,t1:t2),2);
+end
 end
 
 %transform the trial start time from string form to double form; but this

@@ -1,6 +1,7 @@
 %combine table of sensory and choice AUC together and save combined table
-%{
+
 %for FP data
+%{
 clear;
 filepath={'H:\FP\summary\SC vglut2-mixed-Soma-grouped bysensorycombineCorErr-shuffle1000-lick time1sSensoryChoiceOrthogonalSubtraction-n14-sites6-EpochAUC.mat',
     'H:\FP\summary\SC vglut2-mixed-Soma-grouped bychoicecombineCorErr-shuffle1000-lick time1sSensoryChoiceOrthogonalSubtraction-n14-sites6-EpochAUC.mat',
@@ -69,12 +70,14 @@ saveas(figAUCearly,'H:\FP\summary\AUCsensoryVSchoice_rawFigure.pdf','pdf');
 %% load 2P data
 %SC 2P data,need to check the assist function(especially for the pSig
 %usage
-%{
+%
 clear;
 filepath={'E:\2P\summary\trialTypecor and err-choiceTepochAUC.mat',
     'E:\2P\summary\trialTypecor and err-sensoryTepochAUC.mat'
     };
 AUCtypestr={'choice','sensory'};
+celltypestr={'M2','vglut2','vgat'};
+n_celltype=length(celltypestr);
 for i=1:length(filepath)
     load(filepath{i});
     TAUCsessionTemp=TAUC_combine;
@@ -86,32 +89,43 @@ for i=1:length(filepath)
         TAUCsession=TAUCsessionTemp;
     end
 end
+TAUCsession.celltype=cellfun(@(x) strrep(x,'-flpo',''),TAUCsession.celltype,'UniformOutput',false);%incase that some neurons are vglut2-flpo etc.
 TAUCsession.celltype=categorical(TAUCsession.celltype);
 save(['E:\2P\summary\AUCsensoryVSchoiceTable.mat'],'TAUCsession');
 load('E:\2P\summary\AUCsensoryVSchoiceTable.mat');
 %plot early AUC comparison
 figAUCearly=figure;
-set(gcf,'position',[100,100,1200,200]);
+set(gcf,'position',[100,100,1200,200*n_celltype]);
 pSig=0.05;
 epochstr={'ITI','sound','delay','response','lick'};
-set(gcf,'PaperPosition',[0,0,2*length(epochstr),2]);
-for i=1:length(epochstr)
-    subplot(1,length(epochstr),i);
-    fCmpSensoryChoiceAUC(TAUCsession,epochstr{i},pSig,'vgat');
-    title(epochstr{i});
+set(gcf,'PaperPosition',[0,0,2*length(epochstr),2*n_celltype]);
+for irow=1:n_celltype
+    for i=1:length(epochstr)
+        subplot(n_celltype,length(epochstr),i+(irow-1)*length(epochstr));
+        fCmpSensoryChoiceAUC(TAUCsession,epochstr{i},pSig,celltypestr{irow});
+        if i==1
+            ylabel('choice AUC');
+        end
+        if irow==n_celltype
+            xlabel('sensory AUC');
+        end
+        title(epochstr{i});
+    end
 end
-set(gcf,'paperPosition',[0,0,11,2]);
-saveas(figAUCearly,'E:\2P\summary\SC AUCsensoryVSchoice_rawFigure.pdf','pdf');
+set(gcf,'paperPosition',[0,0,11,2*n_celltype]);
+saveas(figAUCearly,'E:\2P\summary\AUCsensoryVSchoice_rawFigure.pdf','pdf');
 %}
 %% load 2P data
 %need to check the assist function(especially for the pSig usage
 %compare the difference between cor and err AUC
-%
+%{
 clear;
 filepath={'E:\2P\summary\trialTypecor-choiceTepochAUC.mat',
     'E:\2P\summary\trialTypeerr-choiceTepochAUC.mat'
     };
 trialtypestr={'correct','error'};
+celltypestr={'M2','vglut2','vgat'};
+n_celltype=length(celltypestr);
 for i=1:length(filepath)
     load(filepath{i});
     TAUCsessionTemp=TAUC_combine;
@@ -123,24 +137,31 @@ for i=1:length(filepath)
         TAUCsession=TAUCsessionTemp;
     end
 end
+TAUCsession.celltype=cellfun(@(x) strrep(x,'-flpo',''),TAUCsession.celltype,'UniformOutput',false);%incase that some neurons are vglut2-flpo etc.
 TAUCsession.celltype=categorical(TAUCsession.celltype);
 save(['E:\2P\summary\AUCcorVSerrTable.mat'],'TAUCsession');
 load('E:\2P\summary\AUCcorVSerrTable.mat');
-celltypestr='vgat';
 %plot early AUC comparison
 figAUCearly=figure;
-set(gcf,'position',[100,100,1200,200]);
+set(gcf,'position',[100,100,1200,200*n_celltype]);
 pSig=0.05;
 epochstr={'ITI','sound','delay','response','lick'};
-set(gcf,'PaperPosition',[0,0,2*length(epochstr),2]);
-for i=1:length(epochstr)
-    subplot(1,length(epochstr),i);
-    fCmpCorErrAUC(TAUCsession,epochstr{i},pSig,celltypestr);
-    title(epochstr{i});
+set(gcf,'PaperPosition',[0,0,2*length(epochstr),2*n_celltype]);
+for irow=1:n_celltype
+    for i=1:length(epochstr)
+        subplot(n_celltype,length(epochstr),i+(irow-1)*length(epochstr));
+        fCmpCorErrAUC(TAUCsession,epochstr{i},pSig,celltypestr{irow});
+        if i==1
+            ylabel('error AUC');
+        end
+        if irow==n_celltype
+            xlabel('correct AUC');
+        end
+        title(epochstr{i});
+    end
 end
-set(gcf,'paperPosition',[0,0,11,2]);
-celltypestr_save=strrep(celltypestr,' ','_');
-saveas(figAUCearly,['E:\2P\summary\',celltypestr,'_AUC_CorVSErr_rawFigure.pdf'],'pdf');
+set(gcf,'paperPosition',[0,0,11,2*n_celltype]);
+saveas(figAUCearly,['E:\2P\summary\AUC_CorVSErr_rawFigure.pdf'],'pdf');
 %}
 %% load 2P data
 %M2 2P data, need to check the assist function(especially for the pSig 
@@ -247,8 +268,7 @@ curve2=scatter(AUCsensory(indSensory),AUCchoice(indSensory),15,colorDot{1});
 curve3=scatter(AUCsensory(indChoice),AUCchoice(indChoice),15,colorDot{2});
 set(gca,'Xlim',[0,1],'Ylim',[0,1]);
 
-ylabel('choice AUC');
-xlabel('sensory AUC');
+
 nSensoryAUC=sum(indSensory);
 nChoiceAUC=sum(indChoice);
 nNS=sum(indNS);
@@ -275,7 +295,8 @@ unsignedAUCsensory=abs(AUCsensory-0.5)+0.5;
 unsignedAUCchoice=abs(AUCchoice-0.5)+0.5;
 p=signrank(unsignedAUCsensory,unsignedAUCchoice);
 pstr=['Wilcoxon signed rank test p=',num2str(p)];
-text(0.9,0.85,pstr,'Unit','Normalized');
+% text(0.9,0.85,pstr,'Unit','Normalized');
+text(0.9,0.85,plabelsymbol(p),'Unit','Normalized');
 %}
 
 % %v2 compare only data points with significant choice/senory selectivity
@@ -341,7 +362,7 @@ indSigErr=logical((pAUCerr<pSig/2)+(pAUCerr>1-pSig/2));
 indNS=logical(1-logical(indSigCor+indSigErr));
 indCor=logical((abs(AUCcor-0.5)>abs(AUCerr-0.5)).*(indSigCor));
 indErr=logical((abs(AUCcor-0.5)<abs(AUCerr-0.5)).*(indSigErr));
-colorDot={'FF34E6','2EAF4A','000000'};
+colorDot={'E9B800','2A79FF','000000'};
 colorDot=fHex2RGB(colorDot);
 colorShade={'E7E7E7'};
 colorShade=fHex2RGB(colorShade);
@@ -357,8 +378,7 @@ curve2=scatter(AUCcor(indCor),AUCerr(indCor),15,colorDot{1});
 curve3=scatter(AUCcor(indErr),AUCerr(indErr),15,colorDot{2});
 set(gca,'Xlim',[0,1],'Ylim',[0,1]);
 
-ylabel('error AUC');
-xlabel('correct AUC');
+
 nCorAUC=sum(indCor);
 nErrAUC=sum(indErr);
 nNS=sum(indNS);
@@ -385,7 +405,8 @@ unsignedAUCcor=abs(AUCcor-0.5)+0.5;
 unsignedAUCerr=abs(AUCerr-0.5)+0.5;
 p=signrank(unsignedAUCcor,unsignedAUCerr);
 pstr=['Wilcoxon signed rank test p=',num2str(p)];
-text(0.9,0.85,pstr,'Unit','Normalized');
+% text(0.9,0.85,pstr,'Unit','Normalized');
+text(0.9,0.85,plabelsymbol(p),'Unit','Normalized');
 %}
 
 % %v2 compare only data points with significant choice/senory selectivity

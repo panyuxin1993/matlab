@@ -25,7 +25,7 @@ dirmat=strcat(CurrFolder,'\*.mat');
 dirs=dir(dirmat);
 dircell=struct2cell(dirs);
 filenames=dircell(1,:);
-file_imaging=cellfun(@(x) contains(x,'Ca'), filenames);
+file_imaging=cellfun(@(x) contains(x,'CaTrialsSIM'), filenames);
 i_file_imaging=find(file_imaging);
 load([path,filesep,filenames{1,i_file_imaging}]);%load imaging data
 

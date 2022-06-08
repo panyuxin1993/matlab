@@ -5,8 +5,8 @@
 clear;
 dbstop if error;
 close all;
-savepath='H:\FP\summary';
-[num,txt,raw] =xlsread('D:\xulab\project\fiber_photometry_data_summary.xlsx');%criteria to choose sessions come from this file
+savepath='E:\FP\summary';
+[num,txt,raw] =xlsread('C:\Users\PYX\Documents\DataSummary\fiber_photometry_data_summary.xlsx');%criteria to choose sessions come from this file
 T=cell2table(raw(2:end,1:13));
 T.Properties.VariableNames=strrep(raw(1,1:13),' ','_');%table variable name can't have ' ',so replace them
 T.delay_min=zeros(size(T,1),1);%convert delay variable to numeric
@@ -122,7 +122,7 @@ for i_celltype=1:length(celltype)
         [AUCcell,pAUCcell]=deal(cell(n_datapoint(nfiber),4));%each cell 1d-data points, 2d-one result(cor/err/miss/vio)
         datapointNameCell=cell(n_datapoint(nfiber),1);
 
-        [AUCearly,pAUCearly,AUClate,pAUClate]=deal(nan(n_answer*n_datapoint(nfiber),1));%variables of same length, later will combine as tabel
+        [AUCearly,pAUCearly,AUClate,pAUClate,AUCmid,pAUCmid,AUClick,pAUClick]=deal(nan(n_answer*n_datapoint(nfiber),1));%variables of same length, later will combine as tabel
         [DatapointName, AnswerSession]=deal(cell(n_datapoint(nfiber)*n_answer,1));
         [AUCcellSite,pAUCcellSite]=deal(cell(n_site(nfiber),4));%each cell 1d-site, 2d-one result(cor/err/miss/vio)
         siteNameCell=[];%later will be struct with field 'nameSite','nameCases'  
@@ -161,7 +161,7 @@ for i_celltype=1:length(celltype)
             end
             sessiondate=datevec(T.date(ind_session(i)),'yyyy/mm/dd');
             formatOut = 'yyyymmdd';
-            rootpath=strcat('H:\FP\',T.animal(ind_session(i)),'_',datestr(sessiondate,formatOut));%根据总结文件找到对应session的文件夹
+            rootpath=strcat('E:\FP\',T.animal(ind_session(i)),'_',datestr(sessiondate,formatOut));%根据总结文件找到对应session的文件夹
             rootpath=rootpath{1};%change from cell array to char array
             files = dir(strcat(rootpath,'\*Virables.mat'));
             if length(files)==1
@@ -246,6 +246,7 @@ for i_celltype=1:length(celltype)
                     else
                         [ dff_aligned, behEvent_aligned, licking_aligned ] = fAlignSigBehEvent( dff{1,ndff}(ind_fiber(i_fiber),:), behEventFrameIndex,lickingFrameIndex,behEventAlign,frameNum );%decide which behavior event to align to
                     end
+                    [ dff_aligned_lick, ~, ~ ] = fAlignSigBehEvent( dff{1,ndff}(ind_fiber(i_fiber),:), behEventFrameIndex,lickingFrameIndex,'first lick',frameNum );%decide which behavior event to align to
                     dff_aligned_cat_animal{nfiber,ind_site}=cat(1,dff_aligned_cat_animal{nfiber,ind_site},dff_aligned);
                     dff_aligned_by_session{nfiber,ind_datapoint}=dff_aligned;
                     if strcmp(fiberSide{i_fiber},'right')
@@ -295,19 +296,27 @@ for i_celltype=1:length(celltype)
                             AUCcase(nResult).AUC=AUCcell{ind_datapoint,nResult};
                             AUCcase(nResult).pAUC=pAUCcell{ind_datapoint,nResult};
                         end
-                        if  ~isfield(AUCcase(nResult),'AUCearly') || isnan(pAUClate(n_answer*ind_datapoint+nResult-n_answer))
+                        if  true%~isfield(AUCcase(nResult),'AUCmid') || isempty(AUCcase(nResult).AUCmid)||isnan(pAUClate(n_answer*ind_datapoint+nResult-n_answer))
                             %calculate AUC in different epoch
                             earlyActivity=nanmean(dff_aligned(indTrial,(frameNumTime(1)-time_before_delay)*1000/frT:(frameNumTime(1))*1000/frT),2);%stim and early delay
                             lateActivity=nanmean(dff_aligned(indTrial,(frameNumTime(1)+1.5-time_before_go)*1000/frT:(frameNumTime(1)+1.5)*1000/frT),2);%late delay
+                            midDelayActivity=nanmean(dff_aligned(indTrial,frameNum(1)+round(0.3*1000/frT):frameNum(1)+round(1*1000/frT)),2);%middle delay
+                            lickActivity=nanmean(dff_aligned_lick(indTrial,frameNum(1):frameNum(1)+round(0.5*1000/frT)),2);%0.5s activities after lick
                             [AUCcase(nResult).AUCearly,AUCcase(nResult).pAUCearly] = fAUC(label(indTrial),earlyActivity,2,nshuffle);
                             [AUCcase(nResult).AUClate,AUCcase(nResult).pAUClate] = fAUC(label(indTrial),lateActivity,2,nshuffle);
-                            AUCearly(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).AUCearly;
-                            pAUCearly(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).pAUCearly;
-                            AUClate(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).AUClate;
-                            pAUClate(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).pAUClate;
-                            DatapointName{n_answer*ind_datapoint+nResult-n_answer} = datapointNameCell{ind_datapoint,1};
-                            AnswerSession{n_answer*ind_datapoint+nResult-n_answer} = stranswer{nResult};
+                            [AUCcase(nResult).AUCmid,AUCcase(nResult).pAUCmid] = fAUC(label(indTrial),midDelayActivity,2,nshuffle);
+                            [AUCcase(nResult).AUClick,AUCcase(nResult).pAUClick] = fAUC(label(indTrial),lickActivity,2,nshuffle);
                         end
+                        AUCearly(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).AUCearly;
+                        pAUCearly(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).pAUCearly;
+                        AUClate(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).AUClate;
+                        pAUClate(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).pAUClate;
+                        AUCmid(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).AUCmid;
+                        pAUCmid(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).pAUCmid;
+                        AUClick(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).AUClick;
+                        pAUClick(n_answer*ind_datapoint+nResult-n_answer) = AUCcase(nResult).pAUClick;
+                        DatapointName{n_answer*ind_datapoint+nResult-n_answer} = datapointNameCell{ind_datapoint,1};
+                        AnswerSession{n_answer*ind_datapoint+nResult-n_answer} = stranswer{nResult};
                     end
                     %calculate moving t-test, method 2
                     pTtestcell{ind_datapoint,nResult}=fMovingTtest(label(indTrial),dff_aligned(indTrial,:),binsize,binstep);
@@ -512,13 +521,14 @@ for i_celltype=1:length(celltype)
         n_siteCell{i_celltype}=n_site;
         %save AUC, because calculation is time consuming
         TAUCepochSession=table(string(DatapointName),AUCearly,pAUCearly, AUClate,pAUClate,categorical(AnswerSession),...
-            'VariableNames',{'DatapointName' 'AUCearly' 'pAUCearly' 'AUClate' 'pAUClate' 'Answer'});
+            AUCmid,pAUCmid,AUClick,pAUClick,...
+            'VariableNames',{'DatapointName' 'AUCearly' 'pAUCearly' 'AUClate' 'pAUClate' 'Answer','AUCmid','pAUCmid','AUClick','pAUClick'});
         TAUCepochSite=table(string(SiteName),AUCearlySite,pAUCearlySite,AUClateSite,pAUClateSite,categorical(AnswerSite),...
             'VariableNames',{'SiteName' 'AUCearly' 'pAUCearly' 'AUClate' 'pAUClate' 'Answer'});
         save(fileNameAUC,'AUCcell','pAUCcell','datapointNameCell','AUCcellSite','pAUCcellSite','siteNameCell','TAUCepochSite','TAUCepochSession');
 %         save(fileNameAUC,'AUCcell','pAUCcell','datapointNameCell','AUCcellSite','pAUCcellSite','siteNameCell');
         save(fileNameTtest,'pTtestcell','pTtestcellSite');
-        clearvars DatapointName AUCearly pAUCearly AUClate pAUClate AnswerSession AUCearlySite pAUCearlySite AUClateSite pAUClateSite AnswerSite SiteName
+        clearvars DatapointName AUCearly pAUCearly AUClate pAUClate AnswerSession AUCearlySite pAUCearlySite AUClateSite pAUClateSite AnswerSite SiteName UCmid pAUCmid AUClick pAUClick
     end
 end
 %}
@@ -759,10 +769,15 @@ if i_selectivity>=2%only when 2 group exist
     saveas(figAUCepoch,[savepath,filesep,regionstr{i_region},'-epoch AUC comparison.pdf'],'pdf');
     
     %plot scatterhist
-    fScatterHistCmpEarlyLateCellType(TAUCepochSessionCombine,celltype,color_celltype,mkr);
+    fScatterHistCmpEarlyLateCellType(TAUCepochSessionCombine,'early','late',color_celltype,mkr);
+        %plot scatterhist comparing mid delay vs. lick
+    [figScatterHist,hs]=fScatterHistCmpEarlyLateCellType(TAUCepochSessionCombine,'mid','lick',color_celltype,mkr);
+    figure(figScatterHist);
+    set(hs(1),'Xlim',[0,1]);
+    set(hs(2),'Xlim',[0,1]);
     
     %plot scatterhist by site
-    fScatterHistCmpEarlyLateCellType(TAUCepochSiteCombine,celltype,color_celltype,mkr);
+    fScatterHistCmpEarlyLateCellType(TAUCepochSiteCombine,'early','late',color_celltype,mkr);
     
     %plot scatter sessions, labeled by site
     celltype={'vglut2','vgat'};
@@ -1049,7 +1064,7 @@ plot([0.5,0.5],[0,1],'k--');
 end
 
 %use scatterhist to show data
-function [Tout]=fScatterHistCmpEarlyLateCellType(Tin,celltype,color,mkr)
+function [figScatterHist,hs]=fScatterHistCmpEarlyLateCellType(Tin,epoch1,epoch2,color,mkr)
 celltype={'vglut2','vgat'};
 figScatterHist=figure;
 set(gcf,'Position',[100,100,400,400]);
@@ -1060,10 +1075,20 @@ plot([0.5,0.5],[0,1],'k--');
 patch([0,0.5,0.5,0],[0.5,0.5,1,1],color{2},'FaceAlpha',0.3,'EdgeColor','none');
 patch([0.5,0.5,1,1],[0,0.5,0.5,0],color{2},'FaceAlpha',0.3,'EdgeColor','none');
 for icelltype=2:-1:1
-    TAUC=Tin(logical((Tin.celltype==celltype{icelltype}).*(Tin.Answer == 'correct')),1:6);
+    TAUC=Tin(logical((Tin.celltype==celltype{icelltype}).*(Tin.Answer == 'correct')),:);
+    if strcmp(epoch1,'early')
+        datax=TAUC.AUCearly;
+    elseif strcmp(epoch1,'mid')
+        datax=TAUC.AUCmid;
+    end
+    if strcmp(epoch2,'late')
+        datay=TAUC.AUClate;
+    elseif strcmp(epoch2,'lick');
+        datay=TAUC.AUClick;
+    end
         
-%     h = scatterhist(TAUC.AUCearly,TAUC.AUClate,'Group',TAUC.celltype,'Color',color{icelltype},'Marker',mkr{icelltype});
-    curve_scatter(icelltype)=scatter(h1,TAUC.AUCearly,TAUC.AUClate,30,color{icelltype},mkr{icelltype});hold on;
+%     h = scatterhist(datax,datay,'Group',TAUC.celltype,'Color',color{icelltype},'Marker',mkr{icelltype});
+    curve_scatter(icelltype)=scatter(h1,datax,datay,30,color{icelltype},mkr{icelltype});hold on;
     set(gca,'Xlim',[0.3,0.7],'Ylim',[0,1],'FontSize',14,'FontName','Arial');
     set(h1,'position',[0.35,0.35,0.6,0.6]);
     %plot example
@@ -1074,7 +1099,7 @@ for icelltype=2:-1:1
             end
             
         end
-        scatter(h1,TAUC.AUCearly(indExample),TAUC.AUClate(indExample),30,color{icelltype},mkr{icelltype},'filled');
+        scatter(h1,datax(indExample),datay(indExample),30,color{icelltype},mkr{icelltype},'filled');
     elseif sum(cellfun(@(x) strcmp(x,'SiteName'), TAUC.Properties.VariableNames))>0
         for i=1:size(TAUC,1)
             if contains(TAUC.SiteName{i},'pyx237-right') || contains(TAUC.SiteName{i},'pyx241-left')
@@ -1082,33 +1107,44 @@ for icelltype=2:-1:1
             end
             
         end
-        scatter(h1,TAUC.AUCearly(indExample),TAUC.AUClate(indExample),30,color{icelltype},mkr{icelltype},'filled');
+        scatter(h1,datax(indExample),datay(indExample),30,color{icelltype},mkr{icelltype},'filled');
     end
     h2=subplot(3,3,[8,9]);
-    boxplot(TAUC.AUCearly,TAUC.celltype,'orientation','horizontal','color',color{icelltype},'Notch','on');
+    boxplot(datax,TAUC.celltype,'orientation','horizontal','color',color{icelltype},'Notch','on');
 %     hold on;
     set(h2,'Xlim',[0.3,0.7],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
     set(h2,'position',[0.35,0.05,0.6,0.2]);
     h3=subplot(3,3,[1,4]);
-    boxplot(TAUC.AUClate,TAUC.celltype,'orientation','vertical','color',color{icelltype},'Notch','on');
+    boxplot(datay,TAUC.celltype,'orientation','vertical','color',color{icelltype},'Notch','on');
 %     hold on;
     set(h3,'Ylim',[0,1],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
     set(h3,'position',[0.05,0.35,0.2,0.6]);
 end
 %replot boxplot together
-TAUC=Tin(logical(Tin.Answer == 'correct'),1:6);
-boxplot(h2,TAUC.AUCearly,TAUC.celltype,'orientation','horizontal','Notch','on','colors',[color{1};color{2}]);
+TAUC=Tin(logical(Tin.Answer == 'correct'),:);
+if strcmp(epoch1,'early')
+    datax=TAUC.AUCearly;
+elseif strcmp(epoch1,'mid')
+    datax=TAUC.AUCmid;
+end
+if strcmp(epoch2,'late')
+    datay=TAUC.AUClate;
+elseif strcmp(epoch2,'lick');
+    datay=TAUC.AUClick;
+end
+boxplot(h2,datax,TAUC.celltype,'orientation','horizontal','Notch','on','colors',[color{1};color{2}]);
 set(h2,'Xlim',[0.3,0.7],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
 set(h2,'position',[0.35,0.05,0.6,0.2]);
 
-boxplot(h3,TAUC.AUClate,TAUC.celltype,'orientation','vertical','Notch','on','colors',[color{1};color{2}]);
+boxplot(h3,datay,TAUC.celltype,'orientation','vertical','Notch','on','colors',[color{1};color{2}]);
 set(h3,'Ylim',[0,1],'FontSize',14,'FontName','Arial','box','off','XTickLabel',{' '},'YTickLabel',{' '});
 set(h3,'position',[0.05,0.35,0.2,0.6]);
 
 % hl=legend(curve_scatter(:),'vglut2' , 'vgat' , 'ALM terminal','AutoUpdate','off');
 hl=legend(curve_scatter(:), 'vglut2','vgat' ,'AutoUpdate','off');
 set(hl,'Box','Off');
-% text(0,1,['pearson correlation correct=',num2str(corr(TAUC.AUCearly,TAUC.AUClate))]);
+% text(0,1,['pearson correlation correct=',num2str(corr(datax,datay))]);
+hs=[h1,h2,h3];
 end
 
 %label dots with different color of different site

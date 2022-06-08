@@ -1,10 +1,10 @@
-function [tbSigTrial4Cell_out,figDMAsig,figSigCellNum,savingNameStr] = fGetDMAsigTableAsession(file_path,session,animal,date,field,celltype,trialTypeStr,activity_form,prct_delay2calculate_pResp,threshold_dur,fig_n_event,ax_event_time)
+function [tbSigTrial4Cell_out,figDMAsig,figSigCellNum,savingNameStr] = fGetDMAsigTableAsession(file_path,session,animal,date,field,celltype,trialTypeStr,activity_form,activity_smooth_binsize,prct_delay2calculate_pResp,threshold_dur,fig_n_event,ax_event_time)
 %fGetDMAsigTableAsession summary a session data to a table
 %Input-
 %Output-
 %   Detailed explanation goes here
 trial2include='all';
-trial2exclude=nan;
+trial2exclude=[];
 datestr=strrep(date,'/','-');
 %naming the temp file by method of AUC calculation correction
 fileNameT=[file_path,filesep,animal,'-',datestr,'trialType',trialTypeStr,'TsigTrialNum4cell_prctDelay2CalPResp-',prct_delay2calculate_pResp,'.mat'];
@@ -14,16 +14,15 @@ disp(['fGetDMAsigTableAsession is processing ',session]);
 %     savepath=[file_path,filesep,session];
 objsession=Session2P(session,file_path,trial2include,trial2exclude);
 if strcmp(activity_form,'spkr')
-    activity_data=objsession.spkr;
     significant_criteria='3STD';
     sig_criteria_off='3STD';
     threshold_dur_range=100:50:400;
 elseif strcmp(activity_form,'dff')
-    activity_data=objsession.dff;
     significant_criteria='2STD';
     sig_criteria_off='0.5STD';
     threshold_dur_range=100:100:800;
 end
+activity_data=objsession.mSmoothFR(activity_form,activity_smooth_binsize);%
 frT = objsession.metadata.frT;
 frameNumTime=[1,1.5];%from 0.5 before stimOnset to end of delay
 frameNum=double(round(frameNumTime*1000/frT));
@@ -56,7 +55,7 @@ frameNum_go=double(round(frameNumTime_go*1000/frT));
 ts_go=(-frameNum_go(1):binStep:frameNum_go(2))*frT/1000;
 %see how different threshold of continuing significant activities affect
 %the significant event characteristics
-%
+%{
 for threshold_dur_temp=threshold_dur_range
 %     [significant_matrix,start_sig_mat] = fSignificant(activity_data,'2STD',round(threshold_dur_temp/frT),'BaselineIndex',indBaseline);
     [significant_matrix,start_sig_mat] = fSignificant(activity_data,significant_criteria,round(threshold_dur_temp/frT),'BaselineIndex',indBaseline,'EventOffCriteria',sig_criteria_off);
@@ -212,8 +211,9 @@ tbSigTrial4Cell_out.ipsi_delay=mat2cell(tbSigTrial4Cell_out.ipsi_delay,rowDist);
 tbSigTrial4Cell_out.contra_delay=mat2cell(tbSigTrial4Cell_out.contra_delay,rowDist);
 
 %---plot cell profile showing their preference of ipsi/contra side---
-[figDMAsig,figSigCellNum]=deal([]);
-%{
+%[figDMAsig,figSigCellNum]=deal([]);
+%or
+%
 figDMAsig=figure;
 ax_raster_ipsi = axes('Position',[0.1,0.6,0.7,0.35],'Box','off');
 ax_barh_ipsi = axes('Position',[0.85,0.6,0.1,0.35],'Box','off');

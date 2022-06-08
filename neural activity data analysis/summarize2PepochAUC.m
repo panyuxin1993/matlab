@@ -3,20 +3,22 @@ clear;
 [num,txt,raw] =xlsread('C:\Users\PYX\Documents\DataSummary\imaging_data_summary.xlsx');%criteria to choose sessions come from this file
 savepath='E:\2P\summary';
 clear TAUC_combine Tmean_combine;
-% trialTypeStr='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
-% AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
-% AUCCorrectedMethod='SensoryChoiceOrthogonalSubtraction';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
-trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+trialTypeStr='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
 AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
-AUCCorrectedMethod='None';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
+AUCCorrectedMethod='SensoryChoiceOrthogonalSubtraction';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
+% trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+% AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+% AUCCorrectedMethod='None';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
 manipulation='control';
 %% calculate AUC
-%{
+%
 T=cell2table(raw(2:end,1:15));
 T.Properties.VariableNames=strrep(raw(1,1:15),' ','_');%table variable name can't have ' ',so replace them
 ind_session1=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control').*(~contains(T.behavior_performance,'probe'));%not probe session
-% ind_session2=logical(contains(T.cell_type,'syn').*contains(T.ROI_type,'soma'));
-ind_session2=logical(strcmp(T.cell_type,'vglut2')+strcmp(T.cell_type,'vgat')+strcmp(T.cell_type,'M2')+strcmp(T.cell_type,'vglut2-flpo')+strcmp(T.cell_type,'vgat-flpo'));
+ ind_session2=logical(contains(T.cell_type,'syn').*contains(T.ROI_type,'soma'));
+% ind_session2=logical(strcmp(T.cell_type,'vglut2')+strcmp(T.cell_type,'vgat')+strcmp(T.cell_type,'M2')+strcmp(T.cell_type,'vglut2-flpo')+strcmp(T.cell_type,'vgat-flpo'));
+% ind_session2=logical(strcmp(T.cell_type,'vglut2')+strcmp(T.cell_type,'vgat')+strcmp(T.cell_type,'vglut2-flpo')+strcmp(T.cell_type,'vgat-flpo'));
+
 % ind_session2=logical(contains(T.field,'soma')+contains(T.field,'dendrite'));
 % ind_session2=logical(strcmp(T.cell_type,'M2'));
 % ind_session2=logical(~contains(T.field,'soma').*contains(T.ROI_type,'soma'));%include all soma data, but exclude zoomin fields
@@ -31,13 +33,15 @@ n_animal=length(animal_unique);
 for i_session=1:n_session
     indrow=ind_session(i_session);
     [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},T.ROI_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);
-%     [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession_NPseg(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);    
+%     [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession_NPseg(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},T.ROI_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);    
+    %{
     if strcmp(TAUC_currentSession.animal{1},'pyx298')
         a=1;
     end
     if isempty(TAUC_currentSession)
         continue;
     end
+    %}
     if exist('TAUC_combine','var') && strcmp(AUCtype,'stimuli') %calculate choice probability
         if size(TAUC_currentSession.ITI,2)==2
             TAUC_combine=vertcat(TAUC_combine,TAUC_currentSession);
@@ -81,7 +85,8 @@ manipulation='control';
 %T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,'syn')|contains(TAUC_combine.celltype,'+other'),:);%syn, ..+other
 % T_AUC=TAUC_combine(strcmp(TAUC_combine.celltype,celltype),:);
 % ind_trial_chosen=strcmp(TAUC_combine.animal,'pyx358') & strcmp(TAUC_combine.date,'2021/6/10');
-ind_trial_chosen=logical(contains(TAUC_combine.ROItype,'soma').*contains(TAUC_combine.celltype,celltype));
+% ind_trial_chosen=logical(contains(TAUC_combine.ROItype,'soma').*contains(TAUC_combine.celltype,celltype));
+ind_trial_chosen=logical(contains(TAUC_combine.celltype,celltype));
 % ind_trial_chosen=logical(contains(TAUC_combine.ROItype,'dendrite').*contains(TAUC_combine.celltype,celltype));
 T_AUC=TAUC_combine(ind_trial_chosen,:);
 
@@ -185,8 +190,8 @@ set(gca,'Xlim',[0,1]);
 set(gca,'FontSize',14);
 box off;
 %}
-%% compare M2 AUC and SC syn/vglut2/vgat AUC
-%{
+%% compare M2 AUC and SC syn/vglut2/vgat AUC during delay
+%
 ind_trial_chosen_M2=strcmp(TAUC_combine.celltype,'M2');
 T_AUC_M2=TAUC_combine(ind_trial_chosen_M2,:);
 ind_trial_chosen_syn=strcmp(TAUC_combine.celltype,'syn');
@@ -284,6 +289,107 @@ ylabel('Proportion');
 set(gca,'Xlim',[0,1],'FontSize',14);
 box off;
 %}
+%% compare M2 AUC and SC syn/vglut2/vgat AUC during lick
+%
+ind_trial_chosen_M2=strcmp(TAUC_combine.celltype,'M2');
+T_AUC_M2=TAUC_combine(ind_trial_chosen_M2,:);
+ind_trial_chosen_syn=strcmp(TAUC_combine.celltype,'syn');
+T_AUC_syn=TAUC_combine(ind_trial_chosen_syn,:);
+ind_trial_chosen_vglut2=strcmp(TAUC_combine.celltype,'vglut2');
+T_AUC_vglut2=TAUC_combine(ind_trial_chosen_vglut2,:);
+ind_trial_chosen_vgat=strcmp(TAUC_combine.celltype,'vgat');
+T_AUC_vgat=TAUC_combine(ind_trial_chosen_vgat,:);
+T_AUC_EI=TAUC_combine(logical(ind_trial_chosen_vgat+ind_trial_chosen_vglut2),:);
+psig=[0,0.025;0.975,1];
+preference_threshold=0.5;
+bin_width=0.05;
+figCmpAUC=figure;
+set(figCmpAUC,'Position',[100,100,600,400]);
+subplot(2,3,1);
+histogram(T_AUC_M2.lick,'FaceColor','w','BinWidth',bin_width);
+hold on;
+histogram(T_AUC_M2.lick(findSig(T_AUC_M2.plick,psig) & T_AUC_M2.lick>preference_threshold),'FaceColor','r','BinWidth',bin_width);
+histogram(T_AUC_M2.lick(findSig(T_AUC_M2.plick,psig) & T_AUC_M2.lick<preference_threshold),'FaceColor','b','BinWidth',bin_width);
+ylabel('cell counts');
+title('M2');
+text(0.1,1,['n=',num2str(size(T_AUC_M2,1))],'Unit','Normalized');
+set(gca,'Xlim',[0,1],'FontSize',14);
+box off;
+
+% subplot(2,3,2);
+% histogram(T_AUC_syn.lick,'FaceColor','w','BinWidth',bin_width);
+% hold on;
+% histogram(T_AUC_syn.lick(findSig(T_AUC_syn.plick,psig) & T_AUC_syn.lick>preference_threshold),'FaceColor','r','BinWidth',bin_width);
+% histogram(T_AUC_syn.lick(findSig(T_AUC_syn.plick,psig) & T_AUC_syn.lick<preference_threshold),'FaceColor','b','BinWidth',bin_width);
+% title('SC syn');
+% text(0.1,1,['n=',num2str(size(T_AUC_syn,1))],'Unit','Normalized');
+% set(gca,'Xlim',[0,1]);
+% box off;
+% 
+% subplot(2,3,3);
+% histogram(T_AUC_M2.lick,'EdgeColor','k','BinWidth',0.05,'Normalization','probability','DisplayStyle','stairs','LineWidth',1);
+% hold on;
+% histogram(T_AUC_syn.lick,'EdgeColor',[1,0.5,0],'BinWidth',0.05,'Normalization','probability','DisplayStyle','stairs','LineWidth',1);
+% hl=legend('M2','SC');
+% set(hl,'box','off');
+% xlabel('AUC');
+% ylabel('Proportion');
+% set(gca,'Xlim',[0,1]);
+% box off;
+
+subplot(2,3,2);
+histogram(T_AUC_EI.lick,'FaceColor','w','BinWidth',bin_width);
+hold on;
+histogram(T_AUC_EI.lick(findSig(T_AUC_EI.plick,psig) & T_AUC_EI.lick>preference_threshold),'FaceColor','r','BinWidth',bin_width);
+histogram(T_AUC_EI.lick(findSig(T_AUC_EI.plick,psig) & T_AUC_EI.lick<preference_threshold),'FaceColor','b','BinWidth',bin_width);
+title('SC');
+text(0.1,1,['n=',num2str(size(T_AUC_EI,1))],'Unit','Normalized');
+set(gca,'Xlim',[0,1],'FontSize',14);
+box off;
+subplot(2,3,3);
+histogram(T_AUC_M2.lick,'EdgeColor','k','BinWidth',0.05,'Normalization','probability','DisplayStyle','stairs','LineWidth',1);
+hold on;
+histogram(T_AUC_EI.lick,'EdgeColor',[1,0.5,0],'BinWidth',0.05,'Normalization','probability','DisplayStyle','stairs','LineWidth',1);
+hl=legend('M2','SC');
+set(hl,'box','off');
+xlabel('AUC');
+ylabel('Proportion');
+set(gca,'Xlim',[0,1],'FontSize',14);
+box off;
+
+subplot(2,3,4);
+histogram(T_AUC_vglut2.lick,'FaceColor','w','BinWidth',bin_width);
+hold on;
+histogram(T_AUC_vglut2.lick(findSig(T_AUC_vglut2.plick,psig) & T_AUC_vglut2.lick>preference_threshold),'FaceColor','r','BinWidth',bin_width);
+histogram(T_AUC_vglut2.lick(findSig(T_AUC_vglut2.plick,psig) & T_AUC_vglut2.lick<preference_threshold),'FaceColor','b','BinWidth',bin_width);
+title('SC vglut2');
+text(0.1,1,['n=',num2str(size(T_AUC_vglut2,1))],'Unit','Normalized');
+set(gca,'Xlim',[0,1],'FontSize',14);
+box off;
+
+subplot(2,3,5);
+histogram(T_AUC_vgat.lick,'FaceColor','w','BinWidth',bin_width);
+hold on;
+histogram(T_AUC_vgat.lick(findSig(T_AUC_vgat.plick,psig) & T_AUC_vgat.lick>preference_threshold),'FaceColor','r','BinWidth',bin_width);
+histogram(T_AUC_vgat.lick(findSig(T_AUC_vgat.plick,psig) & T_AUC_vgat.lick<preference_threshold),'FaceColor','b','BinWidth',bin_width);
+title('SC vgat');
+text(0.1,1,['n=',num2str(size(T_AUC_vgat,1))],'Unit','Normalized');
+set(gca,'Xlim',[0,1],'FontSize',14);
+box off;
+
+subplot(2,3,6);
+histogram(T_AUC_vglut2.lick,'EdgeColor',[0,0.5,1],'BinWidth',0.05,'Normalization','probability','DisplayStyle','stairs','LineWidth',1);
+hold on;
+histogram(T_AUC_vgat.lick,'EdgeColor',[1,0,0],'BinWidth',0.05,'Normalization','probability','DisplayStyle','stairs','LineWidth',1);
+hl=legend('vglut2','vgat');
+set(hl,'box','off');
+xlabel('AUC');
+ylabel('Proportion');
+set(gca,'Xlim',[0,1],'FontSize',14);
+box off;
+%}
+
+
 %% plot mean activities scatter with rotated histogram
 %{
 load([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity.mat']);
@@ -411,12 +517,15 @@ mkr_ScatterHist={'h','>','s'};
 color_ScatterHist={'F16820','646464','46782D'};%vglut2,vgat,ALM
 color_ScatterHist=fHex2RGB(color_ScatterHist);
 celltype={'vglut2','vgat','M2'};
-
-[figScatterHist]=fScatterHistCmpEpochAUCCellType(TAUC_combine,celltype,'sound','late_delay',color_ScatterHist,mkr_ScatterHist);
+% celltype={'vglut2','vgat'};
+[figScatterHist,hs]=fScatterHistCmpEpochAUCCellType(TAUC_combine,celltype,'sound','late_delay',color_ScatterHist,mkr_ScatterHist);
+figure(figScatterHist);
+set(hs(1),'Xlim',[0.3,0.7]);
 saveas(figScatterHist,'E:\2P\summary\AUC_cmp_epoch\scatterHist_EI_EarlyLate_AUC.pdf','pdf');
 [figBarShift,R_celltype1,P_celltype1]=fBarShiftCellType(TAUC_combine,celltype,'sound','late_delay',color_ScatterHist);
 saveas(figBarShift,'E:\2P\summary\AUC_cmp_epoch\bar_EI_EarlyLate_AUC.pdf','pdf');
 %compare mid delay vs. lick AUC
+% celltype={'vglut2','vgat'};
 [figScatterHist]=fScatterHistCmpEpochAUCCellType(TAUC_combine,celltype,'mid_delay','lick',color_ScatterHist,mkr_ScatterHist);
 saveas(figScatterHist,'E:\2P\summary\AUC_cmp_epoch\scatterHist_EI_DelayLick_AUC.pdf','pdf');
 [figBarShift,R_celltype2,P_celltype2]=fBarShiftCellType(TAUC_combine,celltype,'delay','lick',color_ScatterHist);
@@ -974,7 +1083,7 @@ for i=1:length(session_pool)
 end
 end
 
-function [figScatterHist]=fScatterHistCmpEpochAUCCellType(Tin,chosen_celltype,chosen_fields1,chosen_fields2,color,mkr)
+function [figScatterHist,hs]=fScatterHistCmpEpochAUCCellType(Tin,chosen_celltype,chosen_fields1,chosen_fields2,color,mkr)
 figScatterHist=figure;
 set(gcf,'Position',[100,100,600,600]);
 h1=subplot(3,3,[2,3,5,6]);
@@ -1052,7 +1161,7 @@ elseif length(chosen_celltype)==3
     set(hl,'Box','Off');
     % text(0,1,['pearson correlation correct=',num2str(corr(TAUC.AUCearly,TAUC.AUClate))]);
 end
-
+hs=[h1,h2,h3];
 end
 
 function [figBarShift,R_celltype,P_celltype]=fBarShiftCellType(Tin,chosen_celltype,chosen_fields1,chosen_fields2,color)

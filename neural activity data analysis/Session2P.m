@@ -16,6 +16,9 @@ classdef Session2P
         SavedCaTrials
         DLC         %struct read from a .xls file, including dcnum, dctxt
         behavior_performance%behavior performance stored in a table
+        TSVM        %table storing the cross epoch and time SVM
+        TAUC        %table storing the cross epoch and time AUC
+        Tmean       %table storing the cross epoch and time mean activities
     end
     
     methods
@@ -27,8 +30,11 @@ classdef Session2P
             temp=strsplit(sessionname,'_');
             obj.metadata.animal=temp{1};
             obj.metadata.date=temp{2};
+            obj.metadata.datetime=datetime(str2double(obj.metadata.date(1:4)),str2double(obj.metadata.date(5:6)),str2double(obj.metadata.date(7:8)));
             if length(temp)>2
                 obj.metadata.field=temp{3};
+            else
+                obj.metadata.field=[];
             end
             obj.metadata.trial2include=trial2include;
             obj.metadata.trial2exclude=trial2exclude;
@@ -314,6 +320,27 @@ classdef Session2P
             [spiking_rate, denoised_trace, zscored_spkr,ROIFitCoefs] = fxy_GetDeconvolvedFR(obj.dff,Paras,obj.name,obj.path.root,flag_plot);
         end
         
+        function fr_smoothed=mSmoothFR(obj,activity_type,binsize)
+            %smooth the firing rate data, binsize (in ms)
+            switch activity_type
+                case 'dff'
+                    activities=obj.dff;
+                case 'spkr'
+                    activities=obj.spkr;
+                case 'zscored_dff'
+                    activities=obj.zscored_dff;
+                case 'zscored_spkr'
+                    activities=obj.zscored_spkr;
+            end
+            span=ceil((binsize/obj.metadata.frT-1)/2);
+            fr_smoothed=zeros(size(activities));
+            for t=1:size(activities,2)
+                t1=max(1,t-span);
+                t2=min(size(activities,2),t+span);
+                fr_smoothed(:,t)=nanmean(activities(:,t1:t2),2);
+            end
+        end
+        
         function population_stability=mGetPopulationStability(obj,activity_type,tau)
            %using dff/spkr etc. to calcultate a population trajectory and
            %calcualte the angles of vectors pointing to different points at the
@@ -497,19 +524,31 @@ classdef Session2P
             end
         end
         
-        function [meanActivityByTrialType,cellActivityByTrialType]=mMeanPSTHbyROI(obj,activity_type,ind_ROI,behEventAlign,masklick,i_selectivity)
-            if strcmp(activity_type,'dff')
-                activities_data=obj.zscored_dff;
-            elseif strcmp(activity_type,'spkr')
-                activities_data=obj.zscored_spkr;
+        function [meanActivityByTrialType,cellActivityByTrialType, Tout]=mMeanPSTHbyROI(obj,activity_type,ind_ROI,behEventAlign,masklick,i_selectivity)
+            %meanActivityByTrialType-mean activities of each ROI,each
+            %condition one vector
+            %cellActivityByTrialType-cell of activities of each ROI, each
+            %condition one cell
+            %Tout- table combine previous mean and cell output with
+            %additional information about ROI identity
+            switch activity_type
+                case 'dff'
+                    activities_data=obj.dff;
+                case 'zscored_dff'
+                    activities_data=obj.zscored_dff;
+                case 'spkr'
+                    activities_data=obj.spkr;
+                case 'zscored_spkr'
+                    activities_data=obj.zscored_spkr;
             end
+
             %plotting settings
             if strcmp(behEventAlign,'stim onset')
                 frameNumTime=[0.5,2];%from 5s before align point to 5s after align point
             elseif strcmp(behEventAlign,'delay onset')
                 frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
             else
-                frameNumTime=[2,3.5];%from 5s before align point to 5s after align point
+                frameNumTime=[1,2];%from 1s before align point to 2s after align point
             end
             if isempty(ind_ROI) || min(ind_ROI)>obj.metadata.nROI || max(ind_ROI)<1
                 iStart=1;
@@ -518,11 +557,22 @@ classdef Session2P
                 iStart=max(1,min(ind_ROI));
                 iEnd=min(obj.metadata.nROI,max(ind_ROI));
             end
+
+            varROI=iStart:iEnd;
+            varROI=reshape(varROI,[],1);
+            nROI=iEnd-iStart+1;
+            [varMean,varCell]=deal(cell(iEnd-iStart+1,1));
+            [varanimal{1:nROI}]=deal(obj.metadata.animal);
+            varanimal=reshape(varanimal,[],1);
+            [vardate{1:nROI}]=deal(obj.metadata.date);
+            vardate=reshape(vardate,[],1);
             for iROI=iStart:iEnd
                 [meanActivityByTrialType_ROI,cellActivityByTrialType_ROI] = fMeanPSTHbyROI(activities_data(iROI,:),...
                     obj.metadata.ind_tr_1,obj.Data_extract,obj.SavedCaTrials,...
                     frameNumTime,behEventAlign,masklick,i_selectivity,...
                     obj.metadata.trial2include,obj.metadata.trial2exclude);
+                varMean{iROI,1}=meanActivityByTrialType_ROI;
+                varCell{iROI,1}=cellActivityByTrialType_ROI;
                 if exist('meanActivityByTrialType','var')
                     meanActivityByTrialType=cellfun(@(x,y) vertcat(x,y),meanActivityByTrialType,meanActivityByTrialType_ROI,'UniformOutput',false);
                     cellActivityByTrialType=cellfun(@(x,y) vertcat(x,y),cellActivityByTrialType,cellActivityByTrialType_ROI,'UniformOutput',false);
@@ -531,6 +581,8 @@ classdef Session2P
                     cellActivityByTrialType=cellActivityByTrialType_ROI;
                 end
             end
+            Tout=table(varanimal,vardate,varROI,varMean,varCell,...
+                'VariableNames',{'animal','date','nROI','meanActivityByTrialType','cellActivityByTrialType'});
         end
         
         function [indBaseline] = mIndexBaselineAroundMode(obj,signals,varargin)
@@ -997,9 +1049,322 @@ classdef Session2P
             saveas(figDLC_PSTH,[savepath,filesep,obj.name,'-DLC_PSTH',savename,'-algin',behEventAlign{iBodyPart},'-sort',behEventSort,'mean_trace.png'],'png');
             close all;
         end
+        
+        function [TAUC, Tmean,obj] = mGetEpochAUC(obj,celltype,ROItype,trialTypeStr,...
+                AUCtype,AUCCorrectedMethod)
+            date_str=datestr(obj.metadata.datetime,'yyyy-mm-dd');
+            date_str=strrep(date_str,'-0','-');
+            selectivitystr={'stimuli','sensory difficulty','sensory','choice'};%sensory means grouping difficulties;
+            trialTypeVar=[1,2,4,3];%corresponding to variable 'selectivitystr',decide what trial type means
+            i_selectivity=cellfun(@(x) strcmp(x,AUCtype),selectivitystr);%*********variable**************
+            i_selectivity=find(i_selectivity);
+            str_nFrames='1s';%'500ms';%'1s'
+            %naming the temp file by method of AUC calculation correction
+            filepath_inSummary='E:\2P\summary\AUC\cases';%backup another copy in the summary folder
+            fileName_datapars=[obj.metadata.animal,'-',date_str,'trialType',trialTypeStr];
+            if strcmp(trialTypeStr,'cor') || strcmp(trialTypeStr,'err')
+                combineCorErr='divideCorErr';%and only use correct trial
+                corErrTrialNumber='raw';
+                fileName_processpars=[AUCtype,'-trialNum',corErrTrialNumber,'-timeBin',str_nFrames];
+            elseif strcmp(trialTypeStr,'cor and err')%used to test whether it is sensory or choice AUC,in order to be more fair, keep trial numbers balenced for correct and error trials
+                combineCorErr='combineCorErr';%{'combineCorErr','divideCorErr'}
+                switch AUCCorrectedMethod
+                    case 'balencedCorErrTrialNum'
+                        corErrTrialNumber='balence';
+                        fileName_processpars=[AUCtype,'-trialNum',corErrTrialNumber,'-timeBin',str_nFrames];
+                    case 'SensoryChoiceOrthogonalSubtraction'
+                        corErrTrialNumber='raw';
+                        if strcmp(AUCtype,'choice')|| strcmp(AUCtype,'sensory')
+                            fileName_processpars=[AUCtype,'-AUCCorrectedMethod',AUCCorrectedMethod,'-timeBin',str_nFrames];
+                        else
+                            warning('error input combination of fGetEpochAUCtableASession function, SensoryChoiceOrthogonalSubtraction method');
+                        end
+                    otherwise
+                        corErrTrialNumber='raw';
+                        fileName_processpars=[AUCtype,'-trialNum',corErrTrialNumber,'-timeBin',str_nFrames];
+                end
+            end
+            fileNameT=[obj.path.root,filesep,fileName_datapars,'-',fileName_processpars,'-EpochAUC.mat'];
+            fileNameT_inSummary=[filepath_inSummary,filesep,fileName_datapars,'-',fileName_processpars,'-EpochAUC.mat'];
+            
+            if exist(fileNameT,'file')%CD058-2018-1-27trialTypecor and err-choice-AUCCorrectedMethodSensoryChoiceOrthogonalSubtraction-timeBin1s-EpochAUC
+                load(fileNameT);
+                n_ROI=size(TAUC,1);
+                disp(['Table exist, use ',obj.metadata.animal,date_str,';nROI=',num2str(n_ROI)]);
+                %delete duplicated variables
+                standard_varNames={'animal','date','field','celltype','ROItype','nROI',...
+                    'ipsi_performance', 'contra_performance','overall_performance',...
+                    'ITI','sound','delay','response','lick','mid_delay','late_delay',...
+                    'pITI','psound','pdelay','presponse','plick','pmid_delay','plate_delay','delayMovingAUC','pdelayMovingAUC'};
+                T_names=TAUC.Properties.VariableNames;
+                for i=1:length(T_names)
+                    temp=cellfun(@(x) strcmp(x,T_names(i)), standard_varNames);
+                    if sum(temp)==0
+                        TAUC(:,T_names{i})=[];
+                    end
+                end
+            else
+                nROI=size(obj.SavedCaTrials.f_raw{1},1);
+                [delayMovingAUC,pdelayMovingAUC]=deal(cell(nROI,1));
+                [varanimal{1:nROI}]=deal(obj.metadata.animal);
+                varanimal=reshape(varanimal,[],1);
+                [vardate{1:nROI}]=deal(obj.metadata.date);
+                vardate=reshape(vardate,[],1);
+                [varfield{1:nROI}]=deal(obj.metadata.field);
+                varfield=reshape(varfield,[],1);
+                [varcelltype{1:nROI}]=deal(celltype);
+                varcelltype=reshape(varcelltype,[],1);
+                [varROItype{1:nROI}]=deal(ROItype);
+                varROItype=reshape(varROItype,[],1);
+                varROI=(1:size(obj.SavedCaTrials.f_raw{1},1));
+                varROI=reshape(varROI,[],1);
+                ind_tr_1=1;
+                ntr=length(obj.SavedCaTrials.f_raw);
+                frT = obj.SavedCaTrials.FrameTime;
+                % align to behavior event
+                nFrameEachTrial=cellfun(@(x) size(x,2),obj.SavedCaTrials.f_raw);
+                ind_1stFrame=zeros(1,length(nFrameEachTrial));
+                ind_1stFrame(1)=1;
+                ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
+                ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
+                frameNumTime=[1,1.5];%from 1s before delay onset to 1.5s after delay onset
+                frameNum=double(round(frameNumTime*1000/frT));
+                [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( obj.Data_extract, ind_1stFrame, obj.SavedCaTrials.FrameTime );%get behavior event time
+                
+                if strcmp(AUCtype,'choice')|| strcmp(AUCtype,'sensory')
+                    [ITI, sound,delay, response, lick, pITI, psound, pdelay, presponse, plick]= deal(nan(nROI,1));
+                    switch corErrTrialNumber
+                        case 'balence'
+                            [trialType,~,~] = fGetTrialType( obj.Data_extract,[],trialTypeVar(i_selectivity),'matrix','left','divideCorErr');
+                            trialTypeIndCell=cell(2,2);%{ipsi cor, contra cor;ipsi err, contra err};
+                            for i=1:2
+                                for j=1:2
+                                    trialTypeIndCell{i,j}=find(logical(reshape(trialType(i,j,:),[],1)));
+                                end
+                            end
+                            temp=cellfun(@length,trialTypeIndCell);
+                            trialNumEachType=floor(sum(temp,'all')/4);%keep total trial number stable and redistributed to each trial types
+                            s = RandStream('mlfg6331_64');%for reproducibility
+                            trialTypeIndCellBalenced=cellfun(@(x) reshape(datasample(s,x,trialNumEachType,'Replace',true),[],1), trialTypeIndCell,'UniformOutput',false);
+                            trialTypeIndFinal=cell2mat(trialTypeIndCellBalenced);%1st col-cor; 2nd col-err
+                            ind_trial=reshape(trialTypeIndFinal,[],1);
+                            label_AUC=[ones(trialNumEachType*2,1);ones(trialNumEachType*2,1)*2];
+                        case 'raw'
+                            [trialType,~,~] = fGetTrialType( obj.Data_extract,[],trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
+                            label_choice = fTrialType2Label(trialType,2);
+                            if contains(trialTypeStr,'cor') % 'cor'| 'cor and err'
+                                ind_trial=logical(reshape(sum(trialType(1,:,:),2),[],1));%only correct trials
+                            end
+                            if strcmp(trialTypeStr,'err')
+                                ind_trial=logical(reshape(sum(trialType(2,:,:),2),[],1));%only error trials
+                            end
+                            label_AUC=label_choice(ind_trial);
+                            %used for orthogonal subtraction
+                            [trialType_orthogonal,~,~] = fGetTrialType( obj.Data_extract,[],7-trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
+                            label_choice_orthogonal = fTrialType2Label(trialType_orthogonal,2);
+                            label_AUC_orthogonal=label_choice_orthogonal(ind_trial);
+                    end
+                    for roiNo = 1:size(obj.SavedCaTrials.f_raw{1},1) %SavedCaTrials.nROIs may be not true
+                        disp([obj.metadata.animal,obj.metadata.date,'rioNo',num2str(roiNo)]);
+                        [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,obj.dff(roiNo,:),frT,str_nFrames);
+                        if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                            T_SigbyEpoch=fOrthogonalSubtraction(T_SigbyEpoch,ind_trial,label_AUC,label_AUC_orthogonal);
+                        else
+                            T_SigbyEpoch=T_SigbyEpoch(ind_trial,:);
+                        end
+                        poslabel=2;
+                        nshuffle=1000;%%%%check
+                        [ITI(roiNo),pITI(roiNo)]=fAUC(label_AUC,T_SigbyEpoch.ITI,poslabel,nshuffle);
+                        [sound(roiNo),psound(roiNo)]=fAUC(label_AUC,T_SigbyEpoch.sound,poslabel,nshuffle);
+                        [delay(roiNo),pdelay(roiNo)]=fAUC(label_AUC,T_SigbyEpoch.delay,poslabel,nshuffle);
+                        [response(roiNo),presponse(roiNo)]=fAUC(label_AUC,T_SigbyEpoch.response,poslabel,nshuffle);
+                        [lick(roiNo),plick(roiNo)]=fAUC(label_AUC,T_SigbyEpoch.lick,poslabel,nshuffle);
+                        %calculate moving AUC
+                        [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( obj.dff(roiNo,:), behEventFrameIndex,  frameNum );
+                        dff_late_delay=nanmean(dff_aligned(:,frameNum(1)+round(1*1000/frT):frameNum(1)+round(1.5*1000/frT)),2);
+                        dff_mid_delay=nanmean(dff_aligned(:,frameNum(1)+round(0.3*1000/frT):frameNum(1)+round(1*1000/frT)),2);
+                        if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                            dff_aligned_ortho_corrected=fOrthogonalSubtraction(dff_aligned,ind_trial,label_AUC,label_AUC_orthogonal);
+                            dff_mid_delay4auc=fOrthogonalSubtraction(dff_mid_delay,ind_trial,label_AUC,label_AUC_orthogonal);
+                            dff_late_delay4auc=fOrthogonalSubtraction(dff_late_delay,ind_trial,label_AUC,label_AUC_orthogonal);
+                        else
+                            dff_aligned=dff_aligned(ind_trial,:);
+                            dff_mid_delay4auc=dff_mid_delay(ind_trial,:);
+                            dff_late_delay4auc=dff_late_delay(ind_trial,:);
+                        end
+                        [mid_delay(roiNo),pmid_delay(roiNo)]=fAUC(label_AUC,dff_mid_delay4auc,poslabel,nshuffle);
+                        [late_delay(roiNo),plate_delay(roiNo)]=fAUC(label_AUC,dff_late_delay4auc,poslabel,nshuffle);
+                        
+                        binsize=1;
+                        binstep=1;
+                        for nResult=1:size(trialType,1)-2
+                            if strcmp(trialTypeStr,'cor and err')%combine cor and err together
+                                indTrial=ind_trial;
+                            else %calculate AUC for cor and err respectively
+                                indTrial=trialType(nResult,:,:);
+                                indTrial=sum(squeeze(indTrial),1);
+                                indTrial=logical(squeeze(indTrial));
+                            end
+                            if nResult==1
+                                if strcmp(trialTypeStr,'cor and err')
+                                    if strcmp(AUCCorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                                        [delayMovingAUC{roiNo}.do,pdelayMovingAUC{roiNo}.do] = fMovingAUC(label_AUC,dff_aligned_ortho_corrected,2,nshuffle,binsize,binstep);
+                                    else
+                                        [delayMovingAUC{roiNo}.do,pdelayMovingAUC{roiNo}.do] = fMovingAUC(label_AUC,dff_aligned,2,nshuffle,binsize,binstep);
+                                    end
+                                elseif strcmp(trialTypeStr,'cor')
+                                    [delayMovingAUC{roiNo}.cor,pdelayMovingAUC{roiNo}.cor] = fMovingAUC(label_AUC,dff_aligned,2,nshuffle,binsize,binstep);
+                                end
+                            elseif nResult==2 && strcmp(trialTypeStr,'err')
+                                [delayMovingAUC{roiNo}.err,pdelayMovingAUC{roiNo}.err] = fMovingAUC(label_AUC,dff_aligned,2,nshuffle,binsize,binstep);
+                            end
+                        end
+                    end
+                    
+                elseif strcmp(AUCtype,'stimuli') %here, compare auc of cor/err for each stimuli
+                    [trialType,~,~] = fGetTrialType( obj.Data_extract,[],trialTypeVar(i_selectivity),'matrix','left','divideCorErr');
+                    [ITI, sound,delay, response, lick, pITI, psound, pdelay, presponse, plick]= deal(nan(nROI,size(trialType,2)));
+                    for roiNo = 1:size(obj.SavedCaTrials.f_raw{1},1)
+                        disp([animal,date,'rioNo',num2str(roiNo)]);
+                        [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,obj.dff(roiNo,:),frT,str_nFrames);
+                        label_choice = fTrialType2Label(trialType(1:2,:,:),1);%only include cor and err trials
+                        poslabel=1;
+                        nshuffle=1000;
+                        for nStim=1:size(trialType,2)
+                            ind_trial=logical(reshape(sum(trialType(1:2,nStim,:),1),[],1));
+                            [ITI(roiNo,nStim),pITI(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.ITI(ind_trial),poslabel,nshuffle);
+                            [sound(roiNo,nStim),psound(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.sound(ind_trial),poslabel,nshuffle);
+                            [delay(roiNo,nStim),pdelay(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.delay(ind_trial),poslabel,nshuffle);
+                            [response(roiNo,nStim),presponse(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.response(ind_trial),poslabel,nshuffle);
+                            [lick(roiNo,nStim),plick(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.lick(ind_trial),poslabel,nshuffle);
+                        end
+                        %calculate moving AUC
+                        [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( obj.dff(roiNo,:), behEventFrameIndex,  frameNum );
+                        binsize=1;
+                        binstep=1;
+                        label = label_choice;
+                        for nStim=1:size(trialType,2)
+                            indTrial=sum(trialType(1:2,nStim,:),1);%only for cor and err trials(1st d)
+                            indTrial=logical(squeeze(indTrial));
+                            [delayMovingAUC{roiNo}.stim{nStim},pdelayMovingAUC{roiNo}.stim{nStim}] = fMovingAUC(label(indTrial),dff_aligned(indTrial,:),poslabel,nshuffle,binsize,binstep);
+                        end
+                    end
+                end
+                %add task performance
+                nROI=size(obj.SavedCaTrials.f_raw{1},1);
+                session=[animal,'_',date,'_',field];
+                trial2include='all';
+                trial2exclude=[];
+                objsession=Session2P(session,filepath,trial2include,trial2exclude);
+                Tperformance=objsession.mSummaryBehavior(3);
+                [ipsi_performance{1:nROI}]=deal(Tperformance{'ipsi','correct'});
+                ipsi_performance=reshape(ipsi_performance,[],1);
+                [contra_performance{1:nROI}]=deal(Tperformance{'contra','correct'});
+                contra_performance=reshape(contra_performance,[],1);
+                [overall_performance{1:nROI}]=deal(Tperformance{'total','correct'});
+                overall_performance=reshape(overall_performance,[],1);
+                varROI=(1:size(obj.SavedCaTrials.f_raw{1},1));
+                varROI=reshape(varROI,[],1);
+                TAUC=table(varanimal,vardate,varfield,varcelltype,varROItype,varROI,...
+                    ipsi_performance, contra_performance,overall_performance,...
+                    ITI, sound,delay, response, lick, mid_delay,late_delay,...
+                    pITI, psound, pdelay, presponse, plick,pmid_delay,plate_delay,delayMovingAUC,pdelayMovingAUC,...
+                    'VariableNames',{'animal','date','field','celltype','ROItype','nROI',...
+                    'ipsi_performance', 'contra_performance','overall_performance',...
+                    'ITI','sound','delay','response','lick','mid_delay','late_delay',...
+                    'pITI','psound','pdelay','presponse','plick','pmid_delay','plate_delay','delayMovingAUC','pdelayMovingAUC'});
+            end
+            %calculate mean activities for each time epoch and whether they
+            %different from ITI as baseline
+            if ~exist('Tmean','var')
+                nROI=size(obj.SavedCaTrials.f_raw{1},1);
+                %     [ITI_m, sound_m,delay_m, response_m, lick_m, pITI_m, psound_m, pdelay_m, presponse_m, plick_m]= deal(nan(nROI,1));
+                [trialType,~,~] = fGetTrialType( obj.Data_extract,[],trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
+                [trialType_byChoice,~,~] = fGetTrialType( obj.Data_extract,[],3,'matrix','left','combineCorErr');
+                if contains(trialTypeStr,'cor') % 'cor'| 'cor and err'
+                    ind_trial=logical(reshape(sum(trialType(1,:,:),2),[],1));%only correct trials
+                end
+                ind_ipsi=logical(reshape(sum(trialType_byChoice(1,1,:),2),[],1));
+                ind_contra=logical(reshape(sum(trialType_byChoice(1,2,:),2),[],1));
+                ind_tr_1=1;
+                ntr=length(obj.SavedCaTrials.f_raw);
+                frT = obj.SavedCaTrials.FrameTime;
+                % align to behavior event
+                nFrameEachTrial=cellfun(@(x) size(x,2),obj.SavedCaTrials.f_raw);
+                ind_1stFrame=zeros(1,length(nFrameEachTrial));
+                ind_1stFrame(1)=1;
+                ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
+                ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
+                frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
+                frameNum=double(round(frameNumTime*1000/frT));
+                [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( obj.Data_extract, ind_1stFrame, obj.SavedCaTrials.FrameTime );%get behavior event time
+                [sound_pselectivity,delay_pselectivity,response_pselectivity,lick_pselectivity]=deal(ones(size(obj.SavedCaTrials.f_raw{1},1),1));
+                for roiNo = 1:size(obj.SavedCaTrials.f_raw{1},1) %SavedCaTrials.nROIs may be not true
+                    [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,obj.dff(roiNo,:),frT,str_nFrames);
+                    T_SigbyEpoch_mean=T_SigbyEpoch(ind_trial,:);
+                    [ITI_m(roiNo).mean,pITI_m(roiNo).mean]=fMeanPdiff(T_SigbyEpoch_mean.ITI,T_SigbyEpoch_mean.ITI);
+                    [sound_m(roiNo).mean, psound_m(roiNo).mean]=fMeanPdiff(T_SigbyEpoch_mean.ITI,T_SigbyEpoch_mean.sound);
+                    [delay_m(roiNo).mean,pdelay_m(roiNo).mean]=fMeanPdiff(T_SigbyEpoch_mean.ITI,T_SigbyEpoch_mean.delay);
+                    [response_m(roiNo).mean,presponse_m(roiNo).mean]=fMeanPdiff(T_SigbyEpoch_mean.ITI,T_SigbyEpoch_mean.response);
+                    [lick_m(roiNo).mean,plick_m(roiNo).mean]=fMeanPdiff(T_SigbyEpoch_mean.ITI,T_SigbyEpoch_mean.lick);
+                    T_SigbyEpoch_ipsi=T_SigbyEpoch(logical(ind_trial.*ind_ipsi),:);
+                    [ITI_m(roiNo).ipsi,pITI_m(roiNo).ipsi]=fMeanPdiff(T_SigbyEpoch_ipsi.ITI,T_SigbyEpoch_ipsi.ITI);
+                    [sound_m(roiNo).ipsi, psound_m(roiNo).ipsi]=fMeanPdiff(T_SigbyEpoch_ipsi.ITI,T_SigbyEpoch_ipsi.sound);
+                    [delay_m(roiNo).ipsi,pdelay_m(roiNo).ipsi]=fMeanPdiff(T_SigbyEpoch_ipsi.ITI,T_SigbyEpoch_ipsi.delay);
+                    [response_m(roiNo).ipsi,presponse_m(roiNo).ipsi]=fMeanPdiff(T_SigbyEpoch_ipsi.ITI,T_SigbyEpoch_ipsi.response);
+                    [lick_m(roiNo).ipsi,plick_m(roiNo).ipsi]=fMeanPdiff(T_SigbyEpoch_ipsi.ITI,T_SigbyEpoch_ipsi.lick);
+                    T_SigbyEpoch_contra=T_SigbyEpoch(logical(ind_trial.*ind_contra),:);
+                    [ITI_m(roiNo).contra,pITI_m(roiNo).contra]=fMeanPdiff(T_SigbyEpoch_contra.ITI,T_SigbyEpoch_contra.ITI);
+                    [sound_m(roiNo).contra, psound_m(roiNo).contra]=fMeanPdiff(T_SigbyEpoch_contra.ITI,T_SigbyEpoch_contra.sound);
+                    [delay_m(roiNo).contra,pdelay_m(roiNo).contra]=fMeanPdiff(T_SigbyEpoch_contra.ITI,T_SigbyEpoch_contra.delay);
+                    [response_m(roiNo).contra,presponse_m(roiNo).contra]=fMeanPdiff(T_SigbyEpoch_contra.ITI,T_SigbyEpoch_contra.response);
+                    [lick_m(roiNo).contra,plick_m(roiNo).contra]=fMeanPdiff(T_SigbyEpoch_contra.ITI,T_SigbyEpoch_contra.lick);
+                    sound_pselectivity(roiNo)=ranksum(T_SigbyEpoch_contra.sound,T_SigbyEpoch_ipsi.sound);
+                    delay_pselectivity(roiNo)=ranksum(T_SigbyEpoch_contra.delay,T_SigbyEpoch_ipsi.delay);
+                    response_pselectivity(roiNo)=ranksum(T_SigbyEpoch_contra.response,T_SigbyEpoch_ipsi.response);
+                    lick_pselectivity(roiNo)=ranksum(T_SigbyEpoch_contra.lick,T_SigbyEpoch_ipsi.lick);
+                end
+                [varanimal{1:nROI}]=deal(obj.metadata.animal);
+                varanimal=reshape(varanimal,[],1);
+                [vardate{1:nROI}]=deal(obj.metadata.date);
+                vardate=reshape(vardate,[],1);
+                [varfield{1:nROI}]=deal(obj.metadata.field);
+                varfield=reshape(varfield,[],1);
+                [varcelltype{1:nROI}]=deal(celltype);
+                varcelltype=reshape(varcelltype,[],1);
+                [varROItype{1:nROI}]=deal(ROItype);
+                varROItype=reshape(varROItype,[],1);
+                varROI=(1:size(obj.SavedCaTrials.f_raw{1},1));
+                varROI=reshape(varROI,[],1);
+                
+                Tmean=table(varanimal,vardate,varfield,varcelltype,varROItype,varROI,...
+                    ITI_m', sound_m',delay_m', response_m', lick_m', ...
+                    pITI_m', psound_m', pdelay_m', presponse_m', plick_m',...
+                    sound_pselectivity,delay_pselectivity,response_pselectivity,...
+                    lick_pselectivity,'VariableNames',...
+                    {'animal','date','field','celltype','ROItype','nROI',...
+                    'ITI','sound','delay','response','lick',...
+                    'pITI','psound','pdelay','presponse','plick',...
+                    'sound_pselectivity','delay_pselectivity','response_pselectivity',...
+                    'lick_pselectivity'});
+            end
+            save(fileNameT,'TAUC','Tmean');
+            save(fileNameT_inSummary,'TAUC','Tmean');
+            obj.TAUC=TAUC;
+            obj.Tmean=Tmean;
+        end
 
-        function TSVM=mSVMscore(obj,celltype,trialTypeStr,ind_NSDelayMovement,SVMtype,nRepeat, pTraining)
-            %ref fGetEpochSVMscoreASession, to calculate a SVM score
+        function [TSVM,obj]=mSVMscore(obj,celltype,dataForm,indROI,strROI,trialTypeStr,...
+                SVMtype,nRepeat, pTraining,CorrectedMethod,smoothBinsize,CTflag)
+            %ref fGetEpochSVMscoreASession V22.5.26, to calculate a SVM score
+            activity_data_smooth=obj.mSmoothFR(dataForm,smoothBinsize);%{objsession.zscored_spkr,objsession.dff,objsession.spkr}%choose among several acitivities form
+            activity_data_raw=obj.mSmoothFR(dataForm,1);%when extracting epoch activities, do not smooth
+            if ~isempty(indROI)
+                activity_data=activity_data_smooth(indROI,:);%use part of the ROI to perform SVM
+            else
+                activity_data=activity_data_smooth;
+            end
+            indTrial2use=reshape(obj.metadata.indTrial2use,[],1);
             datestr=strrep(obj.metadata.date,'/','-');
             if strcmp(trialTypeStr,'cor')
                 combineCorErr='divideCorErr';%and only use correct trial
@@ -1010,115 +1375,242 @@ classdef Session2P
             trialTypeVar=[1,2,4,3];%corresponding to variable 'selectivitystr',decide what trial type means
             i_selectivity=cellfun(@(x) strcmp(x,SVMtype),selectivitystr);%*********variable**************
             i_selectivity=find(i_selectivity);
-            str_nFrames='500ms';%'500ms';%'1s'
-            fileNameT=[obj.path.root,filesep,obj.metadata.animal,'-',datestr,'trialType',trialTypeStr,'-',SVMtype,'-timeBin',str_nFrames,'-pTraining',num2str(pTraining),'-EpochSVM.mat'];
+            str_nFrames='1s';%'500ms';%'1s'
+            frameNumTime_delay=[1,1.2];%from 1s before delay onset to 1s after that, since 1-1.5
+            frameNumTime_go=[1,1.5];%from 5s before align point to 5s after align point
+            %calculate moving SVM
+            binsize=5;
+            binstep=5;
+            
+            %naming the temp file by method of AUC calculation correction
+            filepath_inSummary='E:\2P\summary\SVM\cases';%backup another copy in the summary folder
+            fileName_datapars=[obj.metadata.animal,'-',datestr,'-',strROI,'_',dataForm,'-trialType',trialTypeStr,...
+                '-epochBin',str_nFrames,'-Tdelay',num2str(frameNumTime_delay(1)),'-',num2str(frameNumTime_delay(2)),...
+                '_go',num2str(frameNumTime_go(1)),'-',num2str(frameNumTime_go(2))];
+            if strcmp(trialTypeStr,'cor') || strcmp(trialTypeStr,'err')
+                combineCorErr='divideCorErr';%and only use correct trial
+                corErrTrialNumber='raw';
+                fileName_processpars=[SVMtype,'-smooth_binsize',num2str(smoothBinsize),'-movingTimeBin',num2str(binsize),'-',CTflag,'-pTraining',num2str(pTraining)];
+            elseif strcmp(trialTypeStr,'cor and err')%used to test whether it is sensory or choice AUC,in order to be more fair, keep trial numbers balenced for correct and error trials
+                combineCorErr='combineCorErr';%{'combineCorErr','divideCorErr'}
+                fileName_processpars=[SVMtype,'-',CorrectedMethod,'-smooth_binsize',num2str(smoothBinsize),'-movingTimeBin',num2str(binsize),'-',CTflag,'-pTraining',num2str(pTraining)];
+                switch CorrectedMethod
+                    case 'balencedCorErrTrialNum'%probably problematic, since the trial are resampled and may let training and testing dataset be same
+                        corErrTrialNumber='balence';
+                    case 'SensoryChoiceOrthogonalSubtraction'
+                        corErrTrialNumber='raw';
+                        if (~strcmp(SVMtype,'choice'))&& (~strcmp(SVMtype,'sensory'))
+                            warning('error input combination of fGetEpochAUCtableASession function, SensoryChoiceOrthogonalSubtraction method');
+                        end
+                    otherwise
+                        corErrTrialNumber='raw';
+                end
+            end
+            fileNameT=[obj.path.root,filesep,fileName_datapars,'-',fileName_processpars,'-EpochSVM.mat'];
+            fileNameT_inSummary=[filepath_inSummary,filesep,fileName_datapars,'-',fileName_processpars,'-EpochSVM.mat'];
+            
             if exist(fileNameT,'file')
                 load(fileNameT);
-                disp(['Table exist, use ',obj.name]);
+                disp(['Table exist, use ',obj.metadata.animal,obj.metadata.date]);
+            elseif exist(fileNameT_inSummary,'file')
+                load(fileNameT_inSummary);
+                disp(['Table exist, use ',obj.metadata.animal,obj.metadata.date]);
             else
+                %
                 disp(['analyzing',fileNameT]);
                 nROI=1;%each session was viewed as one ROI
-                [delayMovingSVM,pdelayMovingSVM]=deal([]);
+                varNROI=size(activity_data,1);
+                [varindROI{1:nROI}]=deal(indROI);
+                varindROI=reshape(varindROI,[],1);
                 [varanimal{1:nROI}]=deal(obj.metadata.animal);
                 varanimal=reshape(varanimal,[],1);
                 [vardate{1:nROI}]=deal(obj.metadata.date);
                 vardate=reshape(vardate,[],1);
-                [varfield{1:nROI}]=deal(obj.name);
+                [varfield{1:nROI}]=deal(obj.metadata.field);
                 varfield=reshape(varfield,[],1);
                 [varcelltype{1:nROI}]=deal(celltype);
                 varcelltype=reshape(varcelltype,[],1);
+                
+                ind_tr_1=1;
+                ntr=length(obj.SavedCaTrials.f_raw);
                 frT = obj.SavedCaTrials.FrameTime;
                 % align to behavior event
-                frameNumTime=[1,1.5];%from 5s before align point to 5s after align point
-                frameNum=double(round(frameNumTime*1000/frT));
-                [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( obj.Data_extract, obj.metadata.ind_1stFrame, obj.SavedCaTrials.FrameTime );%get behavior event time
-                [trialType,~,~] = fGetTrialType( obj.Data_extract,[],trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
-                f
+                nFrameEachTrial=cellfun(@(x) size(x,2),obj.SavedCaTrials.f_raw);
+                ind_1stFrame=zeros(1,length(nFrameEachTrial));
+                ind_1stFrame(1)=1;
+                ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
+                ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
+                %time range for delay and go algnment
+                frameNum_delay=double(round(frameNumTime_delay*1000/frT));
+                ts_delay=-frameNumTime_delay(1):frT/1000:frameNumTime_delay(2);
+                frameNum_go=double(round(frameNumTime_go*1000/frT));
+                ts_go=-frameNumTime_go(1):frT/1000:frameNumTime_go(2);
+                [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( obj.Data_extract, ind_1stFrame, obj.SavedCaTrials.FrameTime );%get behavior event time
+                
                 if strcmp(SVMtype,'choice')|| strcmp(SVMtype,'sensory')
-                    [ITI, sound,delay, response,lick,pITI, psound, pdelay, presponse, plick] = deal(cell(ones(1,1)));
-                    label_choice = fTrialType2Label(trialType,2);
-                    if contains(trialTypeStr,'cor') % 'cor'| 'cor and err'
-                        ind_trial=logical(reshape(sum(trialType(1,:,:),2),[],1));%only correct trials
+                    switch corErrTrialNumber
+                        case 'balence'
+                            [trialType,~,~] = fGetTrialType( obj.Data_extract,[],trialTypeVar(i_selectivity),'matrix','left','divideCorErr');
+                            trialTypeIndCell=cell(2,2);%{ipsi cor, contra cor;ipsi err, contra err};
+                            for i=1:2
+                                for j=1:2
+                                    trialTypeIndCell{i,j}=find(logical(reshape(trialType(i,j,:),[],1)));
+                                end
+                            end
+                            temp=cellfun(@length,trialTypeIndCell);
+                            trialNumEachType=floor(sum(temp,'all')/4);%keep total trial number stable and redistributed to each trial types
+                            s = RandStream('mlfg6331_64');%for reproducibility
+                            trialTypeIndCellBalenced=cellfun(@(x) reshape(datasample(s,x,trialNumEachType,'Replace',true),[],1), trialTypeIndCell,'UniformOutput',false);
+                            trialTypeIndFinal=cell2mat(trialTypeIndCellBalenced);%1st col-cor; 2nd col-err
+                            ind_trial=reshape(trialTypeIndFinal,[],1);
+                            ind_trial=logical(ind_trial.*indTrial2use);
+                            label_SVM=[ones(trialNumEachType*2,1);ones(trialNumEachType*2,1)*2];
+                        case 'raw'
+                            [trialType,~,~] = fGetTrialType( obj.Data_extract,[],trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
+                            label_choice = fTrialType2Label(trialType,2);
+                            if contains(trialTypeStr,'cor') % 'cor'| 'cor and err'
+                                ind_trial=logical(reshape(sum(trialType(1,:,:),2),[],1));%only correct trials
+                            elseif strcmp(trialTypeStr,'err')
+                                ind_trial=logical(reshape(sum(trialType(2,:,:),2),[],1));%only correct trials
+                            end
+                            ind_trial=logical(ind_trial.*indTrial2use);
+                            label_SVM=label_choice(ind_trial);
+                            %used for orthogonal subtraction
+                            [trialType_orthogonal,~,~] = fGetTrialType( obj.Data_extract,[],7-trialTypeVar(i_selectivity),'matrix','left',combineCorErr);
+                            label_choice_orthogonal = fTrialType2Label(trialType_orthogonal,2);
+                            label_SVM_orthogonal=label_choice_orthogonal(ind_trial);
                     end
-                    if ~empty(ind_NSDelayMovement)%for sessions without DLC data and no index of trials selected, just use all data
-                        ind_trial=logical(ind_trial.*reshape(ind_NSDelayMovement,[],1));%choose only the trials without significant movement during the delay
-                    end
+                    
                     sigbyEpoch=[];
                     sigMoving=[];
-                    for roiNo = 1:size(obj.SavedCaTrials.f_raw{1},1)
+                    sigMovingGo=[];
+                    for roiNo = 1:size(activity_data,1)
                         %data for epoch activity
-                        [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,obj.dff(roiNo,:),frT,str_nFrames);
+                        [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,activity_data_raw(roiNo,:),frT,str_nFrames);%when extracting epoch data, not smooth
+                        if strcmp(CorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                            T_SigbyEpoch=fOrthogonalSubtraction(T_SigbyEpoch,ind_trial,label_SVM,label_SVM_orthogonal);
+                        else
+                            T_SigbyEpoch=T_SigbyEpoch(ind_trial,:);
+                        end
                         sigbyEpoch=cat(3,sigbyEpoch,table2array(T_SigbyEpoch));
                         %data for moving activity
-                        [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( obj.dff(roiNo,:), behEventFrameIndex,  frameNum );
-                        sigMoving=cat(3,sigMoving,dff_aligned);
-                    end
-                    sigbyEpoch=permute(sigbyEpoch,[1,3,2]);
-                    sigMoving=permute(sigMoving,[1,3,2]);
-                    
-                    score_shuffle=cell(1,1);
-                    [score,score_shuffle{1}] = fSVM(sigbyEpoch(ind_trial,:,:),label_choice(ind_trial), nRepeat, pTraining,1,1);
-                    [meanout,pout] = fBootstrpMeanP(score,1000,0.5);
-                    [ITI{1}, sound{1},delay{1}, response{1},lick{1}] = deal(score(:,1),score(:,2),score(:,3),score(:,4),score(:,5));
-                    [pITI{1}, psound{1},pdelay{1}, presponse{1},plick{1}] = deal(pout(:,1),pout(:,2),pout(:,3),pout(:,4),pout(:,5));
-                    %calculate moving SVM
-                    binsize=3;
-                    binstep=1;
-                    label = label_choice;
-                    for nResult=1:size(trialType,1)-2
-                        indTrial=trialType(nResult,:,:);
-                        indTrial=sum(squeeze(indTrial),1);
-                        indTrial=logical(squeeze(indTrial));
-                        if nResult==1
-                            if strcmp(trialTypeStr,'cor and err')
-                                [delayMovingSVM.do,delayMovingSVM.shuffle_do]=fSVM(sigMoving(indTrial,:,:),label_choice(indTrial), nRepeat, pTraining,binsize,binstep);
-                                [~,pdelayMovingSVM.do]=fBootstrpMeanP(delayMovingSVM.do,1000,0.5);
-                            else
-                                [delayMovingSVM.cor,delayMovingSVM.shuffle_cor]=fSVM(sigMoving(indTrial,:,:),label_choice(indTrial), nRepeat, pTraining,binsize,binstep);
-                                [~,pdelayMovingSVM.cor]=fBootstrpMeanP(delayMovingSVM.cor,1000,0.5);
-                            end
-                        elseif nResult==2
-                            [delayMovingSVM.err,delayMovingSVM.shuffle_err]=fSVM(sigMoving(indTrial,:,:),label_choice(indTrial), nRepeat, pTraining,binsize,binstep);
-                            [~,pdelayMovingSVM.err]=fBootstrpMeanP(delayMovingSVM.err,1000,0.5);
+                        [ activity_data_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( activity_data(roiNo,:), behEventFrameIndex,  frameNum_delay );
+                        if strcmp(CorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                            activity_data_aligned_ortho_corrected=fOrthogonalSubtraction(activity_data_aligned,ind_trial,label_SVM,label_SVM_orthogonal);
+                        else
+                            activity_data_aligned_ortho_corrected=activity_data_aligned(ind_trial,:);
                         end
+                        sigMoving=cat(3,sigMoving,activity_data_aligned_ortho_corrected);
+                        %data for moving activity around go cue
+                        behEventAlign='go cue';
+                        [ activity_data_aligned_go, ~, ~ ] = fAlignSigBehEvent( activity_data(roiNo,:), behEventFrameIndex,lickingFrameIndex,behEventAlign,frameNum_go );
+                        if strcmp(CorrectedMethod,'SensoryChoiceOrthogonalSubtraction')
+                            activity_data_aligned_ortho_corrected=fOrthogonalSubtraction(activity_data_aligned_go,ind_trial,label_SVM,label_SVM_orthogonal);
+                        else
+                            activity_data_aligned_ortho_corrected=activity_data_aligned_go(ind_trial,:);
+                        end
+                        sigMovingGo=cat(3,sigMovingGo,activity_data_aligned_ortho_corrected);
                     end
+                    sigbyEpoch=permute(sigbyEpoch,[1,3,2]);%now, 1d trial number, 2d roi, 3d frames
+                    sigMoving=permute(sigMoving,[1,3,2]);
+                    sigMovingGo=permute(sigMovingGo,[1,3,2]);
                     
+                    [CESVM.score, CESVM.score_shuffle,CESVM.p,CESVM.p_shuffled,CESVM.ts] = fCrossTimeSVM(sigbyEpoch,label_SVM, nRepeat, pTraining,1,1,1:5,CTflag);
+                    %calculate moving SVM
+                    if strcmp(CTflag,'CT') ||strcmp(CTflag,'TT')
+                        [delayCTSVM.score, delayCTSVM.score_shuffle, delayCTSVM.p, delayCTSVM.p_shuffled, delayCTSVM.ts]=fCrossTimeSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep,ts_delay,CTflag);
+                        [goCTSVM.score, goCTSVM.score_shuffle, goCTSVM.p, goCTSVM.p_shuffled, goCTSVM.ts]=fCrossTimeSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep,ts_go,CTflag);
+                    else
+                        [delayCTSVM.score, delayCTSVM.score_shuffle, delayCTSVM.p, delayCTSVM.p_shuffled, delayCTSVM.ts]=fCrossTimeSVM(sigMoving,label_SVM, nRepeat, pTraining,binsize,binstep,ts_delay,'nan');
+                        [goCTSVM.score, goCTSVM.score_shuffle, goCTSVM.p, goCTSVM.p_shuffled, goCTSVM.ts]=fCrossTimeSVM(sigMovingGo,label_SVM, nRepeat, pTraining,binsize,binstep,ts_go,'nan');
+                    end
                 elseif strcmp(SVMtype,'stimuli') %here, compare auc of cor/err for each stimuli
                     [ITI, sound,delay, response, lick, pITI, psound, pdelay, presponse, plick]= deal(nan(nROI,size(trialType,2)));
-                    %         for roiNo = 1
-                    %             [T_SigbyEpoch,str_nFrames] = fGetSigBehEpoch(behEventFrameIndex,dff(roiNo,:),frT,str_nFrames);
-                    %             label_choice = fTrialType2Label(trialType(1:2,:,:),1);%only include cor and err trials
-                    %             poslabel=1;
-                    %             nshuffle=1000;
-                    %             for nStim=1:size(trialType,2)
-                    %                 ind_trial=logical(reshape(sum(trialType(1:2,nStim,:),1),[],1));
-                    %                 [ITI(roiNo,nStim),pITI(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.ITI(ind_trial),poslabel,nshuffle);
-                    %                 [sound(roiNo,nStim),psound(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.sound(ind_trial),poslabel,nshuffle);
-                    %                 [delay(roiNo,nStim),pdelay(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.delay(ind_trial),poslabel,nshuffle);
-                    %                 [response(roiNo,nStim),presponse(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.response(ind_trial),poslabel,nshuffle);
-                    %                 [lick(roiNo,nStim),plick(roiNo,nStim)]=fAUC(label_choice(ind_trial),T_SigbyEpoch.lick(ind_trial),poslabel,nshuffle);
-                    %             end
-                    %             %calculate moving AUC
-                    %             [ dff_aligned, behEvent_aligned,licking_aligned ] = fAlignDelaySigal( dff(roiNo,:), behEventFrameIndex,  frameNum );
-                    %             binsize=1;
-                    %             binstep=1;
-                    %             label = label_choice;
-                    %             for nStim=1:size(trialType,2)
-                    %                 indTrial=sum(trialType(1:2,nStim,:),1);%only for cor and err trials(1st d)
-                    %                 indTrial=logical(squeeze(indTrial));
-                    %                 [delayMovingSVM.stim{nStim},pdelayMovingSVM.stim{nStim}] = fMovingAUC(label(indTrial),dff_aligned(indTrial,:),poslabel,nshuffle,binsize,binstep);
-                    %             end
-                    %         end
                 end
                 
-                TSVM=table(varanimal,vardate,varfield,varcelltype,ITI, sound,delay, response, ...
-                    lick, pITI, psound, pdelay, presponse, plick,delayMovingSVM,pdelayMovingSVM,score_shuffle,'VariableNames',...
-                    {'animal','date','field','celltype','ITI','sound','delay','response',...
-                    'lick','pITI','psound','pdelay','presponse','plick','delayMovingSVM','pdelayMovingSVM','shuffleEpochSVMscore'});
+                TSVM=table(varanimal,vardate,varfield,varcelltype,varNROI,varindROI,CESVM,delayCTSVM,goCTSVM,...
+                    'VariableNames',{'animal','date','field','celltype','nROI','indROI','CESVM','delayCTSVM','goCTSVM'});
+                %}
             end
             save(fileNameT,'TSVM');
+            save(fileNameT_inSummary,'TSVM');%save another copy in the summary folder
+            obj.TSVM=TSVM;
+        end
+        
+        function [figMeanSig] = mPlotCrossTimeSVM(obj,CTSVM_label,pSig,SVMtype,varargin)
+            %plot accuracy of each session
+            switch CTSVM_label
+                case 'delayCTSVM'
+                    CTSVM=obj.TSVM.delayCTSVM;
+                case 'CESVM'
+                    CTSVM=obj.TSVM.CESVM;
+                case 'goCTSVM'
+                    CTSVM=obj.TSVM.goCTSVM;
+            end
+            score=CTSVM.score;
+            score_shuffle=CTSVM.score_shuffle;
+            pCT=CTSVM.p;
+            pCT_shuffle=CTSVM.p_shuffled;
+            [score_tt,score_shuffle_tt]=deal(zeros(size(score,1),size(score,2)));
+            for i=1:size(score,1)
+                score_tt(i,:)=diag(squeeze(score(i,:,:)));
+                score_shuffle_tt(i,:)=diag(squeeze(score_shuffle(i,:,:)));
+            end
+            pTT=diag(pCT);
+            pTT_shuffle=diag(pCT_shuffle);
+            
+            figMeanSig=figure;
+            set(gcf,'position',[200,200,700,200]);
+            colorScore={[1,0,0],[0,0,1],[0.5,0.5,0.5]};
+            
+            subplot(1,3,1);
+            if strcmp(SVMtype,'choice')
+                fPlotMean_CI(CTSVM.ts,score_tt,colorScore{1},pSig);
+            elseif strcmp(SVMtype,'sensory')
+                fPlotMean_CI(CTSVM.ts,score_tt,colorScore{2},pSig);
+            end
+            hold on;
+            fPlotMean_CI(CTSVM.ts,score_shuffle_tt,colorScore{3},pSig);
+            %label significance
+            indSig=pTT<0.05;
+            markersize=fSigMarkerSize(pTT);
+            y_lim=get(gca,'Ylim');
+            ySig=ones(size(pTT))*y_lim(2)*0.9;
+            xSig=CTSVM.ts(1:length(pTT));
+            xSig(~indSig)=[];
+            ySig(~indSig)=[];
+            markersize(~indSig)=[];
+            if strcmp(SVMtype,'choice')
+                scatter(xSig,ySig,'Marker','*','SizeData', markersize,'MarkerEdgeColor','r');
+            elseif strcmp(SVMtype,'sensory')
+                scatter(xSig,ySig,'Marker','*','SizeData', markersize,'MarkerEdgeColor','b');
+            end
+            hold on;
+            %color plot of the cross temporal decoding
+            ax2=subplot(1,3,2);
+            fPlotMeanSig2D_SVM(ax2, score,pCT,CTSVM.ts,pSig,'no bar');
+            ylabel('Training time');
+            xlabel('Testing time');
+            title('Real data');
+            ax3=subplot(1,3,3);
+            fPlotMeanSig2D_SVM(ax3, score_shuffle,pCT_shuffle, CTSVM.ts,pSig,'colorbar');
+            ylabel('Training time');
+            xlabel('Testing time');
+            title('Shuffled data');
+            %for epoch SVM, label epochs
+            if ~isempty(varargin)
+                ts_label=varargin{1};
+                subplot(1,3,1);
+                set(gca,'XTick',1:length(ts_label),'XTickLabel',ts_label);
+                for i=2:3
+                    subplot(1,3,i);
+                    set(gca,'XTick',1:length(ts_label),'XTickLabel',fliplr(ts_label));
+                    set(gca,'YTick',1:length(ts_label),'YTickLabel',fliplr(ts_label));
+                end
+            end
         end
     end
+    
 end
 
 %% auxiliary fuction
@@ -1170,4 +1662,35 @@ plot([1,3],[y_lim(end)*0.88,y_lim(end)*0.88],'k');
 text(2.5,y_lim(end)*0.95,plabelsymbol(p4));
 plot([1,4],[y_lim(end)*0.93,y_lim(end)*0.93],'k');
 set(gca,'FontSize',10);
+end
+
+function markersize=fSigMarkerSize(p)
+markersize(p>0.05)=0;
+markersize(logical((p<=0.05).*(p>0.01)))=4;
+markersize(logical((p<=0.01).*(p>0.001)))=8;
+markersize(logical(p<=0.001))=12;
+end
+
+function [mean, p] = fMeanPdiff(baseline,data,varargin)
+%Input- matrix of baseline/data, n-by-m (n repeats, m time points)
+%   method- 'ranksum'(default)|'ttest', etc
+%Output- vector of mean, p, 1-by-m
+if isempty(varargin)
+    method ='ranksum';
+else
+    method =varargin{1};
+end
+mean=nanmean(data,1);
+switch method
+    case 'ranksum'
+        if size(data,2)~=size(baseline,2)
+            warnning('input data not same column number');
+            return;
+        end
+        for i=1:size(data,2)
+            p(i)=ranksum(baseline(:,i), data(:,i));
+        end
+    case 'ttest'
+        [~,p]=ttest(baseline,data);
+end
 end

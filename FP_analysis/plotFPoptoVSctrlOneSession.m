@@ -1,6 +1,6 @@
 close all;
 
-rootpath='H:\FP\pyx297_20200922';
+rootpath='E:\FP\pyx288_20200922';
 temp=strsplit(rootpath,'\');
 session_name=temp(end);
 cd(rootpath);

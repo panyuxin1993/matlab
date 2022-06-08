@@ -14,10 +14,9 @@ T=cell2table(raw(2:end,1:15));
 T.Properties.VariableNames=strrep(raw(1,1:15),' ','_');%table variable name can't have ' ',so replace them
 ind_session=logical(strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control').*(~contains(T.behavior_performance,'probe')).*contains(T.ROI_type,'soma'));%not probe session
 % Tchoose=T(ind_session,:);
-Tchoose=T([254,256],:);
-% file_path='H:\2P\pyx349_20210418\im_data_reg\result_save';
-% session='pyx349_20210418';
-ind_ROI=[];
+Tchoose=T([142],:);
+
+ind_ROI=[2];
 behEventAlignPool={'delay onset','go cue','first lick'};
 masklickPool={'yes','no','no'};
 i_selectivity=3;%3-choice,4-sensory
@@ -25,7 +24,7 @@ behEventSortPool={'go cue','first lick','go cue'};
 trial2include='all';
 trial2exclude=[];
 activityType='dff';%{'dff','spkr'};
-parfor i=1:size(Tchoose,1)
+for i=1:size(Tchoose,1)
     file_path=Tchoose.file_path{i};
     session=[Tchoose.session{i},'_',Tchoose.field{i}];
     savepath=[file_path,filesep,session];
@@ -36,3 +35,8 @@ parfor i=1:size(Tchoose,1)
         behEventAlignPool,masklickPool,i_selectivity,behEventSortPool);
         
 end
+
+%choose one session to plot
+% file_path='H:\2P\pyx349_20210418\im_data_reg\result_save';
+% session='pyx349_20210418';
+
