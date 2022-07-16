@@ -1,16 +1,14 @@
-
 %decide some global variable
 behEventAlign='delay onset';%align to which event(string can be in {'stimOnset', 'go cue','first lick','first left lick','first right lick', 'answer','reward','start'},
 behEventSort='go cue';% string can be in{'first lick','reward','go cue'};
 masklick='no';
 frameNumTime=[1,3.5];%from 5s before align point to 5s after align point
 % yrange=[ -0.5 , 1 ];
-i_selectivity=4;%*********variable**************
-selectivitystr={'stimuli','difficulty','sensory','choice'};%sensory means grouping difficulties;
+i_selectivity=3;%3-choice,4-sensory*********variable**************
 
-cd 'H:\2P\pyx349_20210504\im_data_reg\result_save';
+cd 'E:\2P\pyx311_20200812\im_data_reg\result_save';
 CurrFolder = pwd;
-rootname='pyx349_20210504';
+rootname='pyx311_20200812';
 savefolder=rootname;%'1-200trials';%'segNP';
 % load([CurrFolder,'\',rootname, '_imaging_Virables.mat']);%load behavior data
 dirmat=strcat(CurrFolder,'\*.mat');
@@ -26,7 +24,6 @@ if sum(file_beh)==0 %if still no Data_extract variable
 else
     filename_behdata = filenames{file_beh};
 end
-
 load(filename_behdata);%load behavior data
 
 if ~exist(savefolder,'dir')
@@ -49,12 +46,9 @@ ind_1stFrame(1)=1;
 ind_1stFrame(2:end)=cumsum(nFrameEachTrial(1:end-1))+1;
 ind_1stFrame=ind_1stFrame(ind_tr_1:ind_tr_1+ntr-1);%if number of trials unsed for analysis is not whole but part of trials
 
-for roiNo = 11%1:size(SavedCaTrials.f_raw{1},1)
+for roiNo = 1:size(SavedCaTrials.f_raw{1},1)
     IDstr=strcat('ROI-',num2str(roiNo));
-    [figRaster,figMeanTrace] = fPlotRasterPSTHoptoVSctrl(Data_extract,behEventAlign, masklick, behEventSort,dff(roiNo,:),IDstr,frameNumTime,ind_1stFrame,frameRate,ind_tr_1,i_selectivity);
-    saveas(figRaster,[CurrFolder,filesep,rootname,filesep,rootname,'ROI-',num2str(roiNo),'-algin to ',behEventAlign,'-sort ',behEventSort,'-cmpOptoCtrl-colorplot.png'],'png');
-    saveas(figMeanTrace,[CurrFolder,filesep,rootname,filesep,rootname,'ROI-',num2str(roiNo),'-algin to ',behEventAlign,'-sort ',behEventSort,'-cmpOptoCtrl-mean trace.png'],'png');
-%      saveas(figMeanTrace,[CurrFolder,filesep,rootname,filesep,rootname,'ROI-',num2str(roiNo),'-algin to ',behEventAlign,'-sort ',behEventSort,'-cmpOptoCtrl-mean trace.pdf'],'pdf');
-    
+    [figRasterMean,figBehavior] = fPlotRasterPSTHoptoVSctrl(Data_extract,behEventAlign, masklick, behEventSort,dff(roiNo,:),IDstr,frameNumTime,ind_1stFrame,frameRate,ind_tr_1,i_selectivity);
+    saveas(figRasterMean,[CurrFolder,filesep,rootname,filesep,rootname,'ROI-',num2str(roiNo),'-alginTo ',behEventAlign,'-sort ',behEventSort,'-cmpOptoCtrl-rasterMean.png'],'png');
     close all;
 end

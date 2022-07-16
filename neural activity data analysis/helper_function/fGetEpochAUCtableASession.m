@@ -60,7 +60,7 @@ elseif strcmp(trialTypeStr,'cor and err')%used to test whether it is sensory or 
 end
 fileNameT=[filepath,filesep,fileName_datapars,'-',fileName_processpars,'-EpochAUC.mat'];
 fileNameT_inSummary=[filepath_inSummary,filesep,fileName_datapars,'-',fileName_processpars,'-EpochAUC.mat'];
-fileNameT_template=strrep(fileNameT,'1s','500ms');
+% fileNameT_template=strrep(fileNameT,'1s','500ms');
 
 if false%exist(fileNameT,'file')
     load(fileNameT);
@@ -268,10 +268,10 @@ if false%exist(fileNameT,'file')
     
 
 else
-    load(fileNameT_template);
+    
     nROI=size(SavedCaTrials.f_raw{1},1);
-    %[delayMovingAUC,pdelayMovingAUC]=deal(cell(nROI,1));
-    [delayMovingAUC,pdelayMovingAUC]=deal(TAUC.delayMovingAUC,TAUC.pdelayMovingAUC);
+    [delayMovingAUC,pdelayMovingAUC]=deal(cell(nROI,1));
+    %[delayMovingAUC,pdelayMovingAUC]=deal(TAUC.delayMovingAUC,TAUC.pdelayMovingAUC);
     [varanimal{1:nROI}]=deal(animal);
     varanimal=reshape(varanimal,[],1);
     [vardate{1:nROI}]=deal(date);
@@ -298,7 +298,7 @@ else
     [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( Data_extract, ind_1stFrame, SavedCaTrials.FrameTime );%get behavior event time
     
     if strcmp(AUCtype,'choice')|| strcmp(AUCtype,'sensory')
-        [ITI, sound,delay, response, lick, pITI, psound, pdelay, presponse, plick]= deal(nan(nROI,1));
+        [ITI, sound,delay, response, lick,mid_delay,late_delay, pITI, psound, pdelay, presponse, plick,pmid_delay,plate_delay]= deal(nan(nROI,1));
         switch corErrTrialNumber
             case 'balence'
                 [trialType,~,~] = fGetTrialType( Data_extract,[],trialTypeVar(i_selectivity),'matrix','left','divideCorErr');
@@ -360,7 +360,7 @@ else
             end
             [mid_delay(roiNo),pmid_delay(roiNo)]=fAUC(label_AUC,dff_mid_delay4auc,poslabel,nshuffle);
             [late_delay(roiNo),plate_delay(roiNo)]=fAUC(label_AUC,dff_late_delay4auc,poslabel,nshuffle);
-            %{
+            %
             binsize=1;
             binstep=1;
             for nResult=1:size(trialType,1)-2

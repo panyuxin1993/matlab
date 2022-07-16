@@ -1,4 +1,4 @@
-function [figRaster,figMeanTrace,figBehavior] = fPlotRasterPSTHoptoVSctrl(Data_extract,behEventAlign, masklick, behEventSort,dff,IDstr,frameNumTime,ind_1stFrame,frameRate,ind_tr_1,f,varargin)
+function [figRasterMean,figBehavior] = fPlotRasterPSTHoptoVSctrl(Data_extract,behEventAlign, masklick, behEventSort,dff,IDstr,frameNumTime,ind_1stFrame,frameRate,ind_tr_1,f,varargin)
 %FPLOTPSTHOPTOVSCTRL plot raster plot of activities and mean traces,
 %usually 2 stimuli, opto/ctrl condition, and fixed delay length
 %Data_extract- behavior data extracted as a mat file, including behavior
@@ -33,15 +33,12 @@ end
 %%
 %plot color plot,4 column(correct/error/miss/violation), 7 row(for each
 %stimlus)+ mean trace
-figRaster=figure;
-set(gcf, 'position', [0 0 1400 600]);
-figMeanTrace=figure;%plot mean trace
-set(gcf, 'position', [0 600 1400 300]);
+figRasterMean=figure;
+set(gcf, 'position', [0 0 1400 900]);
 figBehavior=figure;%plot behavior
 set(gcf, 'position', [1400 0 300 300]);
 ColLimit = prctile(dff,90);
 titlestr={'Correct','Error','Miss','Violation'};
-titlestr=strcat(IDstr,titlestr);
 titlestropto={'Ctrl','Opto'};
 nTrial=zeros(size(trialType,1),size(trialType,2),size(trialType,4));% 3d-opto/non-opto,2d-stimuli(usually 2 or 4)
 pRightChoice=zeros(size(trialType,2),size(trialType,4));% 2d-opto/non-opto,1d-stimuli(usually 2 or 4)
@@ -91,11 +88,11 @@ for nResult=1:size(trialType,1) %4 column(correct/error/miss/violation),companie
             flt_l=flt_l(I);
             flt_r=flt_r(I);
             rwt=rwt(I);
-            figure(figRaster);
+            figure(figRasterMean);
             if nOpto==1%ctrl
-                subplot(size(trialType,2),2*size(trialType,1),2*nResult-1+2*size(trialType,1)*(nStim-1));
+                subplot(size(trialType,2)+1,2*size(trialType,1),2*nResult-1+2*size(trialType,1)*(nStim-1));
             elseif nOpto==2%opto
-                subplot(size(trialType,2),2*size(trialType,1),2*nResult+2*size(trialType,1)*(nStim-1));
+                subplot(size(trialType,2)+1,2*size(trialType,1),2*nResult+2*size(trialType,1)*(nStim-1));
             end
             %% try to remove opto artifacts
 %             if nOpto>1 %opto condition
@@ -121,9 +118,9 @@ for nResult=1:size(trialType,1) %4 column(correct/error/miss/violation),companie
             hold on;
             set(gca,'clim',[0 ColLimit]);
             set(gca,'ytick',sum(selectedTrialInd),'yticklabel',sum(selectedTrialInd),'ydir','normal');
-            if nStim==size(trialType,2)
+            if nStim==size(trialType,2) && mod(nResult,2) ==1
                 set(gca,'xtick',[1:round(frameRate):size(neuralActivity,2)],'xticklabel',[-frameNumTime(1):1:frameNumTime(2)]);
-                xlabel(['Time (s) from ',behEventAlign],'FontName','Arial','FontSize',14);
+                xlabel(['Time (s) from ',behEventAlign]);
             else
                 set(gca,'xtick',[]);
             end
@@ -162,9 +159,8 @@ for nResult=1:size(trialType,1) %4 column(correct/error/miss/violation),companie
 %             end
             
             %plot mean trace
-            figure(figMeanTrace);%save mean trace
             %subplot(size(trialType,2)+3,2*size(trialType,1),2*nResult-1+2*size(trialType,1)*(size(trialType,2)+2));
-            subplot(1,size(trialType,1),nResult);
+            subplot(size(trialType,2)+1,2*size(trialType,1),2*nResult-1+2*size(trialType,1)*size(trialType,2));
 %             ts=-frameNumTime(1):1/frameRate:frameNumTime(2);
             ts=1:size(neuralActivity,2);
             curve_meanTrace(n_curveM)=fPlotMean_SE(ts,neuralActivity,color_mean_trace{nStim,nOpto});
@@ -204,16 +200,15 @@ for nResult=1:size(trialType,1) %4 column(correct/error/miss/violation),companie
     if nResult==1
         ylabel('\it\DeltaF/F');
     end
-    figure(figMeanTrace);%save mean trace
-    subplot(1,size(trialType,1),nResult);
+    subplot(size(trialType,2)+1,2*size(trialType,1),2*nResult-1+2*size(trialType,1)*size(trialType,2));%mean trace
     set(gca,'xtick',[1:round(frameRate):size(neuralActivity,2)],'xticklabel',[-frameNumTime(1):1:frameNumTime(2)]);
-    set(gca,'FontName','Arial','FontSize',14);
 end
 
-figure(figMeanTrace);
-subplot(1,size(trialType,1),1);
+subplot(size(trialType,2)+1,2*size(trialType,1),2*(size(trialType,1)+1)*size(trialType,2));
 legend(curve_meanTrace(:),str_lgd,'Location','best');
+suptitle(IDstr);
 
+%calculate behavior performance
 for nOpto=1:size(trialType,4)
     for nStim=1:size(trialType,2)/2 %for each stimulus, first half
         switch rule

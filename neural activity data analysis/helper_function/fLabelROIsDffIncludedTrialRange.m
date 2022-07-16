@@ -33,7 +33,7 @@ function [figDff]=fLabelDffIncludedTrialRange(dff,filepath,ind_1stFrame,trial2in
 plot(dff,'k-');hold on;
 yrange=get(gca,'Ylim');
 for i=1:size(trial2include,1)
-    if strcmp(trial2include,'all')
+    if strcmp(trial2include,'all') || isnan(trial2include)
         tempx=[1,length(dff)];
     else
         tempx=[ind_1stFrame(trial2include(i,1)),ind_1stFrame(trial2include(i,2))];

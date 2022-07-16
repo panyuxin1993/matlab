@@ -3,24 +3,25 @@ clear;
 [num,txt,raw] =xlsread('C:\Users\PYX\Documents\DataSummary\imaging_data_summary.xlsx');%criteria to choose sessions come from this file
 savepath='E:\2P\summary';
 clear TAUC_combine Tmean_combine;
-trialTypeStr='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
-AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
-AUCCorrectedMethod='SensoryChoiceOrthogonalSubtraction';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
-% trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+% trialTypeStr='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
 % AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
-% AUCCorrectedMethod='None';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
+% AUCCorrectedMethod='SensoryChoiceOrthogonalSubtraction';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
+trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+AUCCorrectedMethod='None';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
 manipulation='control';
 %% calculate AUC
 %
 T=cell2table(raw(2:end,1:15));
 T.Properties.VariableNames=strrep(raw(1,1:15),' ','_');%table variable name can't have ' ',so replace them
-ind_session1=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control').*(~contains(T.behavior_performance,'probe'));%not probe session
- ind_session2=logical(contains(T.cell_type,'syn').*contains(T.ROI_type,'soma'));
+% ind_session1=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control').*(~contains(T.behavior_performance,'probe'));%not probe session
+ind_session1=strcmp(T.used_as_data,'yes').*strcmp(T.manipulation,'control');
+%  ind_session2=logical(contains(T.cell_type,'syn').*contains(T.ROI_type,'soma'));
 % ind_session2=logical(strcmp(T.cell_type,'vglut2')+strcmp(T.cell_type,'vgat')+strcmp(T.cell_type,'M2')+strcmp(T.cell_type,'vglut2-flpo')+strcmp(T.cell_type,'vgat-flpo'));
 % ind_session2=logical(strcmp(T.cell_type,'vglut2')+strcmp(T.cell_type,'vgat')+strcmp(T.cell_type,'vglut2-flpo')+strcmp(T.cell_type,'vgat-flpo'));
 
 % ind_session2=logical(contains(T.field,'soma')+contains(T.field,'dendrite'));
-% ind_session2=logical(strcmp(T.cell_type,'M2'));
+ind_session2=logical(strcmp(T.cell_type,'M2'));
 % ind_session2=logical(~contains(T.field,'soma').*contains(T.ROI_type,'soma'));%include all soma data, but exclude zoomin fields
 ind_session= ind_session1 & ind_session2;
 ind_trial_chosen4ScatterHist=logical(contains(T.ROI_type,'soma').*(~contains(T.field,'soma')));
@@ -30,7 +31,7 @@ n_session=length(ind_session);
 animal_unique=unique(T.animal(ind_session));
 n_animal=length(animal_unique);
 
-for i_session=1:n_session
+for i_session=1:4%n_session
     indrow=ind_session(i_session);
     [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},T.ROI_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);
 %     [TAUC_currentSession, Tmean_currentSession] = fGetEpochAUCtableASession_NPseg(T.file_path{indrow},T.animal{indrow},T.date{indrow},T.field{indrow},T.cell_type{indrow},T.ROI_type{indrow},trialTypeStr,AUCtype,AUCCorrectedMethod);    
@@ -75,7 +76,7 @@ save([savepath,filesep,'trialType',trialTypeStr,'-TepochMeanActivity.mat'],'Tmea
 %}
 %% load data for further anaylyses
 %
-trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+trialTypeStr='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
 AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
 load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC.mat']);
 % load([savepath,filesep,'trialType',trialTypeStr,'-',AUCtype,'TepochAUC_NPseg.mat']);

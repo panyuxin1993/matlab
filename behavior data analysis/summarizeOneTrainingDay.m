@@ -8,8 +8,8 @@ clear;
 %specify the path and file name, etc. 
 path='E:\xulab\behavior';
 ndelaygroup=4;
-date='2022_03_17';
-animal='pyx413';%pyx405/407分不清
+date='2022_07_04';
+animal='pyx445';%pyx405/407分不清`
 fileFolder=[path, filesep,animal];     
 % fileFolder = 'C:\Data\pyx399_20211116';
 npast=10;%how many sessions performance will be plotted

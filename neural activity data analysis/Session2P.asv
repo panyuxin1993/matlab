@@ -1669,23 +1669,12 @@ classdef Session2P
                 format_dff=[];
                 for iAlign=1:length(frameNumTime_cell)
                     behEventAlign=behEventAlign_cell{iAlign};
-                    if isempty(maskAfterPool)
-                        maskAfter=[];
-                    else
-                        if length(maskAfterPool)==length(behEventAlign_cell)
-                            maskAfter=maskAfterPool{iAlign};
-                        else
-                            maskAfter=[];
-                            warning('maskAfter length ~= behEventAlign_cell length');
-                        end
-                    end
                     frameNumTime=frameNumTime_cell{iAlign};
                     frameNum=double(round(frameNumTime*1000/obj.metadata.frT));
                     [behEventFrameIndex,lickingFrameIndex] = fGetBehEventTime( obj.Data_extract, obj.metadata.ind_1stFrame, obj.SavedCaTrials.FrameTime ,obj.metadata.ind_tr_1);%get behavior event time
                     neuralActivity=[];
                     for iROI=1:obj.metadata.nROI
                         [ activities_aligned, behEvent_aligned, licking_aligned ] = fAlignSigBehEvent( activities_data(iROI,:), behEventFrameIndex,lickingFrameIndex,behEventAlign,frameNum,'raw',maskAfter );%decide which behavior event to align to
-                        %disp(['iROI=',num2str(iROI)]);
                         temp=[];
                         for nStim=1:size(trialType,2) %for each stimulus
                             temp=cat(1,temp,activities_aligned(selectedTrialInd_cell{nStim},:));

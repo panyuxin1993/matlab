@@ -23,17 +23,21 @@ info_str='soma';
 % celltypePool={'vglut2','vgat'};
 % info_str='spine';
 
-
+%all combination
 behEventAlignPool={'delay onset','delay onset','delay onset','go cue','first lick'};
 epoch4preferPool={'delay','mid_delay','late_delay','response','lick'};%{'sound','delay','mid_delay','late_delay','response','lick'}
 masklickPool={'yes','yes','yes','no','no'};
-i_selectivity=3;%3-choice
 behEventSortPool={'go cue','go cue','go cue','first lick','go cue'};
+i_selectivity=3;%3-choice
 trial2include='all';
 trial2exclude=[];
-activity_typePool={'dff','spkr','zscored_dff','zscored_spkr'};%{'dff','spkr','zscored_dff','zscored_spkr'};
+activity_typePool={'dff','zscored_dff'};%{'dff','spkr','zscored_dff','zscored_spkr'};%{'dff','spkr','zscored_dff','zscored_spkr'};
+%AUC used for determine selectivity
+trialTypeStr='cor';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
+AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
+AUCCorrectedMethod='None';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
 
-%
+%{
 for i_celltype=1:length(celltypePool)
     ind_session2=logical(ind_session.*logical(strcmp(T.cell_type,celltypePool{i_celltype})+strcmp(T.cell_type,[celltypePool{i_celltype},'-flpo'])));
     Tchoose=T(ind_session2,:);
@@ -50,7 +54,7 @@ for i_celltype=1:length(celltypePool)
         for i_activity_type=1:length(activity_typePool)
             activity_type=activity_typePool{i_activity_type};
             clear meanActivityByTrialType_combine;
-            savenamestr=['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-',info_str,'-meanActivityByROI-align',behEventAlign,'-masklick',masklick,'-',activity_type,'.mat'];
+            savenamestr=['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-',info_str,'-meanActivityByROI-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-AUC_',trialTypeStr,'_',AUCtype,'.mat'];
             if false%exist(savenamestr,'file')
                 load(savenamestr);
             else
@@ -60,9 +64,6 @@ for i_celltype=1:length(celltypePool)
                     session=[Tchoose.session{i},'_',Tchoose.field{i}];
                     savepath=[file_path,filesep,session];
                     objsession=Session2P(session,file_path,trial2include,trial2exclude);
-                    trialTypeStr='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
-                    AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
-                    AUCCorrectedMethod='SensoryChoiceOrthogonalSubtraction';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
                     [TAUC, Tmean,objsession] = objsession.mGetEpochAUC(Tchoose.cell_type,Tchoose.ROI_type{i},trialTypeStr,AUCtype,AUCCorrectedMethod);
                     [meanActivityByTrialType,cellActivityByTrialType,Tout]=objsession.mMeanPSTHbyROI(activity_type,[],behEventAlign,masklick,i_selectivity);
                     TAUC.date=cellfun(@(x) datestr(datetime(x,'InputFormat','yyyy/MM/dd'),'yyyymmdd'), TAUC.date,'UniformOutput',false);
@@ -95,6 +96,7 @@ for i_celltype=1:length(celltypePool)
             end
             %plot raster and mean using ROIs from different sessions and
             %group them together
+            disp(['file saved: ',savenamestr]);
             save(savenamestr,'meanActivityByTrialType_combine','frT','cellActivityByTrialType_combine','meanActivityByTrialType_combine_cor','cellActivityByTrialType_combine_cor','TActivityByTrialType_combine');
 %             %reorganized the activities based on ttest
 %             if strcmp(behEventAlign,'stim onset')
@@ -112,6 +114,7 @@ for i_celltype=1:length(celltypePool)
 %             ind4prefer=false(sum(frameNum)+1,1);
 %             ind4prefer(frameNum(1)-frame4prefer(1):frameNum(1)+frame4prefer(2)+1)=true;
 %             meanActivityReorganized = fReorganizeByPreference(cellActivityByTrialType_combine,meanActivityByTrialType_combine,ind4prefer);
+            %{
             %reorganized the activities based on AUC
             if strcmp(behEventAlign,'stim onset')
                 frameNumTime=[0.5,2];%from 5s before align point to 5s after align point
@@ -131,12 +134,13 @@ for i_celltype=1:length(celltypePool)
             [figRaster,figMean]=fPlotRasterMean(meanActivityReorganized,meanActivityByTrialType_combine,behEventAlign,frameNumTime,frT);
             figure(figRaster);
             suptitle(strrep([celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-epoch4prefer_',epoch4prefer],'_','\_'));
-            saveas(figRaster,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-epoch4prefer_',epoch4prefer,'_raster.pdf'],'pdf');
-            saveas(figRaster,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-epoch4prefer_',epoch4prefer,'_raster.png'],'png');
+            saveas(figRaster,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-epoch4prefer_',epoch4prefer,'-AUC_',trialTypeStr,'_',AUCtype,'_raster.pdf'],'pdf');
+            saveas(figRaster,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-epoch4prefer_',epoch4prefer,'-AUC_',trialTypeStr,'_',AUCtype,'_raster.png'],'png');
             figure(figMean);
             suptitle(strrep([celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-epoch4prefer_',epoch4prefer],'_','\_'));
-            saveas(figMean,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-epoch4prefer_',epoch4prefer,'_meanTrace.pdf'],'pdf');
-            saveas(figMean,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-epoch4prefer_',epoch4prefer,'_meanTrace.png'],'png');
+            saveas(figMean,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-epoch4prefer_',epoch4prefer,'-AUC_',trialTypeStr,'_',AUCtype,'_meanTrace.pdf'],'pdf');
+            saveas(figMean,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-epoch4prefer_',epoch4prefer,'-AUC_',trialTypeStr,'_',AUCtype,'_meanTrace.png'],'png');
+            %}        
         end
     end
 end
@@ -144,8 +148,8 @@ end
 %plot different alignment together, aiming to show consistent and
 %shifted selectivities
 %
-behEventAlignPool2show={'delay onset','first lick'};
-epoch4preferPool2show={'late_delay','lick'};%{'sound','delay','mid_delay','late_delay','response','lick'}
+behEventAlignPool2show={'delay onset','go cue'};%'first lick'
+epoch4preferPool2show={'delay','lick'};%{'sound','delay','mid_delay','late_delay','response','lick'}
 masklickPool={'yes','no'};
 for i_celltype=1:length(celltypePool)
     ind_session2=logical(ind_session.*logical(strcmp(T.cell_type,celltypePool{i_celltype})+strcmp(T.cell_type,[celltypePool{i_celltype},'-flpo'])));
@@ -153,7 +157,7 @@ for i_celltype=1:length(celltypePool)
     % file_path='H:\2P\pyx349_20210418\im_data_reg\result_save';
     % session='pyx349_20210418';
     ind_ROI=[];
-    activity_typePool={'dff','spkr','zscored_dff','zscored_spkr'};%{'dff','spkr'};
+    activity_typePool={'dff'};%{'dff','spkr','zscored_dff','zscored_spkr'};%{'dff','spkr'};
     frT=0;
     for i_activity_type=1:length(activity_typePool)
         activity_type=activity_typePool{i_activity_type};
@@ -161,14 +165,12 @@ for i_celltype=1:length(celltypePool)
         for i_align=1:length(behEventAlignPool2show)
             behEventAlign=behEventAlignPool2show{i_align};
             masklick=masklickPool{i_align};
-
-            clear meanActivityByTrialType_combine;
-            savenamestr=['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-',info_str,'-meanActivityByROI-align',behEventAlign,'-masklick',masklick,'-',activity_type,'.mat'];
-
+            savenamestr=['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},'-',info_str,'-meanActivityByROI-align',behEventAlign,'-masklick',masklick,'-',activity_type,'-AUC_',trialTypeStr,'_',AUCtype,'.mat'];
+           
             if exist(savenamestr,'file')
                 load(savenamestr);
             else
-                clear meanActivityByTrialType_combine_cor cellActivityByTrialType_combine_cor TActivityByTrialType_combine;
+                clear meanActivityByTrialType_combine_cor cellActivityByTrialType_combine_cor TActivityByTrialType_combine2show meanActivityByTrialType_combine;
                 for i=1:size(Tchoose,1)
                     file_path=Tchoose.file_path{i};
                     session=[Tchoose.session{i},'_',Tchoose.field{i}];
@@ -189,9 +191,9 @@ for i_celltype=1:length(celltypePool)
                         cellActivityByTrialType_combine_cor=cellActivityByTrialType(:,1);
                     end
                 end
+                save(savenamestr,'meanActivityByTrialType_combine','frT','cellActivityByTrialType_combine','meanActivityByTrialType_combine_cor','cellActivityByTrialType_combine_cor','TActivityByTrialType_combine');
             end
-            save(savenamestr,'meanActivityByTrialType_combine','frT','cellActivityByTrialType_combine','meanActivityByTrialType_combine_cor','cellActivityByTrialType_combine_cor','TActivityByTrialType_combine');
-             cellActivityByTrialType_combine2show=cat(2,cellActivityByTrialType_combine2show,cellActivityByTrialType_combine_cor);
+            cellActivityByTrialType_combine2show=cat(2,cellActivityByTrialType_combine2show,cellActivityByTrialType_combine_cor);
             meanActivityByTrialType_combine2show=cat(2,meanActivityByTrialType_combine2show,meanActivityByTrialType_combine_cor);
         end
        
@@ -204,16 +206,17 @@ for i_celltype=1:length(celltypePool)
         [figRaster,figMean]=fRasterMeanMultiAlign(meanActivityReorganized,behEventAlignPool2show,frT,activity_type);
         figure(figRaster);
         suptitle(celltypePool{i_celltype});
-        saveas(figRaster,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},info_str,'-selectvitiy-',epoch4preferPool2show{1},'2',epoch4preferPool2show{2},'-masklick',masklick,'-',activity_type,'_raster2showConsistency.pdf'],'pdf');
-        saveas(figRaster,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},info_str,'-selectvitiy-',epoch4preferPool2show{1},'2',epoch4preferPool2show{2},'-masklick',masklick,'-',activity_type,'_raster2showConsistency.png'],'png');
+        saveas(figRaster,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},info_str,'-selectvitiy-',epoch4preferPool2show{1},'2',epoch4preferPool2show{2},'-AUC_',trialTypeStr,'_',AUCtype,'-masklick',masklick,'-',activity_type,'_raster2showConsistency.pdf'],'pdf');
+        saveas(figRaster,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},info_str,'-selectvitiy-',epoch4preferPool2show{1},'2',epoch4preferPool2show{2},'-AUC_',trialTypeStr,'_',AUCtype,'-masklick',masklick,'-',activity_type,'_raster2showConsistency.png'],'png');
         figure(figMean);
         suptitle(celltypePool{i_celltype});
-        saveas(figMean,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},info_str,'-selectvitiy-',epoch4preferPool2show{1},'2',epoch4preferPool2show{2},'-masklick',masklick,'-',activity_type,'_mean2showConsistency.pdf'],'pdf');
-        saveas(figMean,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},info_str,'-selectvitiy-',epoch4preferPool2show{1},'2',epoch4preferPool2show{2},'-masklick',masklick,'-',activity_type,'_mean2showConsistency.png'],'png');
+        saveas(figMean,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},info_str,'-selectvitiy-',epoch4preferPool2show{1},'2',epoch4preferPool2show{2},'-AUC_',trialTypeStr,'_',AUCtype,'-masklick',masklick,'-',activity_type,'_mean2showConsistency.pdf'],'pdf');
+        saveas(figMean,['E:\2P\summary\meanActivity_by_ROIpreference',filesep,celltypePool{i_celltype},info_str,'-selectvitiy-',epoch4preferPool2show{1},'2',epoch4preferPool2show{2},'-AUC_',trialTypeStr,'_',AUCtype,'-masklick',masklick,'-',activity_type,'_mean2showConsistency.png'],'png');
     end
 end
-%loop again to see the individual cases from different sessions
 %}
+%loop again to see the individual cases from different sessions
+%{
 %saving figures from cases into a PPT using exportToPPT
 pptFileName='E:\2P\summary\meanActivity_by_ROIpreference\cases.pptx';
 isOpen  = exportToPPTX();
@@ -251,10 +254,6 @@ for i_celltype=1:length(celltypePool)
                 masklick=masklickPool{i_align};
                 epoch4prefer=epoch4preferPool{i_align};
                 objsession=Session2P(session,file_path,trial2include,trial2exclude);
-
-                trialTypeStr='cor and err';%{'cor and err','do','cor'}; should be 'cor' if AUCtype is stimuli, otherwise may merge cor and err together
-                AUCtype='choice';%{'choice','sensory'};'stimuli' means comparing cor and err for each stimuli
-                AUCCorrectedMethod='SensoryChoiceOrthogonalSubtraction';%'None';%'balencedCorErrTrialNum';%'SensoryChoiceOrthogonalSubtraction';
                 [TAUC, Tmean,objsession] = objsession.mGetEpochAUC(Tchoose.cell_type,Tchoose.ROI_type{i},trialTypeStr,AUCtype,AUCCorrectedMethod);
                 [meanActivityByTrialType,cellActivityByTrialType,Tout]=objsession.mMeanPSTHbyROI(activity_type,[],behEventAlign,masklick,i_selectivity);
                 TAUC.date=cellfun(@(x) datestr(datetime(x,'InputFormat','yyyy/MM/dd'),'yyyymmdd'), TAUC.date,'UniformOutput',false);
@@ -291,6 +290,7 @@ for i_celltype=1:length(celltypePool)
                 exportToPPTX('addpicture',figMean_case(i_align),'Position',[1+(slidesize(1)-1)*(i_align-1)/n_fig+slidesize(1)/n_fig/1.2*WR(1) 1 slidesize(1)/n_fig/1.2*WR(2) slidesize(1)/n_fig/1.2*WR(2)*RH(2)]);
                 exportToPPTX('addtext',session,'Position',[1 0 3 0.5],'Vert','top');
                 exportToPPTX('addtext',celltypePool{i_celltype},'Position',[slidesize(1)-1 0 3 0.5],'Vert','top');
+                exportToPPTX('addtext',[activity_type,'-AUC_',trialTypeStr,'_',AUCtype],'Position',[slidesize(1)-1 0 3 0.5],'Vert','bottom');
             end
             close(figRaster_case(:));
             close(figMean_case(:));

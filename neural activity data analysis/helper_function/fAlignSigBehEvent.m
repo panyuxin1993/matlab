@@ -7,7 +7,9 @@ function [ dff_aligned, behEvent_aligned, licking_aligned ] = fAlignSigBehEvent(
 %   align to which event(string can be in {'stimOnset', 'go cue','first lick',...
 %   'first left lick','first right lick', 'answer','reward'}, and
 %   frame number( [frame number before 0, frame number after 0])
-%   varargin- 'BaselineCorrected'(default)|'raw'
+%   varargin- 
+%       {1} 'BaselineCorrected'(default)|'raw'
+%       {2} 'maskAfter'={'go cue','first lick'}
 %Output is dff_aligned( matrix of dff, each row a trial),
 %   behEvent_aligned(struct, each event stored in one field, which is a vector)
 %  
@@ -33,8 +35,24 @@ switch alignTo
     otherwise
         base=behEventFrameIndex.start;%using the 1st frame in a trial
 end
+maskInd=[];
+if length(varargin)>1 
+    maskAfter=varargin{2};
+    if strcmp(maskAfter, 'go cue')
+        maskInd=behEventFrameIndex.go;
+        maskInd_aligned = maskInd-base;
+    elseif strcmp(maskAfter, 'first lick')
+        maskInd=behEventFrameIndex.lickFirst;
+        maskInd_aligned = maskInd-base;
+    else
+        maskInd=[];
+        maskInd_aligned=[];
+    end
+end
+
 behEvent_aligned =structfun(@(x) x-base+frameNum(1)+1,behEventFrameIndex,'UniformOutput',false);
 dff_aligned=nan(length(base),sum(frameNum)+1); %each row means one trial
+
 for i=1:length(base) %caution, Subscript indices must either be real positive integers or logicals.
     if base(i)<=frameNum(1) 
         dff_aligned(i,1:frameNum(1)-base(i)+1)=nan;
@@ -47,6 +65,13 @@ for i=1:length(base) %caution, Subscript indices must either be real positive in
     else
         if ~isnan(base(i)) %when align to some event that is nan,this trial remain zero
             dff_aligned(i,:)=dff(1,base(i)-frameNum(1):base(i)+frameNum(2));
+        end
+    end
+    if ~isempty(maskInd_aligned)
+        if maskInd_aligned(i)<0 %e.g. align to go cue and mask after first lick, in violation trials may be problematic
+            dff_aligned(i,:)=nan;
+        elseif maskInd_aligned(i)<frameNum(2)+frameNum(1)+1  %mask dff after first lick as nan; useful for violation trials
+            dff_aligned(i,maskInd_aligned(i)+1:end)=nan;
         end
     end
     % align licking raster
@@ -66,5 +91,6 @@ elseif strcmp(alignTo,'stim onset')|| strcmp(alignTo,'delay onset') %and other c
     baseline=reshape(baseline,[],1);
     dff_aligned=dff_aligned-repmat(baseline,1,size(dff_aligned,2));%substract baseline for each trial(row)
 end
+
 end
 
